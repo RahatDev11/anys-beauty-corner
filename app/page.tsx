@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
@@ -6,9 +8,9 @@ export default function HomePage() {
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">Anya Beauty Corner</h1>
             <div className="space-x-4">
-              <a href="/" className="hover:text-gray-300">Home</a>
-              <a href="/products" className="hover:text-gray-300">Products</a>
-              <a href="/order-track" className="hover:text-gray-300">Track Order</a>
+              <Link href="/" className="hover:text-gray-300">Home</Link>
+              <Link href="/products" className="hover:text-gray-300">Products</Link>
+              <Link href="/order-track" className="hover:text-gray-300">Track Order</Link>
             </div>
           </div>
         </nav>
