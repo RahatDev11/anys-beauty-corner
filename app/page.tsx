@@ -9,146 +9,215 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div>
-      <div id="website-content">
-        {/* মূল কন্টেন্ট */}
-        <main className="p-4 pt-24 pb-24">
-          <section id="new-arrivals">
-            <div className="swiper new-product-slider rounded-lg shadow-md">
-              <div className="swiper-wrapper" id="new-product-slider-wrapper"></div>
-              <div className="swiper-pagination"></div>
-            </div>
-          </section>
-
-          <section id="products" className="mb-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-center mt-2 mb-2 text-lipstick-dark">Upcoming Events</h2>
-              <div className="swiper event-slider rounded-lg">
-                <div className="swiper-wrapper" id="event-slider-wrapper"></div>
-                <div className="swiper-pagination !bottom-2"></div>
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold text-center mt-4 mb-4 text-lipstick-dark">All Products</h2>
-            <div id="productList" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-          </section>
-
-          {/* ======================= অ্যাডমিন সেকশন ======================= */}
-
-          {/* প্রোডাক্ট ম্যানেজমেন্ট */}
-          <section id="product-management" className="hidden p-4 bg-white rounded-lg shadow-lg mb-8">
-            <h2 className="text-xl font-bold text-center mb-4 text-lipstick-dark">প্রোডাক্ট ম্যানেজমেন্ট</h2>
-
-            {/* প্রোডাক্ট যোগ/এডিট করার ফর্ম */}
-            <form id="productForm" className="mb-6 border-b pb-6">
-              <input type="hidden" id="productId" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="mb-4">
-                  <label htmlFor="productName" className="block text-gray-700">পণ্যের নাম</label>
-                  <input type="text" id="productName" className="w-full p-2 border rounded" required />
-                </div>
-                <div className="mb-4">
-                  <label htmlFor="productPrice" className="block text-gray-700">দাম</label>
-                  <input type="number" id="productPrice" className="w-full p-2 border rounded" required />
-                </div>
-                <div className="mb-4">
-                  <label htmlFor="productCategory" className="block text-gray-700">ক্যাটাগরি</label>
-                  <select id="productCategory" className="w-full p-2 border rounded">
-                    <option value="health">স্বাস্থ্য</option>
-                    <option value="cosmetics">মেকআপ</option>
-                    <option value="skincare">স্কিনকেয়ার</option>
-                    <option value="haircare">হেয়ারকেয়ার</option>
-                    <option value="mehandi">মেহেদী</option>
-                  </select>
-                </div>
-                <div className="mb-4">
-                  <label htmlFor="productStockStatus" className="block text-gray-700">স্টক স্ট্যাটাস</label>
-                  <select id="productStockStatus" className="w-full p-2 border rounded">
-                    <option value="in_stock">স্টকে আছে</option>
-                    <option value="out_of_stock">স্টকে নেই</option>
-                  </select>
-                </div>
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">ছবি URL</label>
-                <div id="imageInputs">
-                  <input type="text" className="w-full p-2 border rounded mb-2 image-input" placeholder="ছবির লিংক ১" />
-                </div>
-                <button type="button" className="bg-lipstick-dark text-white px-3 py-1 rounded-sm mt-2 text-sm hover:bg-opacity-80">
-                  <i className="fas fa-plus"></i> আরেকটি ছবি
-                </button>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="productTags" className="block text-gray-700">ট্যাগ (কমা দিয়ে আলাদা করুন)</label>
-                <input type="text" id="productTags" className="w-full p-2 border rounded" />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="productDescription" className="block text-gray-700">বিবরণ</label>
-                <textarea id="productDescription" className="w-full p-2 border rounded" rows={4} required></textarea>
-              </div>
-              <button type="submit" className="bg-lipstick-dark text-white px-4 py-2 rounded hover:bg-opacity-90">প্রোডাক্ট সেভ করুন</button>
-              <button type="button" className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-opacity-90">ফর্ম রিসেট</button>
-            </form>
-
-            {/* সব প্রোডাক্টের তালিকা */}
-            <h3 className="text-lg font-bold mb-2 text-lipstick-dark">সকল প্রোডাক্টের তালিকা</h3>
-            <div id="productListAdmin" className="space-y-2 max-h-96 overflow-y-auto"></div>
-          </section>
-
-          {/* হেডার স্লাইডার ম্যানেজমেন্ট */}
-          <section id="slider-management" className="hidden p-4 bg-white rounded-lg shadow-lg mb-8">
-            <h2 className="text-xl font-bold text-center mb-4 text-lipstick-dark">হেডার স্লাইডার ম্যানেজমেন্ট</h2>
-            <p className="text-center text-sm text-gray-600 mb-4">এখান থেকে সিলেক্ট করুন কোন প্রোডাক্টগুলো হোমপেজের উপরের স্লাইডারে দেখাবে এবং তাদের সিরিয়াল দিন।</p>
-            <div id="sliderProductListAdmin" className="space-y-2 max-h-96 overflow-y-auto"></div>
-          </section>
-
-          {/* ইভেন্ট ব্যানার ম্যানেজমেন্ট ফর্ম */}
-          <section id="event-update" className="hidden p-4 bg-white rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold text-center mb-4 text-lipstick-dark">ইভেন্ট ব্যানার ম্যানেজমেন্ট</h2>
-            <form id="eventForm" className="mb-6 border-b pb-6">
-              <p className="text-center text-sm text-gray-500 mb-4">যেকোনো একটি তথ্য দিলেই ব্যানার পোস্ট করা যাবে।</p>
-              <input type="hidden" id="eventId" />
-              <div className="mb-4">
-                <label htmlFor="eventTitle" className="block text-gray-700">শিরোনাম (ঐচ্ছিক)</label>
-                <input type="text" id="eventTitle" className="w-full p-2 border rounded" />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="eventDescription" className="block text-gray-700">বিবরণ (ঐচ্ছিক)</label>
-                <textarea id="eventDescription" className="w-full p-2 border rounded" rows={2}></textarea>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="eventImageUrl" className="block text-gray-700">ছবির URL (ঐচ্ছিক)</label>
-                <input type="text" id="eventImageUrl" className="w-full p-2 border rounded" placeholder="https://example.com/image.jpg" />
-              </div>
-              <div className="mb-4">
-                <label className="flex items-center">
-                  <input type="checkbox" id="eventIsActive" className="form-checkbox h-5 w-5 text-lipstick-dark" />
-                  <span className="ml-2 text-gray-700">হোমপেজে দেখান</span>
-                </label>
-                <p className="text-xs text-gray-500 mt-1">সর্বোচ্চ ৩টি ব্যানার হোমপেজে দেখানো যাবে।</p>
-              </div>
-              <button type="submit" className="bg-lipstick-dark text-white px-4 py-2 rounded hover:bg-opacity-90">ব্যানার সেভ করুন</button>
-              <button type="button" className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-opacity-90">ফর্ম রিসেট</button>
-            </form>
-            <h3 className="text-lg font-bold mb-2 text-lipstick-dark">সকল ব্যানার</h3>
-            <div id="eventListAdmin" className="space-y-2"></div>
-          </section>
-        </main>
-
-        <div id="place-order-bar" className="fixed bottom-0 left-0 w-full bg-white p-3 shadow-lg z-40 hidden">
-          <div className="flex justify-between items-center">
-            <div>
-              <span className="text-gray-600">Total Items: <span id="bar-item-count" className="font-bold text-red-500">0</span></span>
-              <p className="font-bold text-lg text-red-500">BDT <span id="bar-total-price">0.00</span></p>
-            </div>
-            <button className="font-bold py-3 px-6 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors">
-              Place Order
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-100">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-r from-rose-500 to-pink-600 text-white py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in">
+            Any's Beauty Corner
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 opacity-90">
+            Premium Beauty Products & Cosmetics
+          </p>
+          <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+            <button className="bg-white text-rose-600 px-8 py-3 rounded-full font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg">
+              Shop Now
+            </button>
+            <button className="border-2 border-white text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-white hover:text-rose-600 transition-all">
+              View Products
             </button>
           </div>
         </div>
+      </section>
 
-        {/* Footer will be loaded by JavaScript */}
-        <div id="footer"></div>
-      </div>
+      {/* Featured Products */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-4">Featured Products</h2>
+          <p className="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+            Discover our exclusive collection of premium beauty products
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Product 1 */}
+            <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="h-64 bg-gradient-to-br from-rose-100 to-pink-200 rounded-t-2xl flex items-center justify-center">
+                <div className="text-6xl">💄</div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Luxury Lipstick</h3>
+                <p className="text-gray-600 mb-4">Premium matte finish with long-lasting color</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-2xl font-bold text-rose-600">৳ 1,200</span>
+                  <button className="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors">
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Product 2 */}
+            <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="h-64 bg-gradient-to-br from-blue-100 to-cyan-200 rounded-t-2xl flex items-center justify-center">
+                <div className="text-6xl">🧴</div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Face Cream</h3>
+                <p className="text-gray-600 mb-4">Hydrating cream for glowing skin</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-2xl font-bold text-rose-600">৳ 2,500</span>
+                  <button className="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors">
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Product 3 */}
+            <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="h-64 bg-gradient-to-br from-green-100 to-emerald-200 rounded-t-2xl flex items-center justify-center">
+                <div className="text-6xl">🌟</div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Highlighter</h3>
+                <p className="text-gray-600 mb-4">Radiant glow for special occasions</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-2xl font-bold text-rose-600">৳ 1,800</span>
+                  <button className="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors">
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Product 4 */}
+            <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="h-64 bg-gradient-to-br from-purple-100 to-violet-200 rounded-t-2xl flex items-center justify-center">
+                <div className="text-6xl">🎨</div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Eye Shadow</h3>
+                <p className="text-gray-600 mb-4">Vibrant colors palette</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-2xl font-bold text-rose-600">৳ 2,200</span>
+                  <button className="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors">
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <section className="py-16 bg-gradient-to-br from-rose-50 to-pink-100">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-4">Shop by Category</h2>
+          <p className="text-lg text-gray-600 text-center mb-12">Find your perfect beauty products</p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { name: 'Makeup', icon: '💄', count: '45 Products' },
+              { name: 'Skincare', icon: '🧴', count: '32 Products' },
+              { name: 'Haircare', icon: '💇', count: '28 Products' },
+              { name: 'Fragrance', icon: '🌸', count: '15 Products' }
+            ].map((category, index) => (
+              <div key={index} className="bg-white rounded-xl p-6 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer transform hover:scale-105">
+                <div className="text-4xl mb-3">{category.icon}</div>
+                <h3 className="text-lg font-bold text-gray-800 mb-1">{category.name}</h3>
+                <p className="text-gray-600 text-sm">{category.count}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-4">Why Choose Us?</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            {[
+              { icon: '🚚', title: 'Free Delivery', desc: 'Free shipping on orders over ৳ 2,000' },
+              { icon: '💎', title: 'Premium Quality', desc: '100% authentic and high-quality products' },
+              { icon: '💝', title: 'Special Offers', desc: 'Regular discounts and loyalty rewards' }
+            ].map((feature, index) => (
+              <div key={index} className="text-center p-6">
+                <div className="text-5xl mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16 bg-gradient-to-br from-rose-50 to-pink-100">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-4">What Our Customers Say</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            {[
+              { name: 'Fatima Ahmed', comment: 'Best quality products with amazing customer service!', rating: '★★★★★' },
+              { name: 'Ayesha Rahman', comment: 'Fast delivery and genuine products. Highly recommended!', rating: '★★★★★' },
+              { name: 'Maria Khan', comment: 'Love the lipstick collection. Colors are just perfect!', rating: '★★★★☆' }
+            ].map((testimonial, index) => (
+              <div key={index} className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-yellow-400 text-lg mb-3">{testimonial.rating}</div>
+                <p className="text-gray-600 mb-4 italic">"{testimonial.comment}"</p>
+                <p className="text-gray-800 font-bold">{testimonial.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter */}
+      <section className="py-16 bg-gradient-to-r from-rose-500 to-pink-600 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
+          <p className="text-lg mb-8 opacity-90">Get exclusive offers and beauty tips</p>
+          <div className="max-w-md mx-auto flex gap-4">
+            <input 
+              type="email" 
+              placeholder="Enter your email" 
+              className="flex-1 px-4 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-white"
+            />
+            <button className="bg-white text-rose-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors">
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Info */}
+      <section className="py-12 bg-gray-800 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-lg font-bold mb-4">Contact Info</h3>
+              <p>📞 +880 1XXX-XXXXXX</p>
+              <p>✉️ info@anysbeauty.com</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Store Hours</h3>
+              <p>Open 9:00 AM - 10:00 PM</p>
+              <p>Everyday</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Follow Us</h3>
+              <div className="flex justify-center gap-4">
+                <span className="cursor-pointer hover:text-rose-300">📘 Facebook</span>
+                <span className="cursor-pointer hover:text-rose-300">📷 Instagram</span>
+                <span className="cursor-pointer hover:text-rose-300">🐦 Twitter</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
