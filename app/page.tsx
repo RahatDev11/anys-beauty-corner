@@ -11,8 +11,6 @@ export default function HomePage() {
   return (
     <div>
       <div id="website-content">
-        <Header />
-
         {/* মূল কন্টেন্ট */}
         <main className="p-4 pt-24 pb-24">
           <section id="new-arrivals">
@@ -147,7 +145,7 @@ export default function HomePage() {
             </button>
           </div>
         </div>
-        
+
         {/* Footer will be loaded by JavaScript */}
         <div id="footer"></div>
       </div>
