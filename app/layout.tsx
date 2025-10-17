@@ -8,6 +8,7 @@ import { ToastProvider } from './components/Toast';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { useEffect } from 'react'; // Import useEffect
 
 export const metadata = {
   title: 'Create Next App',
@@ -15,8 +16,27 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // OneSignal initialization
+    window.OneSignal = window.OneSignal || [];
+    window.OneSignal.push(function() {
+      window.OneSignal.init({
+        appId: "YOUR_ONESIGNAL_APP_ID", // Replace with your actual OneSignal App ID
+        safari_web_id: "YOUR_SAFARI_WEB_ID", // Replace with your actual Safari Web ID if applicable
+        // autoResubscribe: true, // Automatically subscribe new users
+        // notifyButton: {
+        //   enable: true, // Show a bell icon for notifications
+        // },
+      });
+    });
+  }, []);
+
   return (
     <html lang="en">
+      <head>
+        {/* OneSignal SDK */}
+        <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+      </head>
       <body>
         <ToastProvider>
           <AuthProvider>

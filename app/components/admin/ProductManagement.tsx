@@ -4,8 +4,19 @@
 import React, { useState, useEffect } from 'react';
 import { database, ref, onValue, set, push, remove } from '@/lib/firebase';
 
+interface Product {
+    id: string;
+    name: string;
+    price: number;
+    category: string;
+    stockStatus: string;
+    images: string[];
+    tags: string[];
+    description: string;
+}
+
 const ProductManagement = () => {
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
     const [productId, setProductId] = useState('');
     const [productName, setProductName] = useState('');
     const [productPrice, setProductPrice] = useState('');
@@ -48,7 +59,7 @@ const ProductManagement = () => {
         setProductDescription('');
     };
 
-    const handleEdit = (product: any) => {
+    const handleEdit = (product: Product) => {
         setProductId(product.id);
         setProductName(product.name);
         setProductPrice(product.price);

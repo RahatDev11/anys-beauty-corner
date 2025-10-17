@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { database, ref, onValue } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface Product {
     id: string;
@@ -97,7 +98,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
                             onClick={() => handleProductClick(p.id)}
                             className="flex items-center p-2 hover:bg-gray-100 text-gray-800 border-b cursor-pointer"
                         >
-                            <img src={p.image ? p.image.split(',')[0].trim() : 'https://via.placeholder.com/40'} className="w-8 h-8 object-cover rounded mr-2" alt={p.name} />
+                            <Image src={p.image ? p.image.split(',')[0].trim() : 'https://via.placeholder.com/40'} className="w-8 h-8 object-cover rounded mr-2" alt={p.name} width={32} height={32} />
                             <span className="text-sm">{p.name}</span>
                             <span className="ml-auto text-xs text-red-500">{p.price}৳</span>
                         </a>

@@ -4,8 +4,16 @@
 import React, { useState, useEffect } from 'react';
 import { database, ref, onValue, set, push, remove } from '@/lib/firebase';
 
+interface Event {
+    id: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+    isActive: boolean;
+}
+
 const EventManagement = () => {
-    const [events, setEvents] = useState<any[]>([]);
+    const [events, setEvents] = useState<Event[]>([]);
     const [eventId, setEventId] = useState('');
     const [eventTitle, setEventTitle] = useState('');
     const [eventDescription, setEventDescription] = useState('');
@@ -32,7 +40,7 @@ const EventManagement = () => {
         setEventIsActive(false);
     };
 
-    const handleEdit = (event: any) => {
+    const handleEdit = (event: Event) => {
         setEventId(event.id);
         setEventTitle(event.title);
         setEventDescription(event.description);

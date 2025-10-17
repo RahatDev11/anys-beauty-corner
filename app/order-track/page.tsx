@@ -1,8 +1,59 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { database, ref, get, onAuthStateChanged, query, orderByChild, equalTo } from '@/lib/firebase';
+
+interface OrderItem {
+    id: string;
+    name: string;
+    price: number;
+    image?: string;
+    quantity: number;
+}
+
+interface Order {
+    id: string;
+    orderId: string;
+    orderDate: string;
+    customerName: string;
+    phoneNumber: string;
+    customerEmail?: string;
+    address: string;
+    deliveryLocation: string;
+    paymentMethod: string;
+    subTotal: number;
+    deliveryFee: number;
+    totalAmount: number;
+    advancePayment?: number;
+    status: string;
+    cartItems: OrderItem[];
+    userId?: string;
+    guestId?: string;
+}
+
+// Helper function for status display
+function getStatusText(status: string) {
+    const statuses: { [key: string]: string } = {
+        processing: 'প্রসেসিং', confirmed: 'কনফার্মড', packaging: 'প্যাকেজিং',
+        shipped: 'ডেলিভারি হয়েছে', delivered: 'সম্পন্ন হয়েছে', failed: 'ব্যর্থ', cancelled: 'ক্যানসেলড'
+    };
+    return statuses[status] || 'অজানা';
+}
+
+function getStatusColor(status: string) {
+    const colors: { [key: string]: { text: string, bg: string } } = {
+        processing: { text: 'text-yellow-800', bg: 'bg-yellow-100' },
+        confirmed: { text: 'text-blue-800', bg: 'bg-blue-100' },
+        packaging: { text: 'text-purple-800', bg: 'bg-purple-100' },
+        shipped: { text: 'text-cyan-800', bg: 'bg-cyan-100' },
+        delivered: { text: 'text-green-800', bg: 'bg-green-100' },
+        failed: { text: 'text-red-800', bg: 'bg-red-100' },
+        cancelled: { text: 'text-gray-800', bg: 'bg-gray-200' }
+    };
+    return colors[status] || colors.cancelled;
+}
 
 const OrderTrack = () => {
     const { user, loginWithGmail } = useAuth();

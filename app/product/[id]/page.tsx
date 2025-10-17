@@ -6,11 +6,25 @@ import { useParams } from 'next/navigation';
 import { database, ref, onValue } from '@/lib/firebase';
 import { useCart } from '../../context/CartContext';
 import ProductSlider from '../../components/ProductSlider';
+import Image from 'next/image';
+
+interface Product {
+    id: string;
+    name: string;
+    price: number;
+    category: string;
+    stockStatus: string;
+    images: string[];
+    tags: string[];
+    description: string;
+    isInSlider?: boolean;
+    sliderOrder?: number;
+}
 
 const ProductDetail = () => {
     const { id } = useParams();
-    const [product, setProduct] = useState<any>(null);
-    const [products, setProducts] = useState<any[]>([]);
+    const [product, setProduct] = useState<Product | null>(null);
+    const [products, setProducts] = useState<Product[]>([]);
     const [mainImage, setMainImage] = useState('');
     const [showModal, setShowModal] = useState(false);
     const { addToCart, buyNow } = useCart();
@@ -65,17 +79,19 @@ const ProductDetail = () => {
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto">
                 <div className="md:grid md:grid-cols-2 md:gap-8">
                     <div className="image-gallery">
-                        <div className="main-image-container">
-                            <img id="mainImage" src={mainImage} alt="Main Product Image" onClick={openModal} />
+                        <div className="main-image-container relative h-96">
+                            <Image id="mainImage" src={mainImage} alt="Main Product Image" onClick={openModal} fill style={{objectFit: "cover"}} />
                         </div>
                         <div className="thumbnail-container" id="thumbnailContainer">
                             {product.images && product.images.map((image: string, index: number) => (
-                                <img 
+                                <Image 
                                     key={index} 
                                     src={image} 
                                     alt={`Product thumbnail ${index + 1}`} 
                                     className={`thumbnail ${mainImage === image ? 'active' : ''}`}
                                     onClick={() => handleThumbnailClick(image)}
+                                    width={60}
+                                    height={60}
                                 />
                             ))}
                         </div>
@@ -103,9 +119,9 @@ const ProductDetail = () => {
             </main>
 
             {showModal && (
-                <div id="imageModal" style={{ display: 'flex' }}>
+                <div id="imageModal" style={{ display: 'flex' }} className="relative">
                     <span id="modalCloseBtn" title="Close" onClick={closeModal}>×</span>
-                    <img id="modalImage" src={mainImage} alt="Full Screen Product Image" />
+                    <Image id="modalImage" src={mainImage} alt="Full Screen Product Image" fill style={{objectFit: "contain"}} />
                 </div>
             )}
         </>

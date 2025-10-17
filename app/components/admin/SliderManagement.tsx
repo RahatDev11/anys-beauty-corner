@@ -4,8 +4,15 @@
 import React, { useState, useEffect } from 'react';
 import { database, ref, onValue, update } from '@/lib/firebase';
 
+interface Product {
+    id: string;
+    name: string;
+    isInSlider?: boolean;
+    sliderOrder?: number;
+}
+
 const SliderManagement = () => {
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
         const productsRef = ref(database, 'products/');
@@ -20,13 +27,13 @@ const SliderManagement = () => {
     }, []);
 
     const handleSliderChange = (productId: string, isInSlider: boolean) => {
-        const updates: { [key: string]: any } = {};
+        const updates: { [key: string]: boolean | number } = {};
         updates[`/products/${productId}/isInSlider`] = isInSlider;
         update(ref(database), updates);
     };
 
     const handleSliderOrderChange = (productId: string, order: number) => {
-        const updates: { [key: string]: any } = {};
+        const updates: { [key: string]: boolean | number } = {};
         updates[`/products/${productId}/sliderOrder`] = order;
         update(ref(database), updates);
     };

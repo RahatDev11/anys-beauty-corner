@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface ProductCardProps {
     product: {
@@ -35,11 +36,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     return (
         <div className="bg-white rounded-xl shadow overflow-hidden flex flex-col">
-            <img
+            <Image
                 src={imageUrl}
                 alt={product.name}
                 className="w-full h-36 object-cover cursor-pointer"
                 onClick={() => handleShowProductDetail(product.id)}
+                width={250}
+                height={144}
             />
             <div className="p-3 flex flex-col flex-grow bg-white">
                 <div className="flex-grow">
