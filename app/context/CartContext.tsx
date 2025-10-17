@@ -31,6 +31,7 @@ interface CartContextType {
     buyNow: (product: Product) => void;
     totalItems: number;
     totalPrice: number;
+    clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -143,6 +144,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+    const clearCart = useCallback(() => {
+        setCart([]);
+        saveCart([]);
+        showToast("কার্ট খালি করা হয়েছে!", "info");
+    }, [saveCart, showToast]);
+
     return (
         <CartContext.Provider value={{
             cart,
@@ -151,6 +158,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             removeFromCart,
             checkout,
             buyNow,
+            clearCart,
             totalItems,
             totalPrice,
         }}>

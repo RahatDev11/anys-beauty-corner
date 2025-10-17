@@ -1,25 +1,17 @@
 
 import React from 'react';
 import ProductCard from './ProductCard';
+import { Product } from '@/app/types/product';
 
 interface ProductListProps {
-    products: Array<{
-        id: string;
-        name: string;
-        price: number;
-        image?: string;
-        category?: string;
-        isInSlider?: boolean;
-        sliderOrder?: number;
-        tags?: string;
-    }>;
+    products: Array<Product>;
     cartItems: Array<{
         id: string;
         quantity: number;
     }>;
-    addToCart: (id: string) => void;
+    addToCart: (product: Product) => void;
     updateQuantity: (id: string, change: number) => void;
-    buyNow: (id: string) => void;
+    buyNow: (product: Product) => void;
 }
 
 const ProductList: React.FC<ProductListProps> = ({

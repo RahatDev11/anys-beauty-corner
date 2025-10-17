@@ -2,18 +2,10 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Product } from '@/app/types/product';
 
 interface ProductCardProps {
-    product: {
-        id: string;
-        name: string;
-        price: number;
-        image?: string;
-        category?: string;
-        isInSlider?: boolean;
-        sliderOrder?: number;
-        tags?: string;
-    };
+    product: Product;
     addToCart: (product: Product) => void;
     updateQuantity: (id: string, change: number) => void;
     buyNow: (product: Product) => void;

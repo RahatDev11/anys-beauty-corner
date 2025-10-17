@@ -1,7 +1,7 @@
 
 // lib/firebase.ts
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getDatabase, ref, onValue, set, get, query, orderByChild, equalTo, update, push, runTransaction, remove, FirebaseDatabase } from 'firebase/database';
+import { getDatabase, ref, onValue, set, get, query, orderByChild, equalTo, update, push, runTransaction, remove } from 'firebase/database';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, getRedirectResult, Auth } from 'firebase/auth';
 import { getFirestore, collection, addDoc, doc, getDoc, updateDoc, Firestore } from 'firebase/firestore';
 

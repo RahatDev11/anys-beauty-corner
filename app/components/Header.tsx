@@ -96,8 +96,8 @@ const Header = () => {
                 {/* লোগো */}
                 <Link className="flex items-center text-white" href="/">
                     <div className="flex items-center">
-                        <Image alt="Any\'s Beauty Corner লোগো" className="h-10 w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" height={40} src="/img.jpg" width={40} />
-                        <span className="text-base md:text-lg font-bold whitespace-nowrap text-black">Any\'s Beauty Corner</span>
+                        <Image alt="Any&#39;s Beauty Corner লোগো" className="h-10 w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" height={40} src="/img.jpg" width={40} />
+                        <span className="text-base md:text-lg font-bold whitespace-nowrap text-black">Any&#39;s Beauty Corner</span>
                     </div>
                 </Link>
 

@@ -20,9 +20,9 @@ const Footer = () => {
                 {/* Top Row: Brand Info & Social Links */}
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-2 mb-2 pb-2 border-b border-gray-800/20">
                     <div className="text-center md:text-left md:max-w-sm">
-                        <Link href="/" className="inline-flex items-center space-x-3 group mb-4" aria-label="Any\'s Beauty Corner Home">
-                            <Image alt="Any\'s Beauty Corner লোগো" className="h-10 w-10 rounded-full border-2 border-gray-800/20 group-hover:opacity-90 transition-opacity" src="/img.jpg" width={40} height={40} />
-                            <span className="text-lg font-semibold text-gray-900 transition-colors">Any\'s Beauty Corner</span>
+                        <Link href="/" className="inline-flex items-center space-x-3 group mb-4" aria-label="Any&#39;s Beauty Corner Home">
+                            <Image alt="Any&#39;s Beauty Corner লোগো" className="h-10 w-10 rounded-full border-2 border-gray-800/20 group-hover:opacity-90 transition-opacity" src="/img.jpg" width={40} height={40} />
+                            <span className="text-lg font-semibold text-gray-900 transition-colors">Any&#39;s Beauty Corner</span>
                         </Link>
                         <p className="text-xs leading-relaxed text-gray-700">আপনার সৌন্দর্য চর্চার বিশ্বস্ত সঙ্গী।</p>
                     </div>
@@ -86,7 +86,7 @@ const Footer = () => {
 
                 {/* Bottom Row: Copyright */}
                 <div className="border-t border-gray-800/20 pt-6 mt-6 text-sm text-center text-gray-600">
-                    <p>© <span id="currentYear"></span> Any\'s Beauty Corner. সর্বস্বত্ব সংরক্ষিত।</p>
+                    <p>© <span id="currentYear"></span> Any&#39;s Beauty Corner. সর্বস্বত্ব সংরক্ষিত।</p>
                     <p className="mt-1">ডেভেলপ করেছে: <a href="https://devxhub.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 font-medium">Nahid</a></p>
                 </div>
             </div>

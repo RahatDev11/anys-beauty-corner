@@ -4,16 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { database, ref, onValue, set, push, remove } from '@/lib/firebase';
 
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    category: string;
-    stockStatus: string;
-    images: string[];
-    tags: string[];
-    description: string;
-}
+import { Product } from '@/app/types/product';
 
 const ProductManagement = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -62,7 +53,7 @@ const ProductManagement = () => {
     const handleEdit = (product: Product) => {
         setProductId(product.id);
         setProductName(product.name);
-        setProductPrice(product.price);
+        setProductPrice(product.price.toString());
         setProductCategory(product.category);
         setProductStockStatus(product.stockStatus);
         setProductImages(product.images || ['']);
