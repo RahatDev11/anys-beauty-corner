@@ -30,31 +30,3 @@ async function sendTelegramNotification(orderData) {
 }
 // === END: TELEGRAM NOTIFICATION FUNCTION ===
 
-// === START: ONESIGNAL NOTIFICATION FUNCTION ===
-async function sendNotificationForOrder(orderId) {
-    try {
-        const response = await fetch('/.netlify/functions/send-order-notification', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ orderId: orderId })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            // এখানে অ্যাডমিনকে একটি সফল বার্তা দেখাতে পারেন
-        } else {
-            // এখানে অ্যাডমিনকে একটি এরর বার্তা দেখাতে পারেন
-        }
-
-    } catch (error) {
-    }
-}
-// === END: ONESIGNAL NOTIFICATION FUNCTION ===
-
-export {
-    sendTelegramNotification,
-    sendNotificationForOrder
-};
