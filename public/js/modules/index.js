@@ -22,7 +22,7 @@ export {
     setupScrollToTopButton, setupFooterMenuToggles, setupSocialMediaButtons
 } from './ui-utilities.js';
 export { 
-    NotificationHandler, sendTelegramNotification, oneSignalManager 
+    NotificationHandler, sendTelegramNotification
 } from './notification-manager.js';
 export { 
     loadEvents, getActiveEvents, events, onEventsChange 
