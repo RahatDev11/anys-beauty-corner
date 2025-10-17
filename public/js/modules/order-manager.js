@@ -18,7 +18,7 @@ export async function createOrder(orderData) {
     try {
         // Generate order ID
         const orderId = await generateOrderId();
-        
+
         const order = {
             orderId: orderId,
             customerName: orderData.customerName,
@@ -36,8 +36,7 @@ export async function createOrder(orderData) {
             deliveryNote: orderData.deliveryNote || 'N/A',
             outsideDhakaLocation: orderData.outsideDhakaLocation || 'N/A',
             paymentNumber: orderData.paymentNumber || 'N/A',
-            transactionId: orderData.transactionId || 'N/A',
-            oneSignalPlayerId: orderData.oneSignalPlayerId || ''
+            transactionId: orderData.transactionId || 'N/A'
         };
 
         // Save to database
@@ -59,7 +58,7 @@ export async function createOrder(orderData) {
 
         // Send notifications
         await sendTelegramNotification(order);
-        
+
         showToast(`অর্ডার সফলভাবে তৈরি হয়েছে! অর্ডার আইডি: ${orderId}`, 'success');
         return order;
 
@@ -77,9 +76,9 @@ async function generateOrderId() {
     const day = String(today.getDate()).padStart(2, '0');
     const month = String(today.getMonth() + 1);
     const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${day}`;
-    
+
     const counterRef = ref(database, `counters/${dateString}`);
-    
+
     const result = await runTransaction(counterRef, (currentData) => {
         if (currentData === null) {
             return 1;
@@ -87,7 +86,7 @@ async function generateOrderId() {
             return currentData + 1;
         }
     });
-    
+
     if (result.committed) {
         const orderNumber = String(result.snapshot.val()).padStart(3, '0');
         return `${year}${day}${month}${orderNumber}`;
@@ -101,7 +100,7 @@ export async function getOrderById(orderId) {
     try {
         const orderRef = ref(database, `orders/${orderId}`);
         const snapshot = await get(orderRef);
-        
+
         if (snapshot.exists()) {
             return { key: snapshot.key, ...snapshot.val() };
         } else {
@@ -122,7 +121,7 @@ export async function getUserOrders(userId) {
         // Try new structure (userId field)
         const newOrdersQuery = query(ordersRef, orderByChild('userId'), equalTo(userId));
         const newOrdersSnapshot = await get(newOrdersQuery);
-        
+
         if (newOrdersSnapshot.exists()) {
             newOrdersSnapshot.forEach(child => {
                 userOrders.push({ key: child.key, ...child.val() });
@@ -135,7 +134,7 @@ export async function getUserOrders(userId) {
             const userEmail = user.val().email;
             const oldOrdersQuery = query(ordersRef, orderByChild('userEmail'), equalTo(userEmail));
             const oldOrdersSnapshot = await get(oldOrdersQuery);
-            
+
             if (oldOrdersSnapshot.exists()) {
                 oldOrdersSnapshot.forEach(child => {
                     // Avoid duplicates
@@ -148,7 +147,7 @@ export async function getUserOrders(userId) {
 
         // Sort by order date (newest first)
         userOrders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
-        
+
         return userOrders;
     } catch (error) {
         console.error("Error getting user orders:", error);
@@ -182,7 +181,7 @@ export async function updateOrderStatus(orderId, newStatus) {
 
         // Get updated order data for notification
         const order = await getOrderById(orderId);
-        
+
         showToast(`অর্ডার স্ট্যাটাস আপডেট করা হয়েছে: ${getStatusText(newStatus)}`, 'success');
         return order;
     } catch (error) {
@@ -197,14 +196,14 @@ export async function getAllOrders(limit = 50) {
     try {
         const ordersRef = ref(database, 'orders');
         const snapshot = await get(ordersRef);
-        
+
         const orders = [];
         if (snapshot.exists()) {
             snapshot.forEach(child => {
                 orders.push({ key: child.key, ...child.val() });
             });
         }
-        
+
         // Sort by order date (newest first) and limit results
         return orders
             .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
@@ -221,14 +220,14 @@ export async function getOrdersByStatus(status, limit = 50) {
         const ordersRef = ref(database, 'orders');
         const statusQuery = query(ordersRef, orderByChild('status'), equalTo(status));
         const snapshot = await get(statusQuery);
-        
+
         const orders = [];
         if (snapshot.exists()) {
             snapshot.forEach(child => {
                 orders.push({ key: child.key, ...child.val() });
             });
         }
-        
+
         // Sort by order date (newest first) and limit results
         return orders
             .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
