@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductList from './components/ProductList';
 import ProductSlider from './components/ProductSlider';
 import EventSlider from './components/EventSlider';
 import { database, ref, onValue } from '@/lib/firebase';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useCart } from './context/CartContext';
 import { useAuth } from './context/AuthContext';
 import ProductManagement from './components/admin/ProductManagement';
@@ -33,26 +33,10 @@ interface Product {
     sliderOrder?: number;
 }
 
-// Client-side search params solution
-function useClientSearchParams() {
-    const [searchParams, setSearchParams] = useState<URLSearchParams>(new URLSearchParams());
-
-    useEffect(() => {
-        // Client-side only access to search params
-        if (typeof window !== 'undefined') {
-            setSearchParams(new URLSearchParams(window.location.search));
-        }
-    }, []);
-
-    return searchParams;
-}
-
-// Main component without useSearchParams
-function HomeContent() {
+export default function HomePage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
     const router = useRouter();
-    const searchParams = useClientSearchParams(); // Our custom hook
     const { cart, addToCart, updateQuantity, buyNow } = useCart();
     const { isAdmin } = useAuth();
 
@@ -86,13 +70,8 @@ function HomeContent() {
 
     const sliderProducts = products.filter(p => p.isInSlider).sort((a, b) => (a.sliderOrder || 99) - (b.sliderOrder || 99));
 
-    const filteredProducts = useMemo(() => {
-        const filterCategory = searchParams.get('filter');
-        if (filterCategory && filterCategory !== 'all') {
-            return products.filter(p => p.category === filterCategory);
-        }
-        return products;
-    }, [products, searchParams]);
+    // TEMPORARY: Remove all search params and filtering logic
+    const filteredProducts = products;
 
     return (
         <main className="p-4 pt-24">
@@ -128,21 +107,5 @@ function HomeContent() {
                 </section>
             </div>
         </main>
-    );
-}
-
-// Main HomePage component with Suspense
-export default function HomePage() {
-    return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick-dark mx-auto"></div>
-                    <p className="mt-4 text-lg text-gray-600">Loading...</p>
-                </div>
-            </div>
-        }>
-            <HomeContent />
-        </Suspense>
     );
 }
