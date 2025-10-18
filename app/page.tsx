@@ -33,40 +33,26 @@ interface Product {
     sliderOrder?: number;
 }
 
-// Separate component that uses searchParams
-function FilteredProductSection({ products, cart, addToCart, updateQuantity, buyNow }: { 
-    products: Product[];
-    cart: any;
-    addToCart: (product: Product) => void;
-    updateQuantity: (productId: string, quantity: number) => void;
-    buyNow: (product: Product) => void;
-}) {
-    const searchParams = useSearchParams();
-    
-    const filteredProducts = useMemo(() => {
-        const filterCategory = searchParams.get('filter');
-        if (filterCategory && filterCategory !== 'all') {
-            return products.filter(p => p.category === filterCategory);
-        }
-        return products;
-    }, [products, searchParams]);
+// Client-side search params solution
+function useClientSearchParams() {
+    const [searchParams, setSearchParams] = useState<URLSearchParams>(new URLSearchParams());
 
-    return (
-        <ProductList
-            products={filteredProducts}
-            cartItems={cart}
-            addToCart={addToCart}
-            updateQuantity={updateQuantity}
-            buyNow={buyNow}
-        />
-    );
+    useEffect(() => {
+        // Client-side only access to search params
+        if (typeof window !== 'undefined') {
+            setSearchParams(new URLSearchParams(window.location.search));
+        }
+    }, []);
+
+    return searchParams;
 }
 
-// Main HomeContent component
+// Main component without useSearchParams
 function HomeContent() {
     const [products, setProducts] = useState<Product[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
     const router = useRouter();
+    const searchParams = useClientSearchParams(); // Our custom hook
     const { cart, addToCart, updateQuantity, buyNow } = useCart();
     const { isAdmin } = useAuth();
 
@@ -100,6 +86,14 @@ function HomeContent() {
 
     const sliderProducts = products.filter(p => p.isInSlider).sort((a, b) => (a.sliderOrder || 99) - (b.sliderOrder || 99));
 
+    const filteredProducts = useMemo(() => {
+        const filterCategory = searchParams.get('filter');
+        if (filterCategory && filterCategory !== 'all') {
+            return products.filter(p => p.category === filterCategory);
+        }
+        return products;
+    }, [products, searchParams]);
+
     return (
         <main className="p-4 pt-24">
             <div className="container mx-auto">
@@ -124,15 +118,13 @@ function HomeContent() {
 
                 <section>
                     <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">All Products</h2>
-                    <Suspense fallback={<div>Loading products...</div>}>
-                        <FilteredProductSection 
-                            products={products}
-                            cart={cart}
-                            addToCart={addToCart}
-                            updateQuantity={updateQuantity}
-                            buyNow={buyNow}
-                        />
-                    </Suspense>
+                    <ProductList
+                        products={filteredProducts}
+                        cartItems={cart}
+                        addToCart={(product) => addToCart(product)}
+                        updateQuantity={updateQuantity}
+                        buyNow={(product) => buyNow(product)}
+                    />
                 </section>
             </div>
         </main>
