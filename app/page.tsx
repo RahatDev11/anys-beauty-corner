@@ -33,13 +33,36 @@ interface Product {
     sliderOrder?: number;
 }
 
-// Separate component for search params
-function SearchParamsWrapper({ children }: { children: (searchParams: URLSearchParams) => React.ReactNode }) {
+// Separate component that uses searchParams
+function FilteredProductSection({ products, cart, addToCart, updateQuantity, buyNow }: { 
+    products: Product[];
+    cart: any;
+    addToCart: (product: Product) => void;
+    updateQuantity: (productId: string, quantity: number) => void;
+    buyNow: (product: Product) => void;
+}) {
     const searchParams = useSearchParams();
-    return <>{children(searchParams)}</>;
+    
+    const filteredProducts = useMemo(() => {
+        const filterCategory = searchParams.get('filter');
+        if (filterCategory && filterCategory !== 'all') {
+            return products.filter(p => p.category === filterCategory);
+        }
+        return products;
+    }, [products, searchParams]);
+
+    return (
+        <ProductList
+            products={filteredProducts}
+            cartItems={cart}
+            addToCart={addToCart}
+            updateQuantity={updateQuantity}
+            buyNow={buyNow}
+        />
+    );
 }
 
-// HomeContent component without useSearchParams
+// Main HomeContent component
 function HomeContent() {
     const [products, setProducts] = useState<Product[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
@@ -78,6 +101,47 @@ function HomeContent() {
     const sliderProducts = products.filter(p => p.isInSlider).sort((a, b) => (a.sliderOrder || 99) - (b.sliderOrder || 99));
 
     return (
+        <main className="p-4 pt-24">
+            <div className="container mx-auto">
+                {isAdmin && (
+                    <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
+                        <h2 className="text-2xl font-bold text-center text-lipstick-dark">Admin Panel</h2>
+                        <ProductManagement />
+                        <SliderManagement />
+                        <EventManagement />
+                    </section>
+                )}
+
+                <section className="mb-8">
+                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
+                    <EventSlider events={events} />
+                </section>
+
+                <section className="mb-8">
+                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">New Products</h2>
+                    <ProductSlider products={sliderProducts} showProductDetail={showProductDetail} />
+                </section>
+
+                <section>
+                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">All Products</h2>
+                    <Suspense fallback={<div>Loading products...</div>}>
+                        <FilteredProductSection 
+                            products={products}
+                            cart={cart}
+                            addToCart={addToCart}
+                            updateQuantity={updateQuantity}
+                            buyNow={buyNow}
+                        />
+                    </Suspense>
+                </section>
+            </div>
+        </main>
+    );
+}
+
+// Main HomePage component with Suspense
+export default function HomePage() {
+    return (
         <Suspense fallback={
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
@@ -86,58 +150,7 @@ function HomeContent() {
                 </div>
             </div>
         }>
-            <SearchParamsWrapper>
-                {(searchParams) => {
-                    const filteredProducts = useMemo(() => {
-                        const filterCategory = searchParams.get('filter');
-                        if (filterCategory && filterCategory !== 'all') {
-                            return products.filter(p => p.category === filterCategory);
-                        }
-                        return products;
-                    }, [products, searchParams]);
-
-                    return (
-                        <main className="p-4 pt-24">
-                            <div className="container mx-auto">
-                                {isAdmin && (
-                                    <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
-                                        <h2 className="text-2xl font-bold text-center text-lipstick-dark">Admin Panel</h2>
-                                        <ProductManagement />
-                                        <SliderManagement />
-                                        <EventManagement />
-                                    </section>
-                                )}
-
-                                <section className="mb-8">
-                                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
-                                    <EventSlider events={events} />
-                                </section>
-
-                                <section className="mb-8">
-                                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">New Products</h2>
-                                    <ProductSlider products={sliderProducts} showProductDetail={showProductDetail} />
-                                </section>
-
-                                <section>
-                                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">All Products</h2>
-                                    <ProductList
-                                        products={filteredProducts}
-                                        cartItems={cart}
-                                        addToCart={(product) => addToCart(product)}
-                                        updateQuantity={updateQuantity}
-                                        buyNow={(product) => buyNow(product)}
-                                    />
-                                </section>
-                            </div>
-                        </main>
-                    );
-                }}
-            </SearchParamsWrapper>
+            <HomeContent />
         </Suspense>
     );
-}
-
-// Main HomePage component
-export default function HomePage() {
-    return <HomeContent />;
 }
