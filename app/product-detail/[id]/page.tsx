@@ -1,50 +1,78 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
 import { database, ref, onValue } from '@/lib/firebase';
 import { useCart } from '@/app/context/CartContext';
-import { useRouter } from 'next/navigation';
+import ProductSlider from '@/app/components/ProductSlider';
+import Image from 'next/image';
 
 interface Product {
     id: string;
     name: string;
     price: number;
     category: string;
-    description: string;
-    image: string;
     stockStatus: string;
-    tags?: string[];
+    images: string[];
+    tags: string[];
+    description: string;
+    isInSlider?: boolean;
+    sliderOrder?: number;
 }
 
-export default function ProductDetailPage() {
-    const params = useParams();
+const ProductDetail = () => {
+    const { id } = useParams();
     const router = useRouter();
-    const productId = params.id as string;
     const [product, setProduct] = useState<Product | null>(null);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [mainImage, setMainImage] = useState('');
+    const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [selectedImage, setSelectedImage] = useState(0);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const { addToCart, buyNow } = useCart();
 
     useEffect(() => {
-        if (!productId) return;
+        if (!id) return;
 
-        const productRef = ref(database, `products/${productId}`);
-        
+        const productRef = ref(database, `products/${id}`);
         onValue(productRef, (snapshot) => {
             if (snapshot.exists()) {
-                const productData = snapshot.val();
-                setProduct({ 
-                    id: productId, 
-                    ...productData 
-                });
+                const productData = { id: snapshot.key, ...snapshot.val() };
+                setProduct(productData);
+                if (productData.images && productData.images.length > 0) {
+                    setMainImage(productData.images[0]);
+                }
             } else {
                 setProduct(null);
             }
             setLoading(false);
         });
-    }, [productId]);
+
+        const productsRef = ref(database, "products/");
+        onValue(productsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const productsData = Object.keys(snapshot.val()).map(key => ({ 
+                    id: key, 
+                    ...snapshot.val()[key] 
+                }));
+                setProducts(productsData);
+            } else {
+                setProducts([]);
+            }
+        });
+    }, [id]);
+
+    const handleThumbnailClick = (image: string) => {
+        setMainImage(image);
+    };
+
+    const openModal = () => {
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+    };
 
     const handleAddToCart = () => {
         if (product) {
@@ -88,9 +116,6 @@ export default function ProductDetailPage() {
         );
     }
 
-    const images = product.image ? product.image.split(',').map(img => img.trim()) : [];
-    const mainImage = images[selectedImage] || "https://via.placeholder.com/500x400.png?text=No+Image";
-    
     // Description truncation logic
     const description = product.description || '';
     const shouldTruncate = description.length > 150;
@@ -98,39 +123,39 @@ export default function ProductDetailPage() {
         ? description 
         : `${description.substring(0, 150)}...`;
 
+    const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
+
     return (
         <div className="min-h-screen bg-background">
-            {/* Header will be included via layout */}
-            
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto">
-                {/* Product Content - matches HTML structure */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Image Gallery */}
+                        {/* Image Gallery - First code structure with improvements */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1 relative aspect-[4/3]">
-                                <Image
-                                    src={mainImage}
-                                    alt={product.name}
-                                    fill
-                                    style={{ objectFit: 'contain' }}
+                                <Image 
+                                    src={mainImage} 
+                                    alt="Main Product Image" 
+                                    onClick={openModal}
+                                    fill 
+                                    style={{objectFit: "contain"}} 
                                     className="border border-gray-200 rounded-lg cursor-pointer"
                                 />
                             </div>
                             
-                            {images.length > 1 && (
+                            {product.images && product.images.length > 1 && (
                                 <div className="flex md:flex-col gap-2 overflow-x-auto md:max-h-80 md:overflow-y-auto">
-                                    {images.map((img, index) => (
+                                    {product.images.map((image: string, index: number) => (
                                         <div 
                                             key={index}
                                             className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 cursor-pointer border-2 rounded ${
-                                                index === selectedImage ? 'border-lipstick' : 'border-transparent'
+                                                mainImage === image ? 'border-lipstick' : 'border-transparent'
                                             }`}
-                                            onClick={() => setSelectedImage(index)}
+                                            onClick={() => handleThumbnailClick(image)}
                                         >
                                             <Image
-                                                src={img}
-                                                alt={`${product.name} ${index + 1}`}
+                                                src={image}
+                                                alt={`Product thumbnail ${index + 1}`}
                                                 fill
                                                 style={{ objectFit: 'cover' }}
                                                 className="rounded"
@@ -140,12 +165,12 @@ export default function ProductDetailPage() {
                                 </div>
                             )}
                         </div>
-                        
-                        {/* Product Details */}
+
+                        {/* Product Details - Second code structure with enhancements */}
                         <div>
                             <h1 className="text-2xl lg:text-3xl font-bold mb-4 text-gray-800">{product.name}</h1>
-                            <p className="text-lipstick text-xl lg:text-2xl font-bold mb-4">{product.price} টাকা</p>
-                            
+                            <p className="text-lipstick text-xl lg:text-2xl font-bold mb-4">{product.price} ৳</p>
+
                             <div className="mb-6 space-y-2">
                                 <div>
                                     <span className="text-gray-600">Category: </span>
@@ -161,26 +186,26 @@ export default function ProductDetailPage() {
                                     </span>
                                 </div>
                             </div>
-                            
-                            {/* Action Buttons */}
+
+                            {/* Action Buttons - Combined styles */}
                             <div className="flex flex-col space-y-3 mb-6">
-                                <button
+                                <button 
                                     onClick={handleAddToCart}
                                     className="bg-lipstick text-white py-3 px-6 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={product.stockStatus !== 'in-stock'}
                                 >
                                     Add to Cart
                                 </button>
-                                <button
+                                <button 
                                     onClick={handleBuyNow}
-                                    className="bg-brushstroke text-black py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="bg-gray-800 text-white py-3 px-6 rounded-lg font-semibold hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={product.stockStatus !== 'in-stock'}
                                 >
                                     Buy Now
                                 </button>
                             </div>
-                            
-                            {/* Description */}
+
+                            {/* Description with truncation */}
                             <div className="description-container">
                                 <p className="text-gray-700 mb-3 leading-relaxed">{displayDescription}</p>
                                 {shouldTruncate && (
@@ -196,19 +221,19 @@ export default function ProductDetailPage() {
                     </div>
                 </div>
 
-                {/* Related Products Section - Placeholder */}
-                <section className="mt-8">
-                    <h2 className="text-2xl font-bold text-center mb-4 text-lipstick-dark">Related Products</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {/* Related products will be loaded here */}
-                        <div className="text-center py-8 text-gray-500">
-                            Related products coming soon...
-                        </div>
-                    </div>
-                </section>
+                {/* Related Products Section - First code's ProductSlider */}
+                {relatedProducts.length > 0 && (
+                    <section className="mt-8">
+                        <h2 className="text-2xl font-bold text-center mb-4 text-lipstick-dark">Related Products</h2>
+                        <ProductSlider 
+                            products={relatedProducts} 
+                            showProductDetail={(id) => router.push(`/product/${id}`)}
+                        />
+                    </section>
+                )}
             </main>
 
-            {/* Fixed Order Bar - matches HTML structure */}
+            {/* Fixed Order Bar - From second code */}
             <div className="fixed bottom-0 left-0 w-full bg-white p-3 shadow-lg z-40" style={{ boxShadow: '0 -2px 10px rgba(0,0,0,0.1)' }}>
                 <div className="flex justify-between items-center max-w-4xl mx-auto">
                     <div>
@@ -223,6 +248,32 @@ export default function ProductDetailPage() {
                     </button>
                 </div>
             </div>
+
+            {/* Modal - From first code */}
+            {showModal && (
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+                    onClick={closeModal}
+                >
+                    <span 
+                        className="absolute top-4 right-4 text-white text-3xl cursor-pointer z-10 bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center"
+                        onClick={closeModal}
+                    >
+                        ×
+                    </span>
+                    <div className="relative w-full h-full max-w-4xl max-h-full">
+                        <Image 
+                            src={mainImage} 
+                            alt="Full Screen Product Image" 
+                            fill
+                            style={{objectFit: "contain"}} 
+                            className="cursor-zoom-out"
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
-}
+};
+
+export default ProductDetail;
