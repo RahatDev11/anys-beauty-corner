@@ -1,11 +1,8 @@
-
 // lib/firebase.ts
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getDatabase, ref, onValue, set, get, query, orderByChild, equalTo, update, push, runTransaction, remove } from 'firebase/database';
+import { getDatabase, ref, onValue, set, get, query, orderByChild, equalTo, update, push, runTransaction, remove, Database } from 'firebase/database';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, getRedirectResult, Auth } from 'firebase/auth';
 import { getFirestore, collection, addDoc, doc, getDoc, updateDoc, Firestore } from 'firebase/firestore';
-
-
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -22,7 +19,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app: FirebaseApp = initializeApp(firebaseConfig);
 const auth: Auth = getAuth(app);
-const database: FirebaseDatabase = getDatabase(app); // Realtime Database instance
+const database: Database = getDatabase(app); // Realtime Database instance - FIXED
 const db: Firestore = getFirestore(app); // Firestore instance
 const provider: GoogleAuthProvider = new GoogleAuthProvider(); // Auth provider
 
