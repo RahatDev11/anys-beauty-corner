@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import ProductList from './components/ProductList';
 import ProductSlider from './components/ProductSlider';
 import EventSlider from './components/EventSlider';
@@ -33,7 +33,8 @@ interface Product {
     sliderOrder?: number;
 }
 
-export default function HomePage() {
+// HomeContent component that uses useSearchParams
+function HomeContent() {
     const [products, setProducts] = useState<Product[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
     const router = useRouter();
@@ -113,5 +114,21 @@ export default function HomePage() {
                 </section>
             </div>
         </main>
+    );
+}
+
+// Main HomePage component with Suspense
+export default function HomePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick-dark mx-auto"></div>
+                    <p className="mt-4 text-lg text-gray-600">Loading...</p>
+                </div>
+            </div>
+        }>
+            <HomeContent />
+        </Suspense>
     );
 }
