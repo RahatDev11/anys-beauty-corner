@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -10,6 +9,7 @@ interface ProductCardProps {
     updateQuantity: (id: string, change: number) => void;
     buyNow: (product: Product) => void;
     cartItemQuantity?: number;
+    showProductDetail?: (id: string) => void; // ✅ Optional prop হিসেবে add করুন
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -18,12 +18,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
     updateQuantity,
     buyNow,
     cartItemQuantity = 0,
+    showProductDetail, // ✅ Props এ receive করুন
 }) => {
     const imageUrl = product.image ? product.image.split(",")[0].trim() : "https://via.placeholder.com/150";
     const router = useRouter();
 
     const handleShowProductDetail = (id: string) => {
-        router.push(`/product-detail/${id}`);
+        // যদি prop থেকে function আসে সেটা use করুন, নাহলে default behavior
+        if (showProductDetail) {
+            showProductDetail(id);
+        } else {
+            // Fallback: direct router use করুন
+            router.push(`/product-detail/${id}`);
+        }
     };
 
     return (
