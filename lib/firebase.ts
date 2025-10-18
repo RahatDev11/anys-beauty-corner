@@ -19,7 +19,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app: FirebaseApp = initializeApp(firebaseConfig);
 const auth: Auth = getAuth(app);
-const database: Database = getDatabase(app); // Realtime Database instance - FIXED
+const database: Database = getDatabase(app); // Realtime Database instance
 const db: Firestore = getFirestore(app); // Firestore instance
 const provider: GoogleAuthProvider = new GoogleAuthProvider(); // Auth provider
 
