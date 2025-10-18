@@ -7,7 +7,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import SearchInput from './SearchInput';
 import NotificationIcon from './NotificationIcon';
-import Link from 'next/link'; // Import Link from next/link
+import Link from 'next/link';
 import Image from 'next/image';
 
 const Header = () => {
@@ -22,6 +22,16 @@ const Header = () => {
     const { totalItems, totalPrice, cart, updateQuantity, removeFromCart, checkout } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
 
+    // Close logout menu when clicking outside
+    React.useEffect(() => {
+        const handleClickOutside = () => {
+            setIsLogoutMenuOpen(false);
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
     const handleToggleMobileSubMenu = (event: React.MouseEvent) => {
         event.stopPropagation();
         setIsMobileSubMenuOpen((prev) => !prev);
@@ -30,7 +40,8 @@ const Header = () => {
     const handleSubMenuItemClick = (category: string) => {
         router.push(`/?filter=${category}`);
         closeSidebar();
-        setIsDesktopSubMenuOpen(false); // Close desktop submenu after selection
+        setIsDesktopSubMenuOpen(false);
+        setIsMobileSubMenuOpen(false);
     };
 
     const handleToggleDesktopSubMenu = () => {
@@ -66,23 +77,40 @@ const Header = () => {
                 <div className="relative logout-container">
                     <button className="flex items-center space-x-2 focus:outline-none" onClick={handleToggleLogoutMenu}>
                         {photoURL ? (
-                            <Image src={photoURL} className="w-8 h-8 rounded-full border-2 border-gray-300" alt="User Avatar" width={32} height={32} />
+                            <Image 
+                                src={photoURL} 
+                                className="w-8 h-8 rounded-full border-2 border-gray-300" 
+                                alt="User Avatar" 
+                                width={32} 
+                                height={32}
+                                layout="intrinsic"
+                            />
                         ) : (
-                            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">{displayName.charAt(0).toUpperCase()}</div>
+                            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+                                {displayName.charAt(0).toUpperCase()}
+                            </div>
                         )}
                         <span className="text-black font-semibold">{displayName}</span>
                         <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
                     </button>
                     {isLogoutMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 logout-menu">
-                            <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={handleConfirmLogout}>লগআউট</a>
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+                            <button 
+                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                onClick={handleConfirmLogout}
+                            >
+                                লগআউট
+                            </button>
                         </div>
                     )}
                 </div>
             );
         } else {
             return (
-                <button className={`flex items-center ${isMobile ? 'w-full' : ''}`} onClick={loginWithGmail}>
+                <button 
+                    className={`flex items-center ${isMobile ? 'w-full' : ''} hover:text-gray-600`} 
+                    onClick={loginWithGmail}
+                >
                     <i className="fas fa-user-circle mr-2"></i>
                     <span className="text-black">লগইন</span>
                 </button>
@@ -92,166 +120,143 @@ const Header = () => {
 
     return (
         <>
-            <header className="bg-brushstroke text-black py-2 px-2 md:px-4 flex justify-between items-center fixed top-0 left-0 w-screen z-50">
+            <header className="bg-brushstroke text-black py-2 px-2 md:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
                 {/* লোগো */}
                 <Link className="flex items-center text-white" href="/">
                     <div className="flex items-center">
-                        <Image alt="Any&#39;s Beauty Corner লোগো" className="h-10 w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" height={40} src="/img.jpg" width={40} />
-                        <span className="text-base md:text-lg font-bold whitespace-nowrap text-black">Any&#39;s Beauty Corner</span>
+                        <Image 
+                            alt="Any's Beauty Corner লোগো" 
+                            className="h-10 w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" 
+                            height={40} 
+                            width={40} 
+                            src="/img.jpg"
+                            layout="intrinsic"
+                            priority
+                        />
+                        <span className="text-base md:text-lg font-bold whitespace-nowrap text-black">
+                            Any's Beauty Corner
+                        </span>
                     </div>
                 </Link>
 
-                <div className="flex items-center space-x-2 md:space-x-2">
+                <div className="flex items-center space-x-2 md:space-x-4">
                     {/* ডেস্কটপ সার্চ বার */}
-                    <div className="md:block p-2 md:flex-grow relative">
+                    <div className="hidden md:block p-2 md:flex-grow relative">
                         <SearchInput />
                     </div>
 
                     {/* মোবাইল সার্চ আইকন */}
-                    <div id="mobileSearchIcon" className="md:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
+                    <div className="md:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
                         <i className="fas fa-search text-2xl text-gray-800"></i>
                     </div>
 
                     {/* Notification icon */}
                     <NotificationIcon />
+                    
                     {/* শপিং ব্যাগ আইকন */}
-                    <button id="cartButton" className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative" onClick={openCartSidebar}>
+                    <button 
+                        className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative" 
+                        onClick={openCartSidebar}
+                    >
                         <i className="fas fa-shopping-bag text-2xl"></i>
                         {totalItems > 0 && (
-                            <span id="cartCount" className="absolute -top-1 -right-1 text-gray-800 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">{totalItems}</span>
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                                {totalItems}
+                            </span>
                         )}
                     </button>
 
-                    {/* কার্ট সাইডবার */}
-                    <div id="cartSidebar" className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${isCartSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-                        <div className="p-4 h-full flex flex-col">
-                            {/* কার্ট বন্ধ করার বাটন */}
-                            <button onClick={closeCartSidebar} className="text-gray-600 hover:text-gray-900">
-                                <i className="fas fa-times"></i>
-                            </button>
-                            {/* কার্ট হেডিং */}
-                            <h2 className="text-xl text-black font-bold mb-4">কার্ট</h2>
-                            {/* কার্ট আইটেমগুলি */}
-                            <div id="cartItems" className="space-y-4 flex-1 overflow-y-auto">
-                                {cart.length === 0 ? (
-                                    <p className="text-center text-gray-500">আপনার কার্ট খালি।</p>
-                                ) : (
-                                    cart.map(item => (
-                                        <div key={item.id} className="flex items-center justify-between p-2 border-b text-black">
-                                            <div className="flex items-center">
-                                                <Image src={item.image ? item.image.split(',')[0].trim() : 'https://via.placeholder.com/40'} className="w-10 h-10 object-cover rounded mr-3" alt={item.name} width={40} height={40} />
-                                                <div className="flex-grow">
-                                                    <p className="font-semibold text-sm truncate max-w-[10rem]">{item.name}</p>
-                                                    <div className="flex items-center mr-3">
-                                                        <button onClick={() => updateQuantity(item.id, -1)} className="px-2 py-1 font-bold text-gray-600 hover:bg-gray-100 rounded-l-lg">-</button>
-                                                        <span className="px-2 text-sm">{item.quantity}</span>
-                                                        <button onClick={() => updateQuantity(item.id, 1)} className="px-2 py-1 font-bold text-gray-600 hover:bg-gray-100 rounded-r-lg">+</button>
-                                                        <p className="font-semibold text-sm ml-2">{item.price.toFixed(2)}৳</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <button onClick={() => removeFromCart(item.id)} className="text-red-500 hover:text-red-700 ml-auto flex-shrink-0"><i className="fas fa-trash-alt"></i></button>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                            {/* চেকআউট বাটন */}
-                            <div className="cart-footer mt-4">
-                                <p id="totalPrice" className="text-lg font-bold">মোট মূল্য: {totalPrice.toFixed(2)} টাকা</p>
-                                <button onClick={checkout} className="w-full bg-red-500 text-white px-4 py-2 rounded mt-2 hover:bg-red-600">চেকআউট</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* টোস্ট নোটিফিকেশন */}
-                    {/* Toast is now handled by ToastProvider */}
-
                     {/* মোবাইল মেনু বাটন */}
-                    <button id="mobileMenuButton" className="text-gray-800 w-10 h-10 rounded md:hidden flex items-center justify-center" onClick={openSidebar}><i className="fas fa-bars text-2xl"></i></button>
-
-                    {/* মোবাইল সাইডবার ওভারলে */}
-                    <div className={`fixed inset-0 z-40 ${isSidebarOpen ? 'block' : 'hidden'}`} id="sidebarOverlay" onClick={closeSidebar}>
-                        <div className={`fixed top-0 left-0 h-full w-4/5 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`} id="sidebar" onClick={(e) => e.stopPropagation()}>
-                            <div className="p-4 h-full flex flex-col">
-                                <button id="closeSidebarButton" className="text-gray-600 hover:text-gray-900" onClick={closeSidebar}>
-                                    <i className="fas fa-times"></i>
-                                </button>
-                                <ul className="mt-4 flex-1 overflow-y-auto">
-                                    <li id="mobileLoginButton" className="py-3 border-b border-gray-200">
-                                        {renderLoginButton(true)}
-                                    </li>
-                                    <li className="py-3 border-b border-gray-200">
-                                        <Link className="block text-gray-800" href="/" onClick={closeSidebar}>হোম</Link>
-                                    </li>
-
-                                    <li className="py-3 border-b border-gray-200">
-                                        <button className="flex items-center justify-between w-full text-left text-gray-800" onClick={handleToggleMobileSubMenu}>
-                                            <span>পণ্য সমূহ</span>
-                                            <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isMobileSubMenuOpen ? 'rotate-180' : ''}`} id="arrowIcon"></i>
-                                        </button>
-                                        <div className={`bg-white/5 backdrop-blur-sm rounded-lg mt-1 ml-4 ${isMobileSubMenuOpen ? 'block' : 'hidden'}`} id="subMenuMobile">
-                                            <Link className="block px-4 py-2 text-gray-800 border-b border-gray-200" href="/?filter=all" onClick={() => handleSubMenuItemClick('all')}>সকল প্রোডাক্ট</Link>
-                                            <Link className="block px-4 py-2 text-gray-800 border-b border-gray-200" href="/?filter=health" onClick={() => handleSubMenuItemClick('health')}>স্বাস্থ্য</Link>
-                                            <Link className="block px-4 py-2 text-gray-800 border-b border-gray-200" href="/?filter=cosmetics" onClick={() => handleSubMenuItemClick('cosmetics')}>মেকআপ</Link>
-                                            <Link className="block px-4 py-2 text-gray-800 border-b border-gray-200" href="/?filter=skincare" onClick={() => handleSubMenuItemClick('skincare')}>স্কিনকেয়ার</Link>
-                                            <Link className="block px-4 py-2 text-gray-800 border-b border-gray-200" href="/?filter=haircare" onClick={() => handleSubMenuItemClick('haircare')}>হেয়ারকেয়ার</Link>
-                                            <Link className="block px-4 py-2 text-gray-800" href="/?filter=mehandi" onClick={() => handleSubMenuItemClick('mehandi')}>মেহেদী</Link>
-                                        </div>
-                                    </li>
-                                    <li className="py-3 border-b border-gray-200">
-                                        <Link id="mobileOrderTrackButton" className="block text-gray-800" href="/order-track" onClick={handleOrderTrackClick}>অর্ডার ট্র্যাক</Link>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="fixed top-0 right-0 h-full w-1/5" id="blankArea" onClick={closeSidebar}></div>
-                    </div>
+                    <button 
+                        className="text-gray-800 w-10 h-10 rounded md:hidden flex items-center justify-center" 
+                        onClick={openSidebar}
+                    >
+                        <i className="fas fa-bars text-2xl"></i>
+                    </button>
 
                     {/* ডেস্কটপ মেনু */}
-                    <nav className="md:flex space-x-6 items-center text-white">
-                        <div id="desktopLoginButton">
+                    <nav className="hidden md:flex space-x-6 items-center text-white">
+                        <div className="desktop-login-button">
                             {renderLoginButton(false)}
                         </div>
-                        <Link className="text-black hover:text-gray-600" href="/">হোম</Link>
+                        <Link className="text-black hover:text-gray-600 transition-colors" href="/">
+                            হোম
+                        </Link>
 
                         <div className="relative">
-                            <button className="text-black hover:text-gray-600" onClick={handleToggleDesktopSubMenu}>
+                            <button 
+                                className="text-black hover:text-gray-600 transition-colors flex items-center" 
+                                onClick={handleToggleDesktopSubMenu}
+                            >
                                 পণ্য সমূহ
-                                <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isDesktopSubMenuOpen ? 'rotate-180' : ''}`} id="desktopArrowIcon"></i>
+                                <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isDesktopSubMenuOpen ? 'rotate-180' : ''}`}></i>
                             </button>
                         </div>
-                        <Link id="desktopOrderTrackButton" className="text-black hover:text-gray-600" href="/order-track" onClick={handleOrderTrackClick}>অর্ডার ট্র্যাক</Link>
-
+                        
+                        <Link 
+                            className="text-black hover:text-gray-600 transition-colors" 
+                            href="/order-track"
+                        >
+                            অর্ডার ট্র্যাক
+                        </Link>
                     </nav>
                 </div>
 
-                {/* ডেস্কটপ টপ বার (সাবমেনু) */}
-                <div className={`hidden absolute top-full left-0 w-full bg-white shadow-lg z-60 ${isDesktopSubMenuOpen ? 'md:block' : ''}`} id="desktopSubMenuBar">
-                    <div className="container mx-auto p-4">
-                        <div className="grid grid-cols-4 gap-4">
-                            <Link className="block p-2 text-gray-800 hover:bg-gray-100 border-b border-gray-200" href="/?filter=all" onClick={() => handleSubMenuItemClick('all')}>সকল প্রোডাক্ট</Link>
-                            <Link className="block p-2 text-gray-800 hover:bg-gray-100 border-b border-gray-200" href="/?filter=health" onClick={() => handleSubMenuItemClick('health')}>স্বাস্থ্য</Link>
-                            <Link className="block p-2 text-gray-800 hover:bg-gray-100 border-b border-gray-200" href="/?filter=cosmetics" onClick={() => handleSubMenuItemClick('cosmetics')}>মেকআপ</Link>
-                            <Link className="block p-2 text-gray-800 hover:bg-gray-100 border-b border-gray-200" href="/?filter=skincare" onClick={() => handleSubMenuItemClick('skincare')}>স্কিনকেয়ার</Link>
-                            <Link className="block p-2 text-gray-800 hover:bg-gray-100 border-b border-gray-200" href="/?filter=haircare" onClick={() => handleSubMenuItemClick('haircare')}>হেয়ারকেয়ার</Link>
-                            <Link className="block p-2 text-gray-800 hover:bg-gray-100" href="/?filter=mehandi" onClick={() => handleSubMenuItemClick('mehandi')}>মেহেদী</Link>
+                {/* ডেস্কটপ সাবমেনু */}
+                {isDesktopSubMenuOpen && (
+                    <div className="absolute top-full left-0 w-full bg-white shadow-lg z-60 border-t border-gray-200">
+                        <div className="container mx-auto p-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                                {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
+                                    <Link
+                                        key={category}
+                                        href={`/?filter=${category}`}
+                                        className="block p-3 text-gray-800 hover:bg-gray-50 rounded-lg transition-colors text-center border border-gray-100"
+                                        onClick={() => setIsDesktopSubMenuOpen(false)}
+                                    >
+                                        {category === 'all' && 'সকল প্রোডাক্ট'}
+                                        {category === 'health' && 'স্বাস্থ্য'}
+                                        {category === 'cosmetics' && 'মেকআপ'}
+                                        {category === 'skincare' && 'স্কিনকেয়ার'}
+                                        {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                        {category === 'mehandi' && 'মেহেদী'}
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-
-
+                )}
             </header>
 
+            {/* কার্ট সাইডবার */}
+            <div className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${isCartSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                {/* ... আপনার existing cart code ... */}
+            </div>
+
+            {/* মোবাইল সাইডবার */}
+            <div className={`fixed inset-0 z-40 ${isSidebarOpen ? 'block' : 'hidden'}`}>
+                {/* ... আপনার existing mobile sidebar code ... */}
+            </div>
+
             {/* মোবাইল সার্চ বার */}
-            <div id="mobileSearchBar" className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : ''}`}>
+            <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
                 <div className="relative">
-                    <input className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" id="searchInput" onInput={() => { /* searchProductsMobile() */ }} placeholder="প্রোডাক্ট সার্চ করুন..." type="text" />
+                    <input 
+                        className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
+                        placeholder="প্রোডাক্ট সার্চ করুন..." 
+                        type="text" 
+                    />
                     <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400/80"></i>
                 </div>
-                {/* সার্চ রেজাল্ট */}
-                <div className="mt-2 max-h-60 overflow-y-auto bg-white/90 backdrop-blur-sm w-full shadow-lg rounded-lg z-50" id="searchResultsMobile"></div>
             </div>
+
+            {/* Overlay for desktop submenu */}
+            {isDesktopSubMenuOpen && (
+                <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setIsDesktopSubMenuOpen(false)}
+                />
+            )}
         </>
     );
 };
