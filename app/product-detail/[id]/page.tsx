@@ -30,7 +30,7 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const { addToCart, buyNow, cart, getTotalPrice } = useCart(); // ✅ Cart data ব্যবহার করুন
+    const { addToCart, buyNow, cart } = useCart(); // ✅ getTotalPrice remove করা হয়েছে
 
     useEffect(() => {
         if (!id) return;
@@ -65,7 +65,7 @@ const ProductDetail = () => {
 
     const handleThumbnailClick = (image: string) => {
         setMainImage(image);
-        setImageError(false); // Reset error when changing image
+        setImageError(false);
     };
 
     const openModal = () => {
@@ -77,7 +77,6 @@ const ProductDetail = () => {
     };
 
     const handleModalClick = (e: React.MouseEvent) => {
-        // ✅ শুধু background-এ click করলে close হবে
         if (e.target === e.currentTarget) {
             closeModal();
         }
@@ -86,8 +85,6 @@ const ProductDetail = () => {
     const handleAddToCart = () => {
         if (product) {
             addToCart(product);
-            // ✅ Better feedback (toast ব্যবহার করতে পারেন পরে)
-            alert(`${product.name} added to cart!`);
         }
     };
 
@@ -98,9 +95,9 @@ const ProductDetail = () => {
         }
     };
 
-    // ✅ Calculate cart totals
+    // ✅ Calculate cart totals - manual calculation
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = getTotalPrice ? getTotalPrice() : cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     if (loading) {
         return (
@@ -140,8 +137,8 @@ const ProductDetail = () => {
     const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
 
     return (
-        <div className="min-h-screen bg-background">
-            <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24"> {/* ✅ Added padding-bottom for fixed bar */}
+        <div className="min-h-screen bg-gray-50">
+            <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Image Gallery */}
@@ -180,10 +177,7 @@ const ProductDetail = () => {
                                                 fill
                                                 style={{ objectFit: 'cover' }}
                                                 className="rounded"
-                                                onError={(e) => {
-                                                    const target = e.target as HTMLImageElement;
-                                                    target.style.display = 'none';
-                                                }}
+                                                onError={() => {}}
                                             />
                                         </div>
                                     ))}
@@ -219,7 +213,9 @@ const ProductDetail = () => {
                                     className="bg-lipstick text-white py-3 px-6 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     disabled={product.stockStatus !== 'in-stock'}
                                 >
-                                    <i className="fas fa-shopping-cart"></i>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
                                     Add to Cart
                                 </button>
                                 <button 
@@ -227,7 +223,9 @@ const ProductDetail = () => {
                                     className="bg-gray-800 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     disabled={product.stockStatus !== 'in-stock'}
                                 >
-                                    <i className="fas fa-bolt"></i>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
                                     Buy Now
                                 </button>
                             </div>
@@ -241,7 +239,9 @@ const ProductDetail = () => {
                                         className="text-lipstick font-semibold text-sm hover:underline focus:outline-none flex items-center gap-1"
                                     >
                                         {showFullDescription ? 'Show Less' : 'Read More'}
-                                        <i className={`fas fa-chevron-${showFullDescription ? 'up' : 'down'} text-xs`}></i>
+                                        <svg className={`w-4 h-4 transition-transform ${showFullDescription ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
                                     </button>
                                 )}
                             </div>
@@ -261,29 +261,33 @@ const ProductDetail = () => {
                 )}
             </main>
 
-            {/* Fixed Order Bar - ✅ Actual cart data ব্যবহার করুন */}
-            <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
-                <div className="flex justify-between items-center max-w-4xl mx-auto">
-                    <div>
-                        <span className="text-gray-600">Total Items: <span className="font-bold text-lipstick">{totalItems}</span></span>
-                        <p className="font-bold text-lg text-lipstick">BDT <span>{totalPrice.toFixed(2)}</span></p>
+            {/* Fixed Order Bar */}
+            {totalItems > 0 && (
+                <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
+                    <div className="flex justify-between items-center max-w-4xl mx-auto">
+                        <div>
+                            <span className="text-gray-600">Total Items: <span className="font-bold text-lipstick">{totalItems}</span></span>
+                            <p className="font-bold text-lg text-lipstick">BDT <span>{totalPrice.toFixed(2)}</span></p>
+                        </div>
+                        <button 
+                            onClick={() => router.push('/order-form')}
+                            disabled={totalItems === 0}
+                            className="font-bold py-3 px-6 rounded-lg bg-lipstick text-white hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Place Order ({totalItems})
+                        </button>
                     </div>
-                    <button 
-                        onClick={() => router.push('/order-form')}
-                        disabled={totalItems === 0}
-                        className="font-bold py-3 px-6 rounded-lg bg-lipstick text-white hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                        <i className="fas fa-shopping-bag"></i>
-                        Place Order ({totalItems})
-                    </button>
                 </div>
-            </div>
+            )}
 
-            {/* Modal - ✅ Fixed close behavior */}
+            {/* Modal */}
             {showModal && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
-                    onClick={handleModalClick} // ✅ শুধু background-এ click করলে close হবে
+                    onClick={handleModalClick}
                 >
                     <button 
                         className="absolute top-4 right-4 text-white text-3xl cursor-pointer z-10 bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center hover:bg-opacity-70 transition-colors"
@@ -293,7 +297,6 @@ const ProductDetail = () => {
                         ×
                     </button>
                     <div className="relative w-full h-full max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
-                        {/* ✅ Image-এ click করলে close হবে না */}
                         <Image 
                             src={mainImage} 
                             alt={product.name}
