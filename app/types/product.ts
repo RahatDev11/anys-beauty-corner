@@ -11,3 +11,4 @@ export interface Product {
     isInSlider?: boolean;
     sliderOrder?: number;
 }
+
