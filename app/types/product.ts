@@ -1,3 +1,5 @@
+'use client'; // ✅ Add this directive
+
 export interface Product {
     id: string;
     name: string;
@@ -11,4 +13,3 @@ export interface Product {
     isInSlider?: boolean;
     sliderOrder?: number;
 }
-
