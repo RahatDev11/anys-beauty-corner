@@ -11,15 +11,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const Header = () => {
-    const { isOpen: isSidebarOpen, openSidebar, closeSidebar } = useSidebar();
-    const { isOpen: isCartSidebarOpen, openCartSidebar, closeCartSidebar } = useCartSidebar();
+    const { isOpen: isSidebarOpen, openSidebar } = useSidebar();
+    const { isOpen: isCartSidebarOpen, openCartSidebar } = useCartSidebar();
     const [isMobileSubMenuOpen, setIsMobileSubMenuOpen] = useState(false);
     const [isDesktopSubMenuOpen, setIsDesktopSubMenuOpen] = useState(false);
     const [isMobileSearchBarOpen, setIsMobileSearchBarOpen] = useState(false);
     const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
 
     const router = useRouter();
-    const { totalItems, totalPrice, cart, updateQuantity, removeFromCart, checkout } = useCart();
+    const { totalItems } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
 
     // Close logout menu when clicking outside
@@ -32,14 +32,8 @@ const Header = () => {
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-    const handleToggleMobileSubMenu = (event: React.MouseEvent) => {
-        event.stopPropagation();
-        setIsMobileSubMenuOpen((prev) => !prev);
-    };
-
     const handleSubMenuItemClick = (category: string) => {
         router.push(`/?filter=${category}`);
-        closeSidebar();
         setIsDesktopSubMenuOpen(false);
         setIsMobileSubMenuOpen(false);
     };
@@ -50,11 +44,6 @@ const Header = () => {
 
     const handleFocusMobileSearch = () => {
         setIsMobileSearchBarOpen((prev) => !prev);
-    };
-
-    const handleOrderTrackClick = (event: React.MouseEvent) => {
-        event.preventDefault();
-        router.push('/order-track');
     };
 
     const handleToggleLogoutMenu = (event: React.MouseEvent) => {
@@ -125,7 +114,7 @@ const Header = () => {
                 <Link className="flex items-center text-white" href="/">
                     <div className="flex items-center">
                         <Image 
-                            alt="Any's Beauty Corner লোগো" 
+                            alt="Any&apos;s Beauty Corner লোগো" 
                             className="h-10 w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" 
                             height={40} 
                             width={40} 
@@ -134,7 +123,7 @@ const Header = () => {
                             priority
                         />
                         <span className="text-base md:text-lg font-bold whitespace-nowrap text-black">
-                            Any's Beauty Corner
+                            Any&apos;s Beauty Corner
                         </span>
                     </div>
                 </Link>
@@ -152,7 +141,7 @@ const Header = () => {
 
                     {/* Notification icon */}
                     <NotificationIcon />
-                    
+
                     {/* শপিং ব্যাগ আইকন */}
                     <button 
                         className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative" 
@@ -192,7 +181,7 @@ const Header = () => {
                                 <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isDesktopSubMenuOpen ? 'rotate-180' : ''}`}></i>
                             </button>
                         </div>
-                        
+
                         <Link 
                             className="text-black hover:text-gray-600 transition-colors" 
                             href="/order-track"
@@ -230,12 +219,91 @@ const Header = () => {
 
             {/* কার্ট সাইডবার */}
             <div className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${isCartSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-                {/* ... আপনার existing cart code ... */}
+                <div className="p-4 h-full flex flex-col">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
+                        <button 
+                            onClick={() => {/* close cart function */}}
+                            className="text-gray-500 hover:text-gray-700"
+                        >
+                            <i className="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                        {/* Cart items will go here */}
+                        <div className="text-center text-gray-500 py-8">
+                            <i className="fas fa-shopping-cart text-4xl mb-4"></i>
+                            <p>আপনার কার্ট খালি</p>
+                        </div>
+                    </div>
+                    <div className="border-t pt-4">
+                        <button className="w-full bg-lipstick text-white py-3 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors">
+                            চেকআউট
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* মোবাইল সাইডবার */}
             <div className={`fixed inset-0 z-40 ${isSidebarOpen ? 'block' : 'hidden'}`}>
-                {/* ... আপনার existing mobile sidebar code ... */}
+                <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg">
+                    <div className="p-4">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-gray-800">মেনু</h2>
+                            <button 
+                                onClick={() => {/* close sidebar function */}}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <i className="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div className="mb-4">
+                            {renderLoginButton(true)}
+                        </div>
+
+                        <nav className="space-y-2">
+                            <Link href="/" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded">
+                                হোম
+                            </Link>
+                            
+                            <button 
+                                className="w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-100 rounded flex justify-between items-center"
+                                onClick={() => setIsMobileSubMenuOpen(!isMobileSubMenuOpen)}
+                            >
+                                পণ্য সমূহ
+                                <i className={`fas fa-chevron-down transition-transform ${isMobileSubMenuOpen ? 'rotate-180' : ''}`}></i>
+                            </button>
+
+                            {isMobileSubMenuOpen && (
+                                <div className="ml-4 space-y-1">
+                                    {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
+                                        <button
+                                            key={category}
+                                            onClick={() => handleSubMenuItemClick(category)}
+                                            className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-50 rounded text-sm"
+                                        >
+                                            {category === 'all' && 'সকল প্রোডাক্ট'}
+                                            {category === 'health' && 'স্বাস্থ্য'}
+                                            {category === 'cosmetics' && 'মেকআপ'}
+                                            {category === 'skincare' && 'স্কিনকেয়ার'}
+                                            {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                            {category === 'mehandi' && 'মেহেদী'}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            <Link href="/order-track" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded">
+                                অর্ডার ট্র্যাক
+                            </Link>
+                        </nav>
+                    </div>
+                </div>
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-50" 
+                    onClick={() => {/* close sidebar function */}}
+                />
             </div>
 
             {/* মোবাইল সার্চ বার */}
