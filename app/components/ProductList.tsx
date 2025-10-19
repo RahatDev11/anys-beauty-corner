@@ -1,3 +1,5 @@
+'use client'; // ✅ Add this at the top
+
 import React from 'react';
 import ProductCard from './ProductCard';
 import { Product } from '@/app/types/product';
@@ -10,7 +12,6 @@ interface ProductListProps {
         quantity: number;
     }>;
     addToCart: (product: Product) => void;
-    updateQuantity: (id: string, change: number) => void;
     buyNow: (product: Product) => void;
 }
 
@@ -18,7 +19,6 @@ const ProductList: React.FC<ProductListProps> = ({
     products,
     cartItems,
     addToCart,
-    updateQuantity,
     buyNow,
 }) => {
     const router = useRouter();
@@ -37,7 +37,6 @@ const ProductList: React.FC<ProductListProps> = ({
                         key={product.id}
                         product={product}
                         addToCart={(productItem) => addToCart(productItem)}
-                        updateQuantity={updateQuantity}
                         buyNow={(productItem) => buyNow(productItem)}
                         cartItemQuantity={cartItemQuantity}
                         showProductDetail={showProductDetail}
