@@ -4,24 +4,24 @@ import { getDatabase, ref, onValue, set, get, query, orderByChild, equalTo, upda
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, getRedirectResult, Auth } from 'firebase/auth';
 import { getFirestore, collection, addDoc, doc, getDoc, updateDoc, Firestore } from 'firebase/firestore';
 
-// Firebase Configuration
+// Firebase Configuration - Direct Keys
 const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+    apiKey: "AIzaSyCVSzQS1c7H4BLhsDF_fW8wnqUN4B35LPA",
+    authDomain: "nahid-6714.firebaseapp.com",
+    databaseURL: "https://nahid-6714-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "nahid-6714",
+    storageBucket: "nahid-6714.firebasestorage.app",
+    messagingSenderId: "505741217147",
+    appId: "1:505741217147:web:25ed4e9f0d00e3c4d381de",
+    measurementId: "G-QZ7CTRKHCW",
 };
 
 // Initialize Firebase
 const app: FirebaseApp = initializeApp(firebaseConfig);
 const auth: Auth = getAuth(app);
-const database: Database = getDatabase(app); // Realtime Database instance
-const db: Firestore = getFirestore(app); // Firestore instance
-const provider: GoogleAuthProvider = new GoogleAuthProvider(); // Auth provider
+const database: Database = getDatabase(app);
+const db: Firestore = getFirestore(app);
+const provider: GoogleAuthProvider = new GoogleAuthProvider();
 
 export {
     app,
@@ -29,7 +29,6 @@ export {
     database,
     db,
     provider,
-    // Firebase functions
     ref,
     onValue,
     set,
