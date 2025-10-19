@@ -24,11 +24,11 @@ interface CartItem {
 
 interface CartContextType {
     cart: CartItem[];
-    addToCart: (product: Product) => void;
+    addToCart: (product: Product, quantity?: number) => void;
     updateQuantity: (productId: string, change: number) => void;
     removeFromCart: (productId: string) => void;
     checkout: () => void;
-    buyNow: (product: Product) => void;
+    buyNow: (product: Product, quantity?: number) => void;
     totalItems: number;
     totalPrice: number;
     clearCart: () => void;
@@ -87,18 +87,18 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return () => unsubscribe();
     }, [loadCart]);
 
-    const addToCart = useCallback((product: Product) => {
+    const addToCart = useCallback((product: Product, quantity: number = 1) => {
         setCart((prevCart) => {
             const existingItem = prevCart.find(item => item.id === product.id);
             let updatedCart;
             if (existingItem) {
                 updatedCart = prevCart.map(item =>
-                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+                    item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
                 );
             } else {
                 updatedCart = [
                     ...prevCart,
-                    { id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 },
+                    { id: product.id, name: product.name, price: product.price, image: product.image, quantity: quantity },
                 ];
             }
             saveCart(updatedCart);
@@ -133,9 +133,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [cart, router, showToast]);
 
-    const buyNow = useCallback((product: Product) => {
+    const buyNow = useCallback((product: Product, quantity: number = 1) => {
         const tempCart = [
-            { id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 },
+            { id: product.id, name: product.name, price: product.price, image: product.image, quantity: quantity },
         ];
         const cartData = encodeURIComponent(JSON.stringify(tempCart));
         router.push(`/order-form?cart=${cartData}`);

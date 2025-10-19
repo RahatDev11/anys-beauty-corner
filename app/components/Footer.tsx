@@ -14,15 +14,15 @@ const Footer = () => {
     };
 
     return (
-        <footer style={{ backgroundColor: '#F4A7B9' }} className="text-gray-800 py-4">
+        <footer style={{ backgroundColor: '#F4A7B9' }} className="text-gray-700 py-4">
             <div className="container mx-auto px-4 max-w-6xl">
 
                 {/* Top Row: Brand Info & Social Links */}
-                <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-2 mb-2 pb-2 border-b border-gray-800/20">
+                <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-2 mb-2 pb-2 border-b border-gray-300">
                     <div className="text-center md:text-left md:max-w-sm">
                         <Link href="/" className="inline-flex items-center space-x-3 group mb-4" aria-label="Any&#39;s Beauty Corner Home">
                             <Image alt="Any&#39;s Beauty Corner লোগো" className="h-10 w-10 rounded-full border-2 border-gray-800/20 group-hover:opacity-90 transition-opacity" src="/img.jpg" width={40} height={40} />
-                            <span className="text-lg font-semibold text-gray-900 transition-colors">Any&#39;s Beauty Corner</span>
+                            <span className="text-lg font-semibold text-gray-800 transition-colors">Any&#39;s Beauty Corner</span>
                         </Link>
                         <p className="text-xs leading-relaxed text-gray-700">আপনার সৌন্দর্য চর্চার বিশ্বস্ত সঙ্গী।</p>
                     </div>
@@ -38,7 +38,7 @@ const Footer = () => {
                 {/* Middle Row: Links */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                     <div>
-                        <h4 className="font-semibold text-gray-900 border-b border-gray-800/20 pb-2 mb-4 cursor-pointer flex justify-between items-center" onClick={() => toggleMenu(setImportantLinksOpen)}>
+                        <h4 className="font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-4 cursor-pointer flex justify-between items-center" onClick={() => toggleMenu(setImportantLinksOpen)}>
                             <span>দরকারি লিংক</span>
                             <i className={`fas fa-chevron-down text-xs transition-transform duration-300 ${importantLinksOpen ? 'rotate-180' : ''}`}></i>
                         </h4>
@@ -49,7 +49,7 @@ const Footer = () => {
                         </ul>
                     </div>
                     <div>
-                        <h4 className="font-semibold text-gray-900 border-b border-gray-800/20 pb-2 mb-4 cursor-pointer flex justify-between items-center" onClick={() => toggleMenu(setCategoriesOpen)}>
+                        <h4 className="font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-4 cursor-pointer flex justify-between items-center" onClick={() => toggleMenu(setCategoriesOpen)}>
                             <span>ক্যাটাগরি</span>
                             <i className={`fas fa-chevron-down text-xs transition-transform duration-300 ${categoriesOpen ? 'rotate-180' : ''}`}></i>
                         </h4>
@@ -61,7 +61,7 @@ const Footer = () => {
                         </ul>
                     </div>
                     <div>
-                        <h4 className="font-semibold text-gray-900 border-b border-gray-800/20 pb-2 mb-4 cursor-pointer flex justify-between items-center" onClick={() => toggleMenu(setPoliciesOpen)}>
+                        <h4 className="font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-4 cursor-pointer flex justify-between items-center" onClick={() => toggleMenu(setPoliciesOpen)}>
                             <span>নীতিমালা</span>
                             <i className={`fas fa-chevron-down text-xs transition-transform duration-300 ${policiesOpen ? 'rotate-180' : ''}`}></i>
                         </h4>
@@ -72,7 +72,7 @@ const Footer = () => {
                         </ul>
                     </div>
                     <div>
-                        <h4 className="font-semibold text-gray-900 border-b border-gray-800/20 pb-2 mb-4 cursor-pointer flex justify-between items-center" onClick={() => toggleMenu(setContactOpen)}>
+                        <h4 className="font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-4 cursor-pointer flex justify-between items-center" onClick={() => toggleMenu(setContactOpen)}>
                             <span>যোগাযোগ</span>
                             <i className={`fas fa-chevron-down text-xs transition-transform duration-300 ${contactOpen ? 'rotate-180' : ''}`}></i>
                         </h4>
@@ -85,7 +85,7 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom Row: Copyright */}
-                <div className="border-t border-gray-800/20 pt-6 mt-6 text-sm text-center text-gray-600">
+                <div className="border-t border-gray-300 pt-6 mt-6 text-sm text-center text-gray-600">
                     <p>© <span id="currentYear"></span> Any&#39;s Beauty Corner. সর্বস্বত্ব সংরক্ষিত।</p>
                     <p className="mt-1">ডেভেলপ করেছে: <a href="https://devxhub.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 font-medium">Nahid</a></p>
                 </div>

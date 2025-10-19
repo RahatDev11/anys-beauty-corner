@@ -5,7 +5,7 @@ import ProductList from './components/ProductList';
 import ProductSlider from './components/ProductSlider';
 import EventSlider from './components/EventSlider';
 import { database, ref, onValue, off } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from './context/CartContext';
 import { useAuth } from './context/AuthContext';
 import ProductManagement from './components/admin/ProductManagement';
@@ -38,8 +38,18 @@ export default function HomePage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { cart, addToCart, buyNow } = useCart(); // ✅ updateQuantity remove
+    const { cart, addToCart, buyNow, updateQuantity } = useCart(); // ✅ updateQuantity remove
     const { isAdmin } = useAuth();
+
+    const searchParams = useSearchParams();
+    const categoryFilter = searchParams.get('filter');
+
+    const filteredProducts = products.filter(product => {
+        if (!categoryFilter || categoryFilter === 'all') {
+            return true;
+        }
+        return product.category === categoryFilter;
+    });
 
     useEffect(() => {
         // Fetch products from Firebase
@@ -136,15 +146,16 @@ export default function HomePage() {
                 {/* All Products Grid */}
                 <section>
                     <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
-                        {products.length > 0 ? 'All Products' : 'No Products Available'}
+                        {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
                     </h2>
                     
-                    {products.length > 0 ? (
+                    {filteredProducts.length > 0 ? (
                         <ProductList
-                            products={products}
+                            products={filteredProducts}
                             cartItems={cart}
                             addToCart={addToCart}
                             buyNow={buyNow}
+                            updateQuantity={updateQuantity}
                         />
                     ) : (
                         <div className="text-center py-12 bg-white rounded-lg shadow-sm">
