@@ -1,29 +1,47 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSidebar } from '../hooks/useSidebar';
 import { useCartSidebar } from '../hooks/useCartSidebar';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import SearchInput from './SearchInput';
-import NotificationIcon from './NotificationIcon';
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Temporary components
+const SearchInput = () => (
+    <div className="relative">
+        <input 
+            className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
+            placeholder="প্রোডাক্ট সার্চ করুন..." 
+            type="text" 
+        />
+        <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800"></i>
+    </div>
+);
+
+const NotificationIcon = () => (
+    <Link href="/notifications" className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative">
+        <i className="fas fa-bell text-2xl"></i>
+        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+    </Link>
+);
+
 const Header = () => {
-    const { isOpen: isSidebarOpen, openSidebar, closeSidebar } = useSidebar(); // ✅ closeSidebar add করুন
-    const { isOpen: isCartSidebarOpen, openCartSidebar, closeCartSidebar } = useCartSidebar(); // ✅ closeCartSidebar add করুন
+    const { isOpen: isSidebarOpen, openSidebar, closeSidebar } = useSidebar();
+    const { isOpen: isCartSidebarOpen, openCartSidebar, closeCartSidebar } = useCartSidebar();
     const [isMobileSubMenuOpen, setIsMobileSubMenuOpen] = useState(false);
     const [isDesktopSubMenuOpen, setIsDesktopSubMenuOpen] = useState(false);
     const [isMobileSearchBarOpen, setIsMobileSearchBarOpen] = useState(false);
     const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
+    const [imgError, setImgError] = useState(false);
 
     const router = useRouter();
-    const { totalItems } = useCart();
+    const { totalItems = 0 } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
 
     // Close logout menu when clicking outside
-    React.useEffect(() => {
+    useEffect(() => {
         const handleClickOutside = () => {
             setIsLogoutMenuOpen(false);
         };
@@ -36,6 +54,7 @@ const Header = () => {
         router.push(`/?filter=${category}`);
         setIsDesktopSubMenuOpen(false);
         setIsMobileSubMenuOpen(false);
+        closeSidebar();
     };
 
     const handleToggleDesktopSubMenu = () => {
@@ -65,14 +84,14 @@ const Header = () => {
             return (
                 <div className="relative logout-container">
                     <button className="flex items-center space-x-2 focus:outline-none" onClick={handleToggleLogoutMenu}>
-                        {photoURL ? (
+                        {photoURL && !imgError ? (
                             <Image 
                                 src={photoURL} 
                                 className="w-8 h-8 rounded-full border-2 border-gray-300" 
                                 alt="User Avatar" 
                                 width={32} 
                                 height={32}
-                                layout="intrinsic"
+                                onError={() => setImgError(true)}
                             />
                         ) : (
                             <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
@@ -114,12 +133,11 @@ const Header = () => {
                 <Link className="flex items-center text-white" href="/">
                     <div className="flex items-center">
                         <Image 
-                            alt="Any&apos;s Beauty Corner লোগো" 
+                            alt="Any's Beauty Corner লোগো" 
                             className="h-10 w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" 
                             height={40} 
                             width={40} 
                             src="/img.jpg"
-                            layout="intrinsic"
                             priority
                         />
                         <span className="text-base md:text-lg font-bold whitespace-nowrap text-black">
@@ -223,7 +241,7 @@ const Header = () => {
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
                         <button 
-                            onClick={closeCartSidebar}  // ✅ closeCartSidebar function add করুন
+                            onClick={closeCartSidebar}
                             className="text-gray-500 hover:text-gray-700"
                         >
                             <i className="fas fa-times text-xl"></i>
@@ -248,7 +266,7 @@ const Header = () => {
             {isCartSidebarOpen && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-50 z-40"
-                    onClick={closeCartSidebar}  // ✅ Overlay-এ click করলে close হবে
+                    onClick={closeCartSidebar}
                 />
             )}
 
@@ -259,7 +277,7 @@ const Header = () => {
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-gray-800">মেনু</h2>
                             <button 
-                                onClick={closeSidebar}  // ✅ closeSidebar function add করুন
+                                onClick={closeSidebar}
                                 className="text-gray-500 hover:text-gray-700"
                             >
                                 <i className="fas fa-times text-xl"></i>
@@ -271,7 +289,7 @@ const Header = () => {
                         </div>
 
                         <nav className="space-y-2">
-                            <Link href="/" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded">
+                            <Link href="/" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
                                 হোম
                             </Link>
 
@@ -302,7 +320,7 @@ const Header = () => {
                                 </div>
                             )}
 
-                            <Link href="/order-track" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded">
+                            <Link href="/order-track" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
                                 অর্ডার ট্র্যাক
                             </Link>
                         </nav>
@@ -310,7 +328,7 @@ const Header = () => {
                 </div>
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-50" 
-                    onClick={closeSidebar}  // ✅ Overlay-এ click করলে close হবে
+                    onClick={closeSidebar}
                 />
             </div>
 
