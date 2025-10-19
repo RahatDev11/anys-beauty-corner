@@ -29,7 +29,8 @@ const ProductDetail = () => {
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
-    const { addToCart, buyNow } = useCart();
+    const [imageError, setImageError] = useState(false);
+    const { addToCart, buyNow, cart, getTotalPrice } = useCart(); // ✅ Cart data ব্যবহার করুন
 
     useEffect(() => {
         if (!id) return;
@@ -64,6 +65,7 @@ const ProductDetail = () => {
 
     const handleThumbnailClick = (image: string) => {
         setMainImage(image);
+        setImageError(false); // Reset error when changing image
     };
 
     const openModal = () => {
@@ -74,10 +76,18 @@ const ProductDetail = () => {
         setShowModal(false);
     };
 
+    const handleModalClick = (e: React.MouseEvent) => {
+        // ✅ শুধু background-এ click করলে close হবে
+        if (e.target === e.currentTarget) {
+            closeModal();
+        }
+    };
+
     const handleAddToCart = () => {
         if (product) {
             addToCart(product);
-            alert('Product added to cart!');
+            // ✅ Better feedback (toast ব্যবহার করতে পারেন পরে)
+            alert(`${product.name} added to cart!`);
         }
     };
 
@@ -87,6 +97,10 @@ const ProductDetail = () => {
             router.push('/order-form');
         }
     };
+
+    // ✅ Calculate cart totals
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = getTotalPrice ? getTotalPrice() : cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     if (loading) {
         return (
@@ -107,7 +121,7 @@ const ProductDetail = () => {
                     <p className="text-gray-600 mt-2">The product you&apos;re looking for doesn&apos;t exist.</p>
                     <button 
                         onClick={() => router.push('/')}
-                        className="mt-4 bg-lipstick text-white px-4 py-2 rounded-lg hover:bg-lipstick-dark"
+                        className="mt-4 bg-lipstick text-white px-4 py-2 rounded-lg hover:bg-lipstick-dark transition-colors"
                     >
                         Back to Home
                     </button>
@@ -127,20 +141,27 @@ const ProductDetail = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto">
+            <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24"> {/* ✅ Added padding-bottom for fixed bar */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Image Gallery - First code structure with improvements */}
+                        {/* Image Gallery */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1 relative aspect-[4/3]">
-                                <Image 
-                                    src={mainImage} 
-                                    alt="Main Product Image" 
-                                    onClick={openModal}
-                                    fill 
-                                    style={{objectFit: "contain"}} 
-                                    className="border border-gray-200 rounded-lg cursor-pointer"
-                                />
+                                {mainImage && !imageError ? (
+                                    <Image 
+                                        src={mainImage} 
+                                        alt={product.name}
+                                        onClick={openModal}
+                                        fill 
+                                        style={{objectFit: "contain"}} 
+                                        className="border border-gray-200 rounded-lg cursor-pointer transition-transform hover:scale-105"
+                                        onError={() => setImageError(true)}
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200">
+                                        <span className="text-gray-400">Image not available</span>
+                                    </div>
+                                )}
                             </div>
 
                             {product.images && product.images.length > 1 && (
@@ -148,17 +169,21 @@ const ProductDetail = () => {
                                     {product.images.map((image: string, index: number) => (
                                         <div 
                                             key={index}
-                                            className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 cursor-pointer border-2 rounded ${
-                                                mainImage === image ? 'border-lipstick' : 'border-transparent'
+                                            className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 cursor-pointer border-2 rounded transition-all ${
+                                                mainImage === image ? 'border-lipstick' : 'border-transparent hover:border-gray-300'
                                             }`}
                                             onClick={() => handleThumbnailClick(image)}
                                         >
                                             <Image
                                                 src={image}
-                                                alt={`Product thumbnail ${index + 1}`}
+                                                alt={`${product.name} thumbnail ${index + 1}`}
                                                 fill
                                                 style={{ objectFit: 'cover' }}
                                                 className="rounded"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                }}
                                             />
                                         </div>
                                     ))}
@@ -166,7 +191,7 @@ const ProductDetail = () => {
                             )}
                         </div>
 
-                        {/* Product Details - Second code structure with enhancements */}
+                        {/* Product Details */}
                         <div>
                             <h1 className="text-2xl lg:text-3xl font-bold mb-4 text-gray-800">{product.name}</h1>
                             <p className="text-lipstick text-xl lg:text-2xl font-bold mb-4">{product.price} ৳</p>
@@ -174,7 +199,7 @@ const ProductDetail = () => {
                             <div className="mb-6 space-y-2">
                                 <div>
                                     <span className="text-gray-600">Category: </span>
-                                    <span className="font-semibold">{product.category}</span>
+                                    <span className="font-semibold capitalize">{product.category}</span>
                                 </div>
                                 <div>
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -187,20 +212,22 @@ const ProductDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Action Buttons - Combined styles */}
+                            {/* Action Buttons */}
                             <div className="flex flex-col space-y-3 mb-6">
                                 <button 
                                     onClick={handleAddToCart}
-                                    className="bg-lipstick text-white py-3 px-6 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="bg-lipstick text-white py-3 px-6 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     disabled={product.stockStatus !== 'in-stock'}
                                 >
+                                    <i className="fas fa-shopping-cart"></i>
                                     Add to Cart
                                 </button>
                                 <button 
                                     onClick={handleBuyNow}
-                                    className="bg-gray-800 text-white py-3 px-6 rounded-lg font-semibold hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="bg-gray-800 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     disabled={product.stockStatus !== 'in-stock'}
                                 >
+                                    <i className="fas fa-bolt"></i>
                                     Buy Now
                                 </button>
                             </div>
@@ -211,9 +238,10 @@ const ProductDetail = () => {
                                 {shouldTruncate && (
                                     <button 
                                         onClick={() => setShowFullDescription(!showFullDescription)}
-                                        className="text-lipstick font-semibold text-sm focus:outline-none"
+                                        className="text-lipstick font-semibold text-sm hover:underline focus:outline-none flex items-center gap-1"
                                     >
                                         {showFullDescription ? 'Show Less' : 'Read More'}
+                                        <i className={`fas fa-chevron-${showFullDescription ? 'up' : 'down'} text-xs`}></i>
                                     </button>
                                 )}
                             </div>
@@ -221,10 +249,10 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products Section - First code's ProductSlider */}
+                {/* Related Products Section */}
                 {relatedProducts.length > 0 && (
-                    <section className="mt-8">
-                        <h2 className="text-2xl font-bold text-center mb-4 text-lipstick-dark">Related Products</h2>
+                    <section className="mt-12">
+                        <h2 className="text-2xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
                         <ProductSlider 
                             products={relatedProducts} 
                             showProductDetail={(productId) => router.push(`/product/${productId}`)}
@@ -233,41 +261,46 @@ const ProductDetail = () => {
                 )}
             </main>
 
-            {/* Fixed Order Bar - From second code */}
-            <div className="fixed bottom-0 left-0 w-full bg-white p-3 shadow-lg z-40" style={{ boxShadow: '0 -2px 10px rgba(0,0,0,0.1)' }}>
+            {/* Fixed Order Bar - ✅ Actual cart data ব্যবহার করুন */}
+            <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                 <div className="flex justify-between items-center max-w-4xl mx-auto">
                     <div>
-                        <span className="text-gray-600">Total Items: <span className="font-bold text-lipstick">0</span></span>
-                        <p className="font-bold text-lg text-lipstick">BDT <span>0.00</span></p>
+                        <span className="text-gray-600">Total Items: <span className="font-bold text-lipstick">{totalItems}</span></span>
+                        <p className="font-bold text-lg text-lipstick">BDT <span>{totalPrice.toFixed(2)}</span></p>
                     </div>
                     <button 
-                        onClick={() => router.push('/cart')}
-                        className="font-bold py-3 px-6 rounded-lg bg-lipstick text-white hover:bg-lipstick-dark transition-colors"
+                        onClick={() => router.push('/order-form')}
+                        disabled={totalItems === 0}
+                        className="font-bold py-3 px-6 rounded-lg bg-lipstick text-white hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                        Place Order
+                        <i className="fas fa-shopping-bag"></i>
+                        Place Order ({totalItems})
                     </button>
                 </div>
             </div>
 
-            {/* Modal - From first code */}
+            {/* Modal - ✅ Fixed close behavior */}
             {showModal && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
-                    onClick={closeModal}
+                    onClick={handleModalClick} // ✅ শুধু background-এ click করলে close হবে
                 >
-                    <span 
-                        className="absolute top-4 right-4 text-white text-3xl cursor-pointer z-10 bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center"
+                    <button 
+                        className="absolute top-4 right-4 text-white text-3xl cursor-pointer z-10 bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center hover:bg-opacity-70 transition-colors"
                         onClick={closeModal}
+                        aria-label="Close modal"
                     >
                         ×
-                    </span>
-                    <div className="relative w-full h-full max-w-4xl max-h-full">
+                    </button>
+                    <div className="relative w-full h-full max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
+                        {/* ✅ Image-এ click করলে close হবে না */}
                         <Image 
                             src={mainImage} 
-                            alt="Full Screen Product Image" 
+                            alt={product.name}
                             fill
                             style={{objectFit: "contain"}} 
                             className="cursor-zoom-out"
+                            onError={() => setImageError(true)}
                         />
                     </div>
                 </div>
