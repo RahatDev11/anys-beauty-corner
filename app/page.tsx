@@ -70,8 +70,8 @@ export default function HomePage() {
 
     const sliderProducts = products.filter(p => p.isInSlider).sort((a, b) => (a.sliderOrder || 99) - (b.sliderOrder || 99));
     
-    // ✅ শুধু NON-SLIDER products grid-এ show করুন
-    const gridProducts = products.filter(p => !p.isInSlider);
+    // ✅ সব products grid-এ show করুন
+    const gridProducts = products;
 
     return (
         <main className="p-4 pt-24">
@@ -90,7 +90,7 @@ export default function HomePage() {
                     <EventSlider events={events} />
                 </section>
 
-                {/* ✅ শুধু slider products থাকলে show করুন */}
+                {/* ✅ TEMPORARY: ProductSlider hide করুন */}
                 {sliderProducts.length > 0 && (
                     <section className="mb-8">
                         <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
@@ -99,11 +99,9 @@ export default function HomePage() {
                 )}
 
                 <section>
-                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
-                        {sliderProducts.length > 0 ? 'Other Products' : 'All Products'}
-                    </h2>
+                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">All Products</h2>
                     <ProductList
-                        products={gridProducts}  // ✅ শুধু non-slider products
+                        products={gridProducts}  // ✅ সব products show হবে
                         cartItems={cart}
                         addToCart={(product) => addToCart(product)}
                         updateQuantity={updateQuantity}
