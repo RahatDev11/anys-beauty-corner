@@ -10,7 +10,7 @@ const PrivacyPolicyPage = () => {
       <section className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">1. Introduction</h2>
         <p className="text-gray-700 leading-relaxed mb-4">
-          Welcome to Any's Beauty Corner. We are committed to protecting your privacy and ensuring you have a positive experience on our website. This Privacy Policy outlines how we collect, use, and protect your personal information.
+          Welcome to Any&apos;s Beauty Corner. We are committed to protecting your privacy and ensuring you have a positive experience on our website. This Privacy Policy outlines how we collect, use, and protect your personal information.
         </p>
       </section>
 
@@ -53,7 +53,7 @@ const PrivacyPolicyPage = () => {
         </p>
         <ul className="list-disc list-inside text-gray-700 leading-relaxed mb-4 ml-4">
           <li>To trusted third-party service providers who assist us in operating our website, conducting our business, or servicing you, as long as those parties agree to keep this information confidential.</li>
-          <li>When we believe release is appropriate to comply with the law, enforce our site policies, or protect ours or others' rights, property, or safety.</li>
+          <li>When we believe release is appropriate to comply with the law, enforce our site policies, or protect ours or others&apos; rights, property, or safety.</li>
         </ul>
       </section>
 
