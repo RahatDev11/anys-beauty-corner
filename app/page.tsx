@@ -1,3 +1,5 @@
+'use client'; // ✅ ADD THIS DIRECTIVE
+
 import React from 'react';
 import ProductCard from './ProductCard';
 import { Product } from '@/app/types/product';
