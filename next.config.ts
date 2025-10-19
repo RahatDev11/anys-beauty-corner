@@ -10,6 +10,12 @@ const nextConfig = {
         port: '',
         pathname: '/dnvm88wfi/image/upload/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

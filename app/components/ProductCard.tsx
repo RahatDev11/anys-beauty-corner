@@ -64,14 +64,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         ) : (
                             <button
                                 onClick={() => addToCart(product)}
-                                className="w-full bg-brushstroke text-black rounded-lg font-semibold flex items-center h-10 justify-center text-sm hover:opacity-90"
+                                className="w-full bg-brushstroke text-black rounded-lg font-semibold flex items-center h-10 justify-center text-sm hover:opacity-90 border-none"
                             >
                                 Add To Cart
                             </button>
                         )}
                         <button
                             onClick={() => buyNow(product)}
-                            className="w-full bg-brushstroke text-black py-2 rounded-lg font-semibold text-sm hover:opacity-90 transition-colors"
+                            className="w-full bg-brushstroke text-black py-2 rounded-lg font-semibold text-sm hover:opacity-90 transition-colors border-none"
                         >
                             Buy Now
                         </button>
