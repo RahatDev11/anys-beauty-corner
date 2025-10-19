@@ -1,3 +1,5 @@
+'use client'; // ✅ Add this directive
+
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -6,30 +8,26 @@ import { Product } from '@/app/types/product';
 interface ProductCardProps {
     product: Product;
     addToCart: (product: Product) => void;
-    updateQuantity: (id: string, change: number) => void;
     buyNow: (product: Product) => void;
     cartItemQuantity?: number;
-    showProductDetail?: (id: string) => void; // ✅ Optional prop হিসেবে add করুন
+    showProductDetail?: (id: string) => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
     product,
     addToCart,
-    updateQuantity,
     buyNow,
     cartItemQuantity = 0,
-    showProductDetail, // ✅ Props এ receive করুন
+    showProductDetail,
 }) => {
-    const imageUrl = product.image ? product.image.split(",")[0].trim() : "https://via.placeholder.com/150";
+    const imageUrl = product.images && product.images.length > 0 ? product.images[0] : "https://via.placeholder.com/150";
     const router = useRouter();
 
     const handleShowProductDetail = (id: string) => {
-        // যদি prop থেকে function আসে সেটা use করুন, নাহলে default behavior
         if (showProductDetail) {
             showProductDetail(id);
         } else {
-            // Fallback: direct router use করুন
-            router.push(`/product-detail/${id}`);
+            router.push(`/product/${id}`);
         }
     };
 
@@ -56,22 +54,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     <p className="text-xl font-bold mt-3 text-black">{product.price} টাকা</p>
                     <div className="mt-4 space-y-2">
                         {cartItemQuantity > 0 ? (
-                            <div className="w-full bg-brushstroke text-black rounded-lg font-semibold flex items-center h-10 justify-around">
-                                <button onClick={() => updateQuantity(product.id, -1)} className="px-3 text-xl font-bold">-</button>
-                                <span className="text-lg">{cartItemQuantity}</span>
-                                <button onClick={() => updateQuantity(product.id, 1)} className="px-3 text-xl font-bold">+</button>
+                            <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center h-10 justify-around">
+                                <span className="text-lg">{cartItemQuantity} in cart</span>
                             </div>
                         ) : (
                             <button
                                 onClick={() => addToCart(product)}
-                                className="w-full bg-brushstroke text-black rounded-lg font-semibold flex items-center h-10 justify-center text-sm hover:opacity-90 border-none"
+                                className="w-full bg-lipstick text-white rounded-lg font-semibold flex items-center h-10 justify-center text-sm hover:bg-lipstick-dark border-none"
                             >
                                 Add To Cart
                             </button>
                         )}
                         <button
                             onClick={() => buyNow(product)}
-                            className="w-full bg-brushstroke text-black py-2 rounded-lg font-semibold text-sm hover:opacity-90 transition-colors border-none"
+                            className="w-full bg-gray-800 text-white py-2 rounded-lg font-semibold text-sm hover:bg-gray-700 transition-colors border-none"
                         >
                             Buy Now
                         </button>
