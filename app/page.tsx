@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import ProductList from './components/ProductList';
 import ProductSlider from './components/ProductSlider';
 import EventSlider from './components/EventSlider';
-import { database, ref, onValue, off } from '@/lib/firebase';
+import { database, ref, onValue } from '@/lib/firebase'; // ✅ 'off' remove
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from './context/CartContext';
 import { useAuth } from './context/AuthContext';
@@ -38,7 +38,7 @@ export default function HomePage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { cart, addToCart, buyNow, updateQuantity } = useCart(); // ✅ updateQuantity remove
+    const { cart, addToCart, buyNow } = useCart(); // ✅ updateQuantity remove
     const { isAdmin } = useAuth();
 
     const searchParams = useSearchParams();
@@ -89,7 +89,7 @@ export default function HomePage() {
     }, []);
 
     const showProductDetail = (id: string) => {
-        router.push(`/product/${id}`); // ✅ Corrected route
+        router.push(`/product/${id}`);
     };
 
     const sliderProducts = products
@@ -148,14 +148,14 @@ export default function HomePage() {
                     <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
                         {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
                     </h2>
-                    
+
                     {filteredProducts.length > 0 ? (
                         <ProductList
                             products={filteredProducts}
                             cartItems={cart}
                             addToCart={addToCart}
                             buyNow={buyNow}
-                            updateQuantity={updateQuantity}
+                            // ✅ updateQuantity remove korlam
                         />
                     ) : (
                         <div className="text-center py-12 bg-white rounded-lg shadow-sm">
