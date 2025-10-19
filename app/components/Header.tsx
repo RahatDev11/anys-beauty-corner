@@ -11,8 +11,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const Header = () => {
-    const { isOpen: isSidebarOpen, openSidebar } = useSidebar();
-    const { isOpen: isCartSidebarOpen, openCartSidebar } = useCartSidebar();
+    const { isOpen: isSidebarOpen, openSidebar, closeSidebar } = useSidebar(); // ✅ closeSidebar add করুন
+    const { isOpen: isCartSidebarOpen, openCartSidebar, closeCartSidebar } = useCartSidebar(); // ✅ closeCartSidebar add করুন
     const [isMobileSubMenuOpen, setIsMobileSubMenuOpen] = useState(false);
     const [isDesktopSubMenuOpen, setIsDesktopSubMenuOpen] = useState(false);
     const [isMobileSearchBarOpen, setIsMobileSearchBarOpen] = useState(false);
@@ -223,7 +223,7 @@ const Header = () => {
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
                         <button 
-                            onClick={() => {/* close cart function */}}
+                            onClick={closeCartSidebar}  // ✅ closeCartSidebar function add করুন
                             className="text-gray-500 hover:text-gray-700"
                         >
                             <i className="fas fa-times text-xl"></i>
@@ -244,6 +244,14 @@ const Header = () => {
                 </div>
             </div>
 
+            {/* কার্ট সাইডবার Overlay */}
+            {isCartSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                    onClick={closeCartSidebar}  // ✅ Overlay-এ click করলে close হবে
+                />
+            )}
+
             {/* মোবাইল সাইডবার */}
             <div className={`fixed inset-0 z-40 ${isSidebarOpen ? 'block' : 'hidden'}`}>
                 <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg">
@@ -251,13 +259,13 @@ const Header = () => {
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-gray-800">মেনু</h2>
                             <button 
-                                onClick={() => {/* close sidebar function */}}
+                                onClick={closeSidebar}  // ✅ closeSidebar function add করুন
                                 className="text-gray-500 hover:text-gray-700"
                             >
                                 <i className="fas fa-times text-xl"></i>
                             </button>
                         </div>
-                        
+
                         <div className="mb-4">
                             {renderLoginButton(true)}
                         </div>
@@ -266,7 +274,7 @@ const Header = () => {
                             <Link href="/" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded">
                                 হোম
                             </Link>
-                            
+
                             <button 
                                 className="w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-100 rounded flex justify-between items-center"
                                 onClick={() => setIsMobileSubMenuOpen(!isMobileSubMenuOpen)}
@@ -302,7 +310,7 @@ const Header = () => {
                 </div>
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-50" 
-                    onClick={() => {/* close sidebar function */}}
+                    onClick={closeSidebar}  // ✅ Overlay-এ click করলে close হবে
                 />
             </div>
 
