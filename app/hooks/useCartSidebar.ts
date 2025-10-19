@@ -1,22 +1,51 @@
-// app/hooks/useCartSidebar.ts
-import { create } from 'zustand';
+// app/hooks/useCartSidebar.ts - Context API version
+'use client';
 
-interface CartSidebarState {
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+
+interface CartSidebarContextType {
     isOpen: boolean;
     openCartSidebar: () => void;
     closeCartSidebar: () => void;
     toggleCartSidebar: () => void;
 }
 
-export const useCartSidebar = create<CartSidebarState>((set) => ({
-    isOpen: false,
-    openCartSidebar: () => {
-        set({ isOpen: true });
+const CartSidebarContext = createContext<CartSidebarContextType | undefined>(undefined);
+
+export const CartSidebarProvider = ({ children }: { children: ReactNode }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const openCartSidebar = useCallback(() => {
+        setIsOpen(true);
         document.body.classList.add('overflow-hidden');
-    },
-    closeCartSidebar: () => {
-        set({ isOpen: false });
+    }, []);
+
+    const closeCartSidebar = useCallback(() => {
+        setIsOpen(false);
         document.body.classList.remove('overflow-hidden');
-    },
-    toggleCartSidebar: () => set((state) => ({ isOpen: !state.isOpen })),
-}));
+    }, []);
+
+    const toggleCartSidebar = useCallback(() => {
+        setIsOpen(prev => !prev);
+        document.body.classList.toggle('overflow-hidden');
+    }, []);
+
+    return (
+        <CartSidebarContext.Provider value={{ 
+            isOpen, 
+            openCartSidebar, 
+            closeCartSidebar, 
+            toggleCartSidebar 
+        }}>
+            {children}
+        </CartSidebarContext.Provider>
+    );
+};
+
+export const useCartSidebar = () => {
+    const context = useContext(CartSidebarContext);
+    if (!context) {
+        throw new Error('useCartSidebar must be used within a CartSidebarProvider');
+    }
+    return context;
+};
