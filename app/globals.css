@@ -84,7 +84,7 @@ a {
   color: #ea580c !important; 
 }
 
-/* ✅ Cart Sidebar Specific Styles - ADD THIS SECTION */
+/* ✅ FIXED: Cart Sidebar Styles - IMPORTANT FIXES */
 .cart-sidebar {
   position: fixed !important;
   top: 0 !important;
@@ -99,7 +99,7 @@ a {
 }
 
 .cart-sidebar.open {
-  transform: translateX(0) !important;
+  transform: translateX(0%) !important; /* ✅ FIXED: 0% instead of 0 */
 }
 
 .cart-sidebar-overlay {
@@ -112,7 +112,7 @@ a {
   z-index: 9999 !important;
 }
 
-/* ✅ Mobile Sidebar Specific Styles */
+/* ✅ FIXED: Mobile Sidebar Styles */
 .mobile-sidebar {
   position: fixed !important;
   top: 0 !important;
@@ -127,7 +127,7 @@ a {
 }
 
 .mobile-sidebar.open {
-  transform: translateX(0) !important;
+  transform: translateX(0%) !important; /* ✅ FIXED: 0% instead of 0 */
 }
 
 .mobile-sidebar-overlay {
@@ -140,9 +140,33 @@ a {
   z-index: 9997 !important;
 }
 
-/* ✅ Prevent body scroll when sidebar is open */
+/* ✅ FIXED: Tailwind-Compatible Sidebar Classes */
+.sidebar-transition {
+  transition: transform 0.3s ease-in-out !important;
+}
+
+.sidebar-closed {
+  transform: translateX(100%) !important;
+}
+
+.sidebar-open {
+  transform: translateX(0%) !important;
+}
+
+.mobile-sidebar-closed {
+  transform: translateX(-100%) !important;
+}
+
+.mobile-sidebar-open {
+  transform: translateX(0%) !important;
+}
+
+/* ✅ FIXED: Prevent body scroll when sidebar is open */
 body.sidebar-open {
   overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Header Specific Styles */
@@ -219,7 +243,7 @@ body.sidebar-open {
     transform: translateX(100%);
   }
   to {
-    transform: translateX(0);
+    transform: translateX(0%);
   }
 }
 
@@ -228,7 +252,7 @@ body.sidebar-open {
     transform: translateX(-100%);
   }
   to {
-    transform: translateX(0);
+    transform: translateX(0%);
   }
 }
 
@@ -1002,4 +1026,21 @@ textarea:focus-visible {
 #website-content {
   display: none;
   flex-grow: 1;
+}
+
+/* ✅ NEW: Fixed Sidebar Transition Classes */
+.translate-x-full {
+  transform: translateX(100%) !important;
+}
+
+.translate-x-0 {
+  transform: translateX(0%) !important;
+}
+
+.-translate-x-full {
+  transform: translateX(-100%) !important;
+}
+
+.transition-transform {
+  transition: transform 0.3s ease-in-out !important;
 }
