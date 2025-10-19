@@ -104,7 +104,7 @@ const ProductDetail = () => {
             <div className="min-h-screen flex items-center justify-center pt-20">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-800">Product not found</h1>
-                    <p className="text-gray-600 mt-2">The product you're looking for doesn't exist.</p>
+                    <p className="text-gray-600 mt-2">The product you&apos;re looking for doesn&apos;t exist.</p>
                     <button 
                         onClick={() => router.push('/')}
                         className="mt-4 bg-lipstick text-white px-4 py-2 rounded-lg hover:bg-lipstick-dark"
@@ -142,7 +142,7 @@ const ProductDetail = () => {
                                     className="border border-gray-200 rounded-lg cursor-pointer"
                                 />
                             </div>
-                            
+
                             {product.images && product.images.length > 1 && (
                                 <div className="flex md:flex-col gap-2 overflow-x-auto md:max-h-80 md:overflow-y-auto">
                                     {product.images.map((image: string, index: number) => (
@@ -227,7 +227,7 @@ const ProductDetail = () => {
                         <h2 className="text-2xl font-bold text-center mb-4 text-lipstick-dark">Related Products</h2>
                         <ProductSlider 
                             products={relatedProducts} 
-                            showProductDetail={(id) => router.push(`/product/${id}`)}
+                            showProductDetail={(productId) => router.push(`/product/${productId}`)}
                         />
                     </section>
                 )}
