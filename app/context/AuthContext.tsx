@@ -1,7 +1,7 @@
 // app/context/AuthContext.tsx
 'use client';
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
-import { auth, provider, database, ref, set, get, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from '@/lib/firebase';
+import { auth, provider, database, ref, set, get, signInWithPopup, signOut, onAuthStateChanged } from '@/lib/firebase'; // ✅ GoogleAuthProvider removed
 
 interface User {
     uid: string;
@@ -26,12 +26,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [loading, setLoading] = useState(true);
 
     const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
-        // Simple toast implementation without external dependency
         if (typeof window !== 'undefined') {
-            // You can use browser alert temporarily or implement simple toast
             if (type === 'error') {
                 console.error('Auth Error:', message);
-                alert(`Error: ${message}`); // Temporary solution
+                alert(`Error: ${message}`);
             } else {
                 console.log('Auth Success:', message);
             }
@@ -77,12 +75,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         photoURL: firebaseUser.photoURL,
                     };
                     setUser(currentUser);
-                    
-                    // Check admin status
+
                     const isAdmin = await checkAdminStatus(firebaseUser.uid);
                     setIsAdminUser(isAdmin);
-                    
-                    // Save user to database
+
                     await saveUserToFirebase(currentUser);
                 } else {
                     setUser(null);
@@ -96,7 +92,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setLoading(false);
             }
         });
-        
+
         return () => unsubscribe();
     }, [checkAdminStatus, saveUserToFirebase]);
 
@@ -105,9 +101,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const result = await signInWithPopup(auth, provider);
             const loggedInUser = result.user;
             showToast(`স্বাগতম, ${loggedInUser.displayName || 'User'}`, "success");
-        } catch (error: any) {
+        } catch (error: unknown) { // ✅ any -> unknown
             console.error("Login failed:", error);
-            const errorMessage = error?.message || "লগইন ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।";
+            const errorMessage = error instanceof Error ? error.message : "লগইন ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।";
             showToast(errorMessage, "error");
         }
     }, [showToast]);
@@ -116,9 +112,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             await signOut(auth);
             showToast("সফলভাবে লগআউট হয়েছেন।", "success");
-        } catch (error: any) {
+        } catch (error: unknown) { // ✅ any -> unknown
             console.error("Logout failed:", error);
-            const errorMessage = error?.message || "লগআউট ব্যর্থ হয়েছে।";
+            const errorMessage = error instanceof Error ? error.message : "লগআউট ব্যর্থ হয়েছে।";
             showToast(errorMessage, "error");
         }
     }, [showToast]);
