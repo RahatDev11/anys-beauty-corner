@@ -49,7 +49,7 @@ function HomePageContent() {
 
     useEffect(() => {
         console.log('🔄 Products state updated:', products?.length || 0, 'products');
-        
+
         if (products && products.length > 0) {
             products.forEach((product, index) => {
                 console.log(`📦 Product ${index + 1}:`, {
@@ -153,13 +153,7 @@ function HomePageContent() {
                     </section>
                 )}
 
-                {events?.filter(event => event.isActive).length > 0 && (
-                    <section className="mb-12">
-                        <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
-                        <EventSlider events={events.filter(event => event.isActive)} />
-                    </section>
-                )}
-
+                {/* ফিচার প্রোডাক্ট উপরে - Featured Products on top */}
                 {sliderProducts.length > 0 && (
                     <section className="mb-12">
                         <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
@@ -167,6 +161,14 @@ function HomePageContent() {
                             products={sliderProducts} 
                             showProductDetail={showProductDetail} 
                         />
+                    </section>
+                )}
+
+                {/* আওয়ার ইভেন্টস নিচে - Our Events below */}
+                {events?.filter(event => event.isActive).length > 0 && (
+                    <section className="mb-12">
+                        <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
+                        <EventSlider events={events.filter(event => event.isActive)} />
                     </section>
                 )}
 
