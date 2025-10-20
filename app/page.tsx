@@ -44,6 +44,23 @@ function HomePageContent() {
     const searchParams = useSearchParams();
     const categoryFilter = searchParams.get('filter');
 
+    // ✅ DEBUGGING: Products data check
+    useEffect(() => {
+        console.log('🔄 Products state updated:', products.length, 'products');
+        if (products.length > 0) {
+            products.forEach((product, index) => {
+                console.log(`📦 Product ${index + 1}:`, {
+                    name: product.name,
+                    price: product.price,
+                    hasImages: !!product.images,
+                    imagesCount: product.images?.length || 0,
+                    firstImage: product.images?.[0] || 'NO IMAGE',
+                    allImages: product.images
+                });
+            });
+        }
+    }, [products]);
+
     const filteredProducts = products.filter(product => {
         if (!categoryFilter || categoryFilter === 'all') {
             return true;
@@ -52,6 +69,8 @@ function HomePageContent() {
     });
 
     useEffect(() => {
+        console.log('🚀 Fetching products from Firebase...');
+        
         const productsRef = ref(database, "products/");
         const productsUnsubscribe = onValue(productsRef, (snapshot) => {
             if (snapshot.exists()) {
@@ -59,8 +78,10 @@ function HomePageContent() {
                     id: key, 
                     ...snapshot.val()[key] 
                 }));
+                console.log('✅ Firebase products data:', productsData);
                 setProducts(productsData);
             } else {
+                console.log('❌ No products found in Firebase');
                 setProducts([]);
             }
             setLoading(false);
@@ -111,6 +132,14 @@ function HomePageContent() {
     return (
         <main className="p-4 pt-24">
             <div className="container mx-auto">
+                {/* ✅ Temporary debug info */}
+                <div className="mb-4 p-4 bg-yellow-100 rounded-lg">
+                    <p className="text-sm text-yellow-800">
+                        <strong>Debug Info:</strong> {products.length} products loaded | 
+                        Images found: {products.filter(p => p.images && p.images.length > 0).length}
+                    </p>
+                </div>
+
                 {isAdmin && (
                     <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
                         <h2 className="text-2xl font-bold text-center text-lipstick-dark">Admin Panel</h2>
