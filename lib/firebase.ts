@@ -21,14 +21,26 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 const auth: Auth = getAuth(app);
 const database: Database = getDatabase(app);
 const db: Firestore = getFirestore(app);
-const provider: GoogleAuthProvider = new GoogleAuthProvider();
+
+// Google Auth Provider তৈরি করুন
+const createGoogleProvider = () => {
+    const provider = new GoogleAuthProvider();
+    // Add scopes if needed
+    provider.addScope('profile');
+    provider.addScope('email');
+    // Force account selection
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
+    return provider;
+};
 
 export {
     app,
     auth,
     database,
     db,
-    provider,
+    createGoogleProvider, // পরিবর্তন করুন
     ref,
     onValue,
     set,
