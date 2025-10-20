@@ -1,9 +1,8 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { database, ref, get, onAuthStateChanged, query, orderByChild, equalTo } from '@/lib/firebase';
+import { database, ref, onValue } from '@/lib/firebase';
 
 interface OrderItem {
     id: string;
@@ -36,8 +35,13 @@ interface Order {
 // Helper function for status display
 function getStatusText(status: string) {
     const statuses: { [key: string]: string } = {
-        processing: 'প্রসেসিং', confirmed: 'কনফার্মড', packaging: 'প্যাকেজিং',
-        shipped: 'ডেলিভারি হয়েছে', delivered: 'সম্পন্ন হয়েছে', failed: 'ব্যর্থ', cancelled: 'ক্যানসেলড'
+        processing: 'প্রসেসিং',
+        confirmed: 'কনফার্মড', 
+        packaging: 'প্যাকেজিং',
+        shipped: 'ডেলিভারি হয়েছে',
+        delivered: 'সম্পন্ন হয়েছে', 
+        failed: 'ব্যর্থ', 
+        cancelled: 'ক্যানসেলড'
     };
     return statuses[status] || 'অজানা';
 }
@@ -57,81 +61,248 @@ function getStatusColor(status: string) {
 
 const OrderTrack = () => {
     const { user, loginWithGmail } = useAuth();
-    const [orderId, setOrderId] = useState('');
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [modalContent, setModalContent] = useState('');
 
-    const handleTrackOrder = () => {
-        // Mock tracking logic
-        if (orderId) {
-            setModalContent(`Order details for ID: ${orderId}`);
-            setShowModal(true);
-        } else {
-            alert('Please enter an order ID.');
+    // Get guest ID from localStorage
+    const getGuestId = () => {
+        let guestId = localStorage.getItem('guestId');
+        if (!guestId) {
+            guestId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('guestId', guestId);
         }
+        return guestId;
     };
+
+    useEffect(() => {
+        if (user) {
+            // Load orders for logged in user
+            const ordersRef = ref(database, 'orders');
+            onValue(ordersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const ordersData: Order[] = [];
+                    snapshot.forEach((childSnapshot) => {
+                        const order = { id: childSnapshot.key, ...childSnapshot.val() };
+                        // Show orders for this user
+                        if (order.userId === user.uid) {
+                            ordersData.push(order);
+                        }
+                    });
+                    setOrders(ordersData.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()));
+                } else {
+                    setOrders([]);
+                }
+                setLoading(false);
+            });
+        } else {
+            // Load orders for guest user
+            const guestId = getGuestId();
+            const ordersRef = ref(database, 'orders');
+            onValue(ordersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const ordersData: Order[] = [];
+                    snapshot.forEach((childSnapshot) => {
+                        const order = { id: childSnapshot.key, ...childSnapshot.val() };
+                        // Show orders for this guest
+                        if (order.guestId === guestId) {
+                            ordersData.push(order);
+                        }
+                    });
+                    setOrders(ordersData.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()));
+                } else {
+                    setOrders([]);
+                }
+                setLoading(false);
+            });
+        }
+    }, [user]);
 
     const handleLogin = () => {
         loginWithGmail();
     };
 
+    const openOrderDetails = (order: Order) => {
+        setSelectedOrder(order);
+        setShowModal(true);
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-BD', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center pt-20">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick mx-auto"></div>
+                    <p className="mt-4 text-lg text-gray-600">Loading orders...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
             <div className="container mx-auto pt-20 pb-8 px-4 min-h-screen">
-                <div id="trackingArea" className="p-6 bg-white rounded-lg shadow-md">
-                    <div id="guestTracking">
-                        <h2 className="text-2xl font-bold text-center mb-4 text-lipstick">Track Your Order</h2>
-                        <p className="text-center text-gray-600 mb-6">Enter your order ID to know the current status of your order.</p>
-                        <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
-                            <input 
-                                type="text" 
-                                id="orderIdInput" 
-                                placeholder="Enter your order ID" 
-                                className="flex-grow p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
-                                value={orderId}
-                                onChange={(e) => setOrderId(e.target.value)}
-                            />
-                            <button 
-                                id="trackOrderBtn" 
-                                className="bg-lipstick text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-colors"
-                                onClick={handleTrackOrder}
-                            >
-                                Track
-                            </button>
-                        </div>
-                        <p className="text-center text-sm text-gray-500 mt-4">Or, to see all your orders</p>
-                    </div>
+                <div className="p-6 bg-white rounded-lg shadow-md">
+                    <h2 className="text-2xl font-bold text-center mb-4 text-lipstick">
+                        {user ? 'My Orders' : 'My Orders (Guest)'}
+                    </h2>
+                    
                     {!user && (
-                        <div id="loginPrompt" className="text-center">
+                        <div className="text-center mb-6">
+                            <p className="text-gray-600 mb-4">
+                                You are viewing orders as a guest. Login to access all features.
+                            </p>
                             <button 
-                                id="loginButton" 
-                                className="bg-lipstick text-white px-8 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-colors mt-2"
+                                className="bg-lipstick text-white px-8 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-colors"
                                 onClick={handleLogin}
                             >
                                 <i className="fab fa-google mr-2"></i> Login with Google
                             </button>
                         </div>
                     )}
-                </div>
 
-                {user && (
-                    <div id="orderListContainer">
-                        {/* Order list will be displayed here for logged in users */}
-                        <div id="orderList" className="bg-white rounded-lg shadow-md mt-8 p-6">
-                            <h2 className="text-2xl font-bold text-center mb-4 text-lipstick">My Orders</h2>
-                            {/* Mock order list */}
-                            <p>You have no orders yet.</p>
+                    {orders.length === 0 ? (
+                        <div className="text-center py-8">
+                            <div className="text-6xl text-gray-300 mb-4">📦</div>
+                            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Orders Found</h3>
+                            <p className="text-gray-500">You haven't placed any orders yet.</p>
+                            <button 
+                                onClick={() => window.location.href = '/'}
+                                className="mt-4 bg-lipstick text-white px-6 py-2 rounded-lg hover:bg-lipstick-dark transition-colors"
+                            >
+                                Start Shopping
+                            </button>
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <div className="space-y-4">
+                            {orders.map((order) => {
+                                const statusColor = getStatusColor(order.status);
+                                return (
+                                    <div 
+                                        key={order.id}
+                                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                                        onClick={() => openOrderDetails(order)}
+                                    >
+                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                                            <div className="flex-1">
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                                                    <h3 className="font-semibold text-lg">Order #{order.orderId}</h3>
+                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusColor.bg} ${statusColor.text}`}>
+                                                        {getStatusText(order.status)}
+                                                    </span>
+                                                </div>
+                                                <p className="text-gray-600">Placed on: {formatDate(order.orderDate)}</p>
+                                                <p className="text-gray-600">Customer: {order.customerName}</p>
+                                                <p className="text-gray-600">Total: ৳{order.totalAmount}</p>
+                                            </div>
+                                            <div className="mt-2 md:mt-0">
+                                                <button className="text-lipstick font-semibold hover:underline">
+                                                    View Details
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {showModal && (
-                <div id="orderModal" className="modal fixed inset-0 bg-black bg-opacity-50 z-[2000] flex items-center justify-center">
-                    <div className="bg-white rounded-lg shadow-xl w-11/12 md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-y-auto relative p-6">
-                        <span id="modalClose" className="absolute top-2 right-4 text-3xl text-gray-500 cursor-pointer" onClick={() => setShowModal(false)}>&times;</span>
-                        <div id="modalContent">
-                            {modalContent}
+            {/* Order Details Modal */}
+            {showModal && selectedOrder && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-2xl font-bold text-lipstick">Order Details</h2>
+                                <button 
+                                    className="text-gray-500 hover:text-gray-700 text-2xl"
+                                    onClick={() => setShowModal(false)}
+                                >
+                                    ×
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {/* Order Summary */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h3 className="font-semibold mb-2">Order Information</h3>
+                                        <p><strong>Order ID:</strong> #{selectedOrder.orderId}</p>
+                                        <p><strong>Order Date:</strong> {formatDate(selectedOrder.orderDate)}</p>
+                                        <p><strong>Status:</strong> 
+                                            <span className={`ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedOrder.status).bg} ${getStatusColor(selectedOrder.status).text}`}>
+                                                {getStatusText(selectedOrder.status)}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold mb-2">Customer Information</h3>
+                                        <p><strong>Name:</strong> {selectedOrder.customerName}</p>
+                                        <p><strong>Phone:</strong> {selectedOrder.phoneNumber}</p>
+                                        {selectedOrder.customerEmail && (
+                                            <p><strong>Email:</strong> {selectedOrder.customerEmail}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Delivery Information */}
+                                <div>
+                                    <h3 className="font-semibold mb-2">Delivery Information</h3>
+                                    <p><strong>Address:</strong> {selectedOrder.address}</p>
+                                    <p><strong>Location:</strong> {selectedOrder.deliveryLocation}</p>
+                                    <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</p>
+                                </div>
+
+                                {/* Order Items */}
+                                <div>
+                                    <h3 className="font-semibold mb-2">Order Items</h3>
+                                    <div className="space-y-2">
+                                        {selectedOrder.cartItems.map((item, index) => (
+                                            <div key={index} className="flex justify-between items-center border-b pb-2">
+                                                <div>
+                                                    <p className="font-medium">{item.name}</p>
+                                                    <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                                </div>
+                                                <p className="font-semibold">৳{item.price * item.quantity}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Order Total */}
+                                <div className="border-t pt-4">
+                                    <div className="flex justify-between mb-2">
+                                        <span>Subtotal:</span>
+                                        <span>৳{selectedOrder.subTotal}</span>
+                                    </div>
+                                    <div className="flex justify-between mb-2">
+                                        <span>Delivery Fee:</span>
+                                        <span>৳{selectedOrder.deliveryFee}</span>
+                                    </div>
+                                    {selectedOrder.advancePayment && (
+                                        <div className="flex justify-between mb-2">
+                                            <span>Advance Payment:</span>
+                                            <span>৳{selectedOrder.advancePayment}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between font-bold text-lg">
+                                        <span>Total Amount:</span>
+                                        <span>৳{selectedOrder.totalAmount}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
