@@ -5,6 +5,7 @@ import { useCartSidebar } from '../hooks/useCartSidebar';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useSession, signOut, signIn } from 'next-auth/react'; // ✅ NextAuth imports
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -38,6 +39,9 @@ const Header = () => {
     const router = useRouter();
     const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
+    
+    // ✅ NextAuth Session
+    const { data: session, status } = useSession();
 
     // Close logout menu when clicking outside
     useEffect(() => {
@@ -55,8 +59,6 @@ const Header = () => {
         closeSidebar();
     };
 
-
-
     const handleFocusMobileSearch = () => {
         setIsMobileSearchBarOpen((prev) => !prev);
     };
@@ -68,15 +70,33 @@ const Header = () => {
 
     const handleConfirmLogout = () => {
         if (window.confirm("আপনি কি লগআউট করতে চান?")) {
-            logout();
+            // ✅ Both logouts call করুন
+            logout(); // আপনার existing auth context
+            signOut({ callbackUrl: '/' }); // NextAuth logout
             setIsLogoutMenuOpen(false);
         }
     };
 
+    // ✅ Google Login Handler
+    const handleGoogleLogin = async () => {
+        try {
+            await signIn('google', { 
+                callbackUrl: '/',
+                redirect: true 
+            });
+        } catch (error) {
+            console.error('Google login error:', error);
+        }
+    };
+
+    // ✅ Combined User Data (Priority: NextAuth > Your Auth)
+    const currentUser = session?.user || user;
+    const displayName = currentUser?.name || currentUser?.displayName || 
+                       (currentUser?.email ? currentUser.email.split('@')[0] : 'User');
+    const photoURL = currentUser?.image || currentUser?.photoURL;
+
     const renderLoginButton = (isMobile: boolean) => {
-        if (user) {
-            const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
-            const photoURL = user.photoURL;
+        if (currentUser) {
             return (
                 <div className="relative logout-container">
                     <button className="flex items-center space-x-2 focus:outline-none" onClick={handleToggleLogoutMenu}>
@@ -113,7 +133,7 @@ const Header = () => {
             return (
                 <button 
                     className={`flex items-center ${isMobile ? 'w-full' : ''} hover:text-gray-600`} 
-                    onClick={loginWithGmail}
+                    onClick={handleGoogleLogin} // ✅ NextAuth login ব্যবহার করুন
                 >
                     <i className="fas fa-user-circle mr-2"></i>
                     <span className="text-black">লগইন</span>
@@ -182,34 +202,32 @@ const Header = () => {
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
                         </div>
-                                                <Link className="text-black hover:text-gray-600 transition-colors" href="/">
-                                                    হোম
-                                                </Link>
-                                                {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
-                                                    <Link
-                                                        key={category}
-                                                        href={`/?filter=${category}`}
-                                                        className="text-black hover:text-gray-600 transition-colors"
-                                                    >
-                                                        {category === 'all' && 'সকল প্রোডাক্ট'}
-                                                        {category === 'health' && 'স্বাস্থ্য'}
-                                                        {category === 'cosmetics' && 'মেকআপ'}
-                                                        {category === 'skincare' && 'স্কিনকেয়ার'}
-                                                        {category === 'haircare' && 'হেয়ারকেয়ার'}
-                                                        {category === 'mehandi' && 'মেহেদী'}
-                                                    </Link>
-                                                ))}
-                        
-                                                <Link
-                                                    className="text-black hover:text-gray-600 transition-colors"
-                                                    href="/order-track"
-                                                >
-                                                    অর্ডার ট্র্যাক
-                                                </Link>
+                        <Link className="text-black hover:text-gray-600 transition-colors" href="/">
+                            হোম
+                        </Link>
+                        {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
+                            <Link
+                                key={category}
+                                href={`/?filter=${category}`}
+                                className="text-black hover:text-gray-600 transition-colors"
+                            >
+                                {category === 'all' && 'সকল প্রোডাক্ট'}
+                                {category === 'health' && 'স্বাস্থ্য'}
+                                {category === 'cosmetics' && 'মেকআপ'}
+                                {category === 'skincare' && 'স্কিনকেয়ার'}
+                                {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                {category === 'mehandi' && 'মেহেদী'}
+                            </Link>
+                        ))}
+
+                        <Link
+                            className="text-black hover:text-gray-600 transition-colors"
+                            href="/order-track"
+                        >
+                            অর্ডার ট্র্যাক
+                        </Link>
                     </nav>
                 </div>
-
-
             </header>
 
             {/* কার্ট সাইডবার */}
@@ -347,8 +365,6 @@ const Header = () => {
                     <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400/80"></i>
                 </div>
             </div>
-
-
         </>
     );
 };
