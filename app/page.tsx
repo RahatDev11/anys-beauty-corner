@@ -26,11 +26,12 @@ interface Product {
     price: number;
     category: string;
     stockStatus: string;
-    images: string[];
+    image: string; // ✅ CORRECT - আপনার database field
     tags: string[];
     description: string;
     isInSlider?: boolean;
     sliderOrder?: number;
+    quantity?: number;
 }
 
 function HomePageContent() {
@@ -44,7 +45,7 @@ function HomePageContent() {
     const searchParams = useSearchParams();
     const categoryFilter = searchParams.get('filter');
 
-    // ✅ DEBUGGING: Products data check
+    // ✅ FIXED DEBUGGING: Products data check
     useEffect(() => {
         console.log('🔄 Products state updated:', products.length, 'products');
         if (products.length > 0) {
@@ -52,10 +53,9 @@ function HomePageContent() {
                 console.log(`📦 Product ${index + 1}:`, {
                     name: product.name,
                     price: product.price,
-                    hasImages: !!product.images,
-                    imagesCount: product.images?.length || 0,
-                    firstImage: product.images?.[0] || 'NO IMAGE',
-                    allImages: product.images
+                    hasImage: !!product.image, // ✅ FIX: product.image
+                    imageUrl: product.image || 'NO IMAGE', // ✅ FIX: product.image
+                    stockStatus: product.stockStatus
                 });
             });
         }
@@ -70,7 +70,7 @@ function HomePageContent() {
 
     useEffect(() => {
         console.log('🚀 Fetching products from Firebase...');
-        
+
         const productsRef = ref(database, "products/");
         const productsUnsubscribe = onValue(productsRef, (snapshot) => {
             if (snapshot.exists()) {
@@ -132,11 +132,11 @@ function HomePageContent() {
     return (
         <main className="p-4 pt-24">
             <div className="container mx-auto">
-                {/* ✅ Temporary debug info */}
+                {/* ✅ FIXED debug info */}
                 <div className="mb-4 p-4 bg-yellow-100 rounded-lg">
                     <p className="text-sm text-yellow-800">
                         <strong>Debug Info:</strong> {products.length} products loaded | 
-                        Images found: {products.filter(p => p.images && p.images.length > 0).length}
+                        Images found: {products.filter(p => p.image).length} {/* ✅ FIX: p.image */}
                     </p>
                 </div>
 
