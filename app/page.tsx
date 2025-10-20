@@ -130,21 +130,9 @@ function HomePageContent() {
         );
     }
 
-    const validImageCount = products?.filter(p => p.image && p.image.startsWith('http')).length || 0;
-    const invalidImageCount = products?.filter(p => !p.image || !p.image.startsWith('http')).length || 0;
-
     return (
-        <main className="p-4 pt-24">
+        <main className="pt-24"> {/* Header থেকে proper spacing */}
             <div className="container mx-auto">
-                {/* Debug Info - আপনি চাইলে পরে remove করতে পারেন */}
-                <div className="mb-4 p-4 bg-yellow-100 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                        <strong>Debug Info:</strong> {products?.length || 0} products loaded | 
-                        Valid Images: <span className="text-green-600 font-bold">{validImageCount}</span> | 
-                        Invalid Images: <span className="text-red-600 font-bold">{invalidImageCount}</span>
-                    </p>
-                </div>
-
                 {isAdmin && (
                     <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
                         <h2 className="text-2xl font-bold text-center text-lipstick-dark">Admin Panel</h2>
@@ -154,32 +142,31 @@ function HomePageContent() {
                     </section>
                 )}
 
-                {/* Events Section */}
-                {events?.filter(event => event.isActive).length > 0 && (
+                {/* Featured Products Section - FIRST */}
+                {sliderProducts.length > 0 && (
                     <section className="mb-12">
-                        <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
-                        <EventSlider events={events.filter(event => event.isActive)} />
+                        <div className="px-4 lg:px-8"> {/* Left-right spacing */}
+                            <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
+                            <ProductSlider 
+                                products={sliderProducts} 
+                                showProductDetail={showProductDetail} 
+                            />
+                        </div>
                     </section>
                 )}
 
-                {/* Featured Products Section - UPDATED */}
-                {sliderProducts.length > 0 && (
+                {/* Events Section - SECOND */}
+                {events?.filter(event => event.isActive).length > 0 && (
                     <section className="mb-12">
-                        <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
-                        <div className="relative">
-                            {/* ProductSlider কে proper spacing সহ */}
-                            <div className="px-4 lg:px-8">
-                                <ProductSlider 
-                                    products={sliderProducts} 
-                                    showProductDetail={showProductDetail} 
-                                />
-                            </div>
+                        <div className="px-4 lg:px-8"> {/* Left-right spacing */}
+                            <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
+                            <EventSlider events={events.filter(event => event.isActive)} />
                         </div>
                     </section>
                 )}
 
                 {/* All Products Section */}
-                <section>
+                <section className="px-4 lg:px-8"> {/* Left-right spacing */}
                     <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
                         {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
                     </h2>
