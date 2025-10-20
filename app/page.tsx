@@ -1,207 +1,123 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import ProductList from './components/ProductList';
-import ProductSlider from './components/ProductSlider';
-import EventSlider from './components/EventSlider';
-import { database, ref, onValue } from '@/lib/firebase';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCart } from './context/CartContext';
-import { useAuth } from './context/AuthContext';
-import ProductManagement from './components/admin/ProductManagement';
-import SliderManagement from './components/admin/SliderManagement';
-import EventManagement from './components/admin/EventManagement';
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { Product } from '@/app/types/product';
 
-interface Event {
-    id: string;
-    title: string;
-    description: string;
-    imageUrl: string;
-    isActive: boolean;
+interface ProductCardProps {
+    product: Product;
+    addToCart: (product: Product) => void;
+    buyNow: (product: Product) => void;
+    cartItemQuantity?: number;
+    showProductDetail?: (id: string) => void;
 }
 
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    category: string;
-    stockStatus: string;
-    image: string; // ✅ CORRECT - আপনার database field
-    tags: string[];
-    description: string;
-    isInSlider?: boolean;
-    sliderOrder?: number;
-    quantity?: number;
-}
-
-function HomePageContent() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [events, setEvents] = useState<Event[]>([]);
-    const [loading, setLoading] = useState(true);
+const ProductCard: React.FC<ProductCardProps> = ({
+    product,
+    addToCart,
+    buyNow,
+    cartItemQuantity = 0,
+    showProductDetail,
+}) => {
     const router = useRouter();
-    const { cart, addToCart, buyNow } = useCart();
-    const { isAdmin } = useAuth();
 
-    const searchParams = useSearchParams();
-    const categoryFilter = searchParams.get('filter');
+    // ✅ FIX: Extract first URL from comma-separated string
+    const getImageUrl = () => {
+        if (!product.image) {
+            return "https://via.placeholder.com/150?text=No+Image";
+        }
 
-    // ✅ FIXED DEBUGGING: Products data check
-    useEffect(() => {
-        console.log('🔄 Products state updated:', products.length, 'products');
-        if (products.length > 0) {
-            products.forEach((product, index) => {
-                console.log(`📦 Product ${index + 1}:`, {
-                    name: product.name,
-                    price: product.price,
-                    hasImage: !!product.image, // ✅ FIX: product.image
-                    imageUrl: product.image || 'NO IMAGE', // ✅ FIX: product.image
-                    stockStatus: product.stockStatus
-                });
+        // যদি multiple URLs comma separated থাকে
+        if (product.image.includes(',')) {
+            const urls = product.image.split(',').map(url => url.trim());
+            const firstUrl = urls[0];
+            console.log(`🔗 Multiple URLs found for ${product.name}, using first:`, {
+                original: product.image,
+                firstUrl: firstUrl,
+                totalUrls: urls.length
             });
+            return firstUrl;
         }
-    }, [products]);
 
-    const filteredProducts = products.filter(product => {
-        if (!categoryFilter || categoryFilter === 'all') {
-            return true;
+        // Single URL হলে
+        if (!product.image.startsWith('http')) {
+            return "https://via.placeholder.com/150?text=Invalid+URL";
         }
-        return product.category === categoryFilter;
-    });
 
-    useEffect(() => {
-        console.log('🚀 Fetching products from Firebase...');
-
-        const productsRef = ref(database, "products/");
-        const productsUnsubscribe = onValue(productsRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const productsData = Object.keys(snapshot.val()).map(key => ({ 
-                    id: key, 
-                    ...snapshot.val()[key] 
-                }));
-                console.log('✅ Firebase products data:', productsData);
-                setProducts(productsData);
-            } else {
-                console.log('❌ No products found in Firebase');
-                setProducts([]);
-            }
-            setLoading(false);
-        });
-
-        const eventsRef = ref(database, "events/");
-        const eventsUnsubscribe = onValue(eventsRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const eventsData = Object.keys(snapshot.val()).map(key => ({ 
-                    id: key, 
-                    ...snapshot.val()[key] 
-                }));
-                setEvents(eventsData);
-            } else {
-                setEvents([]);
-            }
-        });
-
-        return () => {
-            productsUnsubscribe();
-            eventsUnsubscribe();
-        };
-    }, []);
-
-    const showProductDetail = (id: string) => {
-        router.push(`/product/${id}`);
+        return product.image;
     };
 
-    const sliderProducts = products
-        .filter(p => p.isInSlider)
-        .sort((a, b) => (a.sliderOrder || 99) - (b.sliderOrder || 99));
+    const imageUrl = getImageUrl();
 
-    if (loading) {
-        return (
-            <main className="p-4 pt-24">
-                <div className="container mx-auto">
-                    <div className="flex justify-center items-center min-h-64">
-                        <div className="text-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick mx-auto mb-4"></div>
-                            <p className="text-gray-600">Loading products...</p>
-                        </div>
+    const handleShowProductDetail = (id: string) => {
+        if (showProductDetail) {
+            showProductDetail(id);
+        } else {
+            router.push(`/product/${id}`);
+        }
+    };
+
+    return (
+        <div className="bg-white rounded-xl shadow overflow-hidden flex flex-col">
+            <div className="relative">
+                <img
+                    src={imageUrl}
+                    alt={product.name}
+                    className="w-full h-36 object-cover cursor-pointer"
+                    onClick={() => handleShowProductDetail(product.id)}
+                    onLoad={() => console.log(`✅ Loaded: ${product.name}`)}
+                    onError={(e) => {
+                        console.log(`❌ Failed: ${product.name} - ${imageUrl}`);
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://via.placeholder.com/150?text=Error+Loading";
+                    }}
+                />
+                {/* ✅ Debug badge showing URL count */}
+                <div className={`absolute top-2 right-2 text-white text-xs px-2 py-1 rounded ${
+                    product.image && product.image.startsWith('http') 
+                        ? product.image.includes(',') ? 'bg-blue-500' : 'bg-green-500'
+                        : 'bg-red-500'
+                }`}>
+                    {product.image && product.image.includes(',') 
+                        ? 'MULTI' 
+                        : (product.image ? 'SINGLE' : 'NONE')}
+                </div>
+            </div>
+            <div className="p-3 flex flex-col flex-grow bg-white">
+                <div className="flex-grow">
+                    <h3
+                        className="font-semibold text-lg mb-1 cursor-pointer"
+                        onClick={() => handleShowProductDetail(product.id)}
+                    >
+                        {product.name}
+                    </h3>
+                </div>
+                <div>
+                    <p className="text-xl font-bold mt-3 text-black">{product.price} টাকা</p>
+                    <div className="mt-4 space-y-2">
+                        {cartItemQuantity > 0 ? (
+                            <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center h-10 justify-around">
+                                <span className="text-lg">{cartItemQuantity} in cart</span>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => addToCart(product)}
+                                className="w-full bg-lipstick text-white rounded-lg font-semibold flex items-center h-10 justify-center text-sm hover:bg-lipstick-dark border-none"
+                            >
+                                Add To Cart
+                            </button>
+                        )}
+                        <button
+                            onClick={() => buyNow(product)}
+                            className="w-full bg-gray-800 text-white py-2 rounded-lg font-semibold text-sm hover:bg-gray-700 transition-colors border-none"
+                        >
+                            Buy Now
+                        </button>
                     </div>
                 </div>
-            </main>
-        );
-    }
-
-    return (
-        <main className="p-4 pt-24">
-            <div className="container mx-auto">
-                {/* ✅ FIXED debug info */}
-                <div className="mb-4 p-4 bg-yellow-100 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                        <strong>Debug Info:</strong> {products.length} products loaded | 
-                        Images found: {products.filter(p => p.image).length} {/* ✅ FIX: p.image */}
-                    </p>
-                </div>
-
-                {isAdmin && (
-                    <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
-                        <h2 className="text-2xl font-bold text-center text-lipstick-dark">Admin Panel</h2>
-                        <ProductManagement />
-                        <SliderManagement />
-                        <EventManagement />
-                    </section>
-                )}
-
-                {events.filter(event => event.isActive).length > 0 && (
-                    <section className="mb-12">
-                        <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
-                        <EventSlider events={events.filter(event => event.isActive)} />
-                    </section>
-                )}
-
-                {sliderProducts.length > 0 && (
-                    <section className="mb-12">
-                        <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
-                        <ProductSlider 
-                            products={sliderProducts} 
-                            showProductDetail={showProductDetail} 
-                        />
-                    </section>
-                )}
-
-                <section>
-                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
-                        {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
-                    </h2>
-
-                    {filteredProducts.length > 0 ? (
-                        <ProductList
-                            products={filteredProducts}
-                            cartItems={cart}
-                            addToCart={addToCart}
-                            buyNow={buyNow}
-                        />
-                    ) : (
-                        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-                            <div className="text-6xl text-gray-300 mb-4">📦</div>
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Products Found</h3>
-                            <p className="text-gray-500">Check back later for new products!</p>
-                        </div>
-                    )}
-                </section>
             </div>
-        </main>
+        </div>
     );
-}
+};
 
-export default function HomePage() {
-    return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center pt-24">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading page...</p>
-                </div>
-            </div>
-        }>
-            <HomePageContent />
-        </Suspense>
-    );
-}
+export default ProductCard;
