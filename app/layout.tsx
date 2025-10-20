@@ -1,5 +1,4 @@
-'use client';
-
+// app/layout.tsx
 import { Inter } from "next/font/google";
 import './globals.css';
 import Header from './components/Header';
@@ -8,6 +7,7 @@ import { ToastProvider } from './components/Toast';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { AuthProvider as NextAuthProvider } from './providers'; // ✅ নতুন NextAuth Provider যোগ করুন
 
 const pageMetadata = {
   title: "Any's Beauty Corner - Premium Beauty Products",
@@ -24,8 +24,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="description" content={pageMetadata.description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-        
-        {/* ✅ Font Awesome CDN যোগ করুন */}
+
+        {/* ✅ Font Awesome CDN */}
         <link 
           rel="stylesheet" 
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
@@ -35,19 +35,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={inter.className}>
-        <ToastProvider>
-          <AuthProvider>
-            <CartProvider>
-              <NotificationProvider>
-                <Header />
-                <main className="min-h-screen pt-16"> {/* ✅ Header height জন্য padding */}
-                  {children}
-                </main>
-                <Footer />
-              </NotificationProvider>
-            </CartProvider>
-          </AuthProvider>
-        </ToastProvider>
+        <NextAuthProvider> {/* ✅ NextAuth Provider যোগ করুন - সবচেয়ে বাইরে */}
+          <ToastProvider>
+            <AuthProvider> {/* ✅ আপনার existing AuthProvider */}
+              <CartProvider>
+                <NotificationProvider>
+                  <Header />
+                  <main className="min-h-screen pt-16">
+                    {children}
+                  </main>
+                  <Footer />
+                </NotificationProvider>
+              </CartProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );
