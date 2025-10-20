@@ -94,7 +94,6 @@ const ProductDetail = () => {
         }
     };
 
-    // ✅ Calculate cart totals - manual calculation
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -126,7 +125,6 @@ const ProductDetail = () => {
         );
     }
 
-    // Description truncation logic
     const description = product.description || '';
     const shouldTruncate = description.length > 150;
     const displayDescription = showFullDescription || !shouldTruncate 
@@ -232,7 +230,7 @@ const ProductDetail = () => {
                                 </button>
                             </div>
 
-                            {/* Description with truncation */}
+                            {/* Description */}
                             <div className="description-container">
                                 <p className="text-gray-700 mb-3 leading-relaxed">{displayDescription}</p>
                                 {shouldTruncate && (
