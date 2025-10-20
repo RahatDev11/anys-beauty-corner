@@ -19,13 +19,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
     cartItemQuantity = 0,
     showProductDetail,
 }) => {
-    const imageUrl = product.image || "https://via.placeholder.com/150";
     const router = useRouter();
 
-    console.log(`🔍 Product: ${product.name}`, {
-        imageUrl: imageUrl,
-        hasImage: !!product.image
-    });
+    // ✅ Better URL validation
+    const getImageUrl = () => {
+        if (!product.image) {
+            console.log(`❌ No image field: ${product.name}`);
+            return "https://via.placeholder.com/150?text=No+Image";
+        }
+        
+        if (!product.image.startsWith('http')) {
+            console.log(`❌ Invalid URL format: ${product.name} - ${product.image}`);
+            return "https://via.placeholder.com/150?text=Invalid+URL";
+        }
+
+        return product.image;
+    };
+
+    const imageUrl = getImageUrl();
 
     const handleShowProductDetail = (id: string) => {
         if (showProductDetail) {
@@ -38,22 +49,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return (
         <div className="bg-white rounded-xl shadow overflow-hidden flex flex-col">
             <div className="relative">
-                {/* ✅ TEMPORARY: Use regular img tag instead of Next.js Image */}
                 <img
                     src={imageUrl}
                     alt={product.name}
                     className="w-full h-36 object-cover cursor-pointer"
                     onClick={() => handleShowProductDetail(product.id)}
-                    onLoad={() => console.log(`✅ IMG Loaded: ${product.name}`)}
+                    onLoad={() => console.log(`✅ Loaded: ${product.name}`)}
                     onError={(e) => {
-                        console.log(`❌ IMG Failed: ${product.name} - ${imageUrl}`);
+                        console.log(`❌ Failed: ${product.name} - ${imageUrl}`);
                         const target = e.target as HTMLImageElement;
-                        target.src = "https://via.placeholder.com/150";
+                        target.src = "https://via.placeholder.com/150?text=Error+Loading";
                     }}
                 />
-                {/* Debug badge */}
-                <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                    IMG
+                {/* ✅ Better debug badge */}
+                <div className={`absolute top-2 right-2 text-white text-xs px-2 py-1 rounded ${
+                    product.image && product.image.startsWith('http') 
+                        ? 'bg-green-500' 
+                        : 'bg-red-500'
+                }`}>
+                    {product.image && product.image.startsWith('http') ? 'VALID' : 'INVALID'}
                 </div>
             </div>
             <div className="p-3 flex flex-col flex-grow bg-white">
