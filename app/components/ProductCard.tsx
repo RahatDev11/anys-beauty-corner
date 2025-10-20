@@ -20,10 +20,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
     cartItemQuantity = 0,
     showProductDetail,
 }) => {
-    // ✅ FIX: Use product.image instead of product.images[0]
     const imageUrl = product.image || "https://via.placeholder.com/150";
-    
     const router = useRouter();
+
+    // ✅ Debug logging
+    console.log(`🖼️ ProductCard: ${product.name}`, {
+        hasImage: !!product.image,
+        imageUrl: imageUrl,
+        imageField: product.image
+    });
 
     const handleShowProductDetail = (id: string) => {
         if (showProductDetail) {
@@ -35,19 +40,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     return (
         <div className="bg-white rounded-xl shadow overflow-hidden flex flex-col">
-            <Image
-                src={imageUrl}
-                alt={product.name}
-                className="w-full h-36 object-cover cursor-pointer"
-                onClick={() => handleShowProductDetail(product.id)}
-                width={250}
-                height={144}
-                onError={(e) => {
-                    // Fallback if image fails to load
-                    const target = e.target as HTMLImageElement;
-                    target.src = "https://via.placeholder.com/150";
-                }}
-            />
+            <div className="relative">
+                <Image
+                    src={imageUrl}
+                    alt={product.name}
+                    className="w-full h-36 object-cover cursor-pointer"
+                    onClick={() => handleShowProductDetail(product.id)}
+                    width={250}
+                    height={144}
+                    unoptimized={true} // ✅ IMPORTANT: Add this line
+                    onLoad={() => console.log(`✅ Image loaded successfully: ${product.name}`)}
+                    onError={(e) => {
+                        console.log(`❌ Image failed to load: ${product.name}`, {
+                            imageUrl: imageUrl,
+                            productId: product.id
+                        });
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://via.placeholder.com/150";
+                    }}
+                />
+                {/* ✅ Debug badge */}
+                <div className="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                    {product.image ? "✅" : "❌"}
+                </div>
+            </div>
             <div className="p-3 flex flex-col flex-grow bg-white">
                 <div className="flex-grow">
                     <h3
