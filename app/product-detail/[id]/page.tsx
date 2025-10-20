@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { database, ref, onValue } from '@/lib/firebase';
 import { useCart } from '@/app/context/CartContext';
-import ProductSlider from '@/app/components/ProductSlider';
 import Image from 'next/image';
 
 interface Product {
@@ -30,7 +29,7 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const { addToCart, buyNow, cart } = useCart(); // ✅ getTotalPrice remove করা হয়েছে
+    const { addToCart, buyNow, cart } = useCart();
 
     useEffect(() => {
         if (!id) return;
@@ -141,9 +140,10 @@ const ProductDetail = () => {
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Image Gallery */}
-                        <div className="flex flex-col md:flex-row gap-4">
-                            <div className="flex-1 relative aspect-[4/3]">
+                        {/* Image Gallery - WITHOUT SLIDER */}
+                        <div className="space-y-4">
+                            {/* Main Image */}
+                            <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
                                 {mainImage && !imageError ? (
                                     <Image 
                                         src={mainImage} 
@@ -151,23 +151,25 @@ const ProductDetail = () => {
                                         onClick={openModal}
                                         fill 
                                         style={{objectFit: "contain"}} 
-                                        className="border border-gray-200 rounded-lg cursor-pointer transition-transform hover:scale-105"
+                                        className="cursor-pointer transition-transform hover:scale-105"
                                         onError={() => setImageError(true)}
+                                        priority
                                     />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200">
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
                                         <span className="text-gray-400">Image not available</span>
                                     </div>
                                 )}
                             </div>
 
+                            {/* Thumbnail Images */}
                             {product.images && product.images.length > 1 && (
-                                <div className="flex md:flex-col gap-2 overflow-x-auto md:max-h-80 md:overflow-y-auto">
+                                <div className="flex gap-2 overflow-x-auto py-2">
                                     {product.images.map((image: string, index: number) => (
                                         <div 
                                             key={index}
-                                            className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 cursor-pointer border-2 rounded transition-all ${
-                                                mainImage === image ? 'border-lipstick' : 'border-transparent hover:border-gray-300'
+                                            className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 cursor-pointer border-2 rounded-lg transition-all ${
+                                                mainImage === image ? 'border-lipstick' : 'border-gray-200 hover:border-lipstick'
                                             }`}
                                             onClick={() => handleThumbnailClick(image)}
                                         >
@@ -176,7 +178,7 @@ const ProductDetail = () => {
                                                 alt={`${product.name} thumbnail ${index + 1}`}
                                                 fill
                                                 style={{ objectFit: 'cover' }}
-                                                className="rounded"
+                                                className="rounded-lg"
                                                 onError={() => {}}
                                             />
                                         </div>
@@ -249,14 +251,33 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products Section */}
+                {/* Related Products Section - WITHOUT SLIDER */}
                 {relatedProducts.length > 0 && (
                     <section className="mt-12">
                         <h2 className="text-2xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
-                        <ProductSlider 
-                            products={relatedProducts} 
-                            showProductDetail={(productId) => router.push(`/product/${productId}`)}
-                        />
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {relatedProducts.slice(0, 4).map((relatedProduct) => (
+                                <div 
+                                    key={relatedProduct.id}
+                                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                                    onClick={() => router.push(`/product/${relatedProduct.id}`)}
+                                >
+                                    <div className="relative aspect-square">
+                                        <Image
+                                            src={relatedProduct.images?.[0] || '/placeholder-image.jpg'}
+                                            alt={relatedProduct.name}
+                                            fill
+                                            style={{ objectFit: 'cover' }}
+                                            className="hover:scale-105 transition-transform"
+                                        />
+                                    </div>
+                                    <div className="p-3">
+                                        <h3 className="font-semibold text-sm mb-1 line-clamp-2">{relatedProduct.name}</h3>
+                                        <p className="text-lipstick font-bold">{relatedProduct.price} ৳</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </section>
                 )}
             </main>
