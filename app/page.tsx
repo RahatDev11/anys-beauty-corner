@@ -49,7 +49,7 @@ function HomePageContent() {
 
     useEffect(() => {
         console.log('🔄 Products state updated:', products?.length || 0, 'products');
-        
+
         if (products && products.length > 0) {
             products.forEach((product, index) => {
                 console.log(`📦 Product ${index + 1}:`, {
@@ -136,6 +136,7 @@ function HomePageContent() {
     return (
         <main className="p-4 pt-24">
             <div className="container mx-auto">
+                {/* Debug Info - আপনি চাইলে পরে remove করতে পারেন */}
                 <div className="mb-4 p-4 bg-yellow-100 rounded-lg">
                     <p className="text-sm text-yellow-800">
                         <strong>Debug Info:</strong> {products?.length || 0} products loaded | 
@@ -153,6 +154,7 @@ function HomePageContent() {
                     </section>
                 )}
 
+                {/* Events Section */}
                 {events?.filter(event => event.isActive).length > 0 && (
                     <section className="mb-12">
                         <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
@@ -160,16 +162,23 @@ function HomePageContent() {
                     </section>
                 )}
 
+                {/* Featured Products Section - UPDATED */}
                 {sliderProducts.length > 0 && (
                     <section className="mb-12">
                         <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
-                        <ProductSlider 
-                            products={sliderProducts} 
-                            showProductDetail={showProductDetail} 
-                        />
+                        <div className="relative">
+                            {/* ProductSlider কে proper spacing সহ */}
+                            <div className="px-4 lg:px-8">
+                                <ProductSlider 
+                                    products={sliderProducts} 
+                                    showProductDetail={showProductDetail} 
+                                />
+                            </div>
+                        </div>
                     </section>
                 )}
 
+                {/* All Products Section */}
                 <section>
                     <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
                         {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
