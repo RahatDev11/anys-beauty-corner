@@ -197,7 +197,6 @@ const ProductDetail = () => {
                         <div className="flex flex-col justify-center">
                             <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-gray-800">{product.name}</h1>
                             <p className="text-lipstick text-2xl lg:text-3xl font-bold mb-6">{product.price} ৳</p>
-
                             <div className="mb-6 space-y-3">
                                 <div>
                                     <span className="text-gray-600">Category: </span>
@@ -333,7 +332,7 @@ const ProductDetail = () => {
                 )}
             </main>
 
-            {/* Fixed Order Bar - FIXED INDENTATION */}
+            {/* Fixed Order Bar */}
             {totalItems > 0 && (
                 <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                     <div className="flex justify-between items-center max-w-6xl mx-auto">
@@ -355,7 +354,7 @@ const ProductDetail = () => {
                 </div>
             )}
 
-            {/* Image Modal */}
+            {/* Image Modal - FIXED BUTTON TAG */}
             {showModal && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
@@ -367,9 +366,9 @@ const ProductDetail = () => {
                         aria-label="Close modal"
                     >
                         ×
-                  </button>
+                    </button>
                     <div className="relative w-full h-full max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
-                        <Image 
+                       <Image 
                             src={mainImage} 
                             alt={product.name}
                             fill
