@@ -39,8 +39,16 @@ const ProductDetail = () => {
             if (snapshot.exists()) {
                 const productData = { id: snapshot.key, ...snapshot.val() };
                 setProduct(productData);
+                console.log('📦 Product Data:', productData); // Debug log
+                
                 if (productData.images && productData.images.length > 0) {
-                    setMainImage(productData.images[0]);
+                    const firstImage = Array.isArray(productData.images) 
+                        ? productData.images[0] 
+                        : String(productData.images).split(',')[0].trim();
+                    setMainImage(firstImage);
+                    console.log('🖼️ Main Image Set:', firstImage); // Debug log
+                } else {
+                    setMainImage('/placeholder-image.jpg');
                 }
             } else {
                 setProduct(null);
@@ -97,9 +105,25 @@ const ProductDetail = () => {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
+    // Function to get all images from product
+    const getAllImages = (product: Product): string[] => {
+        if (!product.images) return ['/placeholder-image.jpg'];
+        
+        if (Array.isArray(product.images)) {
+            return product.images.filter(img => img && img.trim() !== '');
+        }
+        
+        // If images is a comma-separated string
+        if (typeof product.images === 'string') {
+            return product.images.split(',').map(img => img.trim()).filter(img => img !== '');
+        }
+        
+        return ['/placeholder-image.jpg'];
+    };
+
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center pt-20">
+            <div className="min-h-screen flex items-center justify-center pt-20 bg-white">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick mx-auto"></div>
                     <p className="mt-4 text-lg text-gray-600">Loading product details...</p>
@@ -110,7 +134,7 @@ const ProductDetail = () => {
 
     if (!product) {
         return (
-            <div className="min-h-screen flex items-center justify-center pt-20">
+            <div className="min-h-screen flex items-center justify-center pt-20 bg-white">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-800">Product not found</h1>
                     <p className="text-gray-600 mt-2">The product you&apos;re looking for doesn&apos;t exist.</p>
@@ -132,16 +156,17 @@ const ProductDetail = () => {
         : `${description.substring(0, 150)}...`;
 
     const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
+    const productImages = getAllImages(product);
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white"> {/* Changed to solid white background */}
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
-                <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200"> {/* Added border */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Image Gallery - WITHOUT SLIDER */}
+                        {/* Image Gallery */}
                         <div className="space-y-4">
                             {/* Main Image */}
-                            <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
+                            <div className="relative aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden border border-gray-200"> {/* Added border */}
                                 {mainImage && !imageError ? (
                                     <Image 
                                         src={mainImage} 
@@ -150,7 +175,10 @@ const ProductDetail = () => {
                                         fill 
                                         style={{objectFit: "contain"}} 
                                         className="cursor-pointer transition-transform hover:scale-105"
-                                        onError={() => setImageError(true)}
+                                        onError={() => {
+                                            console.log('❌ Image failed to load:', mainImage);
+                                            setImageError(true);
+                                        }}
                                         priority
                                     />
                                 ) : (
@@ -161,9 +189,9 @@ const ProductDetail = () => {
                             </div>
 
                             {/* Thumbnail Images */}
-                            {product.images && product.images.length > 1 && (
+                            {productImages.length > 1 && (
                                 <div className="flex gap-2 overflow-x-auto py-2">
-                                    {product.images.map((image: string, index: number) => (
+                                    {productImages.map((image: string, index: number) => (
                                         <div 
                                             key={index}
                                             className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 cursor-pointer border-2 rounded-lg transition-all ${
@@ -177,7 +205,10 @@ const ProductDetail = () => {
                                                 fill
                                                 style={{ objectFit: 'cover' }}
                                                 className="rounded-lg"
-                                                onError={() => {}}
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = '/placeholder-image.jpg';
+                                                }}
                                             />
                                         </div>
                                     ))}
@@ -249,32 +280,39 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products Section - WITHOUT SLIDER */}
+                {/* Related Products Section */}
                 {relatedProducts.length > 0 && (
-                    <section className="mt-12">
+                    <section className="mt-12 bg-white p-6 rounded-lg border border-gray-200"> {/* Added background and border */}
                         <h2 className="text-2xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {relatedProducts.slice(0, 4).map((relatedProduct) => (
-                                <div 
-                                    key={relatedProduct.id}
-                                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                                    onClick={() => router.push(`/product/${relatedProduct.id}`)}
-                                >
-                                    <div className="relative aspect-square">
-                                        <Image
-                                            src={relatedProduct.images?.[0] || '/placeholder-image.jpg'}
-                                            alt={relatedProduct.name}
-                                            fill
-                                            style={{ objectFit: 'cover' }}
-                                            className="hover:scale-105 transition-transform"
-                                        />
+                            {relatedProducts.slice(0, 4).map((relatedProduct) => {
+                                const relatedImages = getAllImages(relatedProduct);
+                                return (
+                                    <div 
+                                        key={relatedProduct.id}
+                                        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                                        onClick={() => router.push(`/product/${relatedProduct.id}`)}
+                                    >
+                                        <div className="relative aspect-square bg-gray-50"> {/* Added background */}
+                                            <Image
+                                                src={relatedImages[0]}
+                                                alt={relatedProduct.name}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                                className="hover:scale-105 transition-transform"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = '/placeholder-image.jpg';
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="p-3">
+                                            <h3 className="font-semibold text-sm mb-1 line-clamp-2">{relatedProduct.name}</h3>
+                                            <p className="text-lipstick font-bold">{relatedProduct.price} ৳</p>
+                                        </div>
                                     </div>
-                                    <div className="p-3">
-                                        <h3 className="font-semibold text-sm mb-1 line-clamp-2">{relatedProduct.name}</h3>
-                                        <p className="text-lipstick font-bold">{relatedProduct.price} ৳</p>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </section>
                 )}
