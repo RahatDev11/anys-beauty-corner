@@ -130,20 +130,9 @@ function HomePageContent() {
         );
     }
 
-    const validImageCount = products?.filter(p => p.image && p.image.startsWith('http')).length || 0;
-    const invalidImageCount = products?.filter(p => !p.image || !p.image.startsWith('http')).length || 0;
-
     return (
         <main className="p-4 pt-24">
             <div className="container mx-auto">
-                <div className="mb-4 p-4 bg-yellow-100 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                        <strong>Debug Info:</strong> {products?.length || 0} products loaded | 
-                        Valid Images: <span className="text-green-600 font-bold">{validImageCount}</span> | 
-                        Invalid Images: <span className="text-red-600 font-bold">{invalidImageCount}</span>
-                    </p>
-                </div>
-
                 {isAdmin && (
                     <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
                         <h2 className="text-2xl font-bold text-center text-lipstick-dark">Admin Panel</h2>
