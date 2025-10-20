@@ -131,10 +131,10 @@ function HomePageContent() {
     }
 
     return (
-        <main className="p-4 pt-24">
+        <main className="pt-24">
             <div className="container mx-auto">
                 {isAdmin && (
-                    <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
+                    <section className="mb-6 p-4 bg-white rounded-lg shadow-lg space-y-4">
                         <h2 className="text-2xl font-bold text-center text-lipstick-dark">Admin Panel</h2>
                         <ProductManagement />
                         <SliderManagement />
@@ -142,10 +142,9 @@ function HomePageContent() {
                     </section>
                 )}
 
-                {/* ফিচার প্রোডাক্ট উপরে - Featured Products on top */}
+                {/* ফিচার প্রোডাক্ট উপরে - Featured Products on top (হেডার ছাড়া) */}
                 {sliderProducts.length > 0 && (
-                    <section className="mb-12">
-                        <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
+                    <section className="mb-8">
                         <ProductSlider 
                             products={sliderProducts} 
                             showProductDetail={showProductDetail} 
@@ -155,13 +154,13 @@ function HomePageContent() {
 
                 {/* আওয়ার ইভেন্টস নিচে - Our Events below */}
                 {events?.filter(event => event.isActive).length > 0 && (
-                    <section className="mb-12">
+                    <section className="mb-12 px-4">
                         <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
                         <EventSlider events={events.filter(event => event.isActive)} />
                     </section>
                 )}
 
-                <section>
+                <section className="px-4">
                     <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
                         {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
                     </h2>
