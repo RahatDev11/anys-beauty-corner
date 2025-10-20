@@ -41,14 +41,24 @@ const ProductDetail = () => {
                 setProduct(productData);
                 console.log('📦 Product Data:', productData); // Debug log
                 
-                if (productData.images && productData.images.length > 0) {
-                    const firstImage = Array.isArray(productData.images) 
-                        ? productData.images[0] 
-                        : String(productData.images).split(',')[0].trim();
-                    setMainImage(firstImage);
-                    console.log('🖼️ Main Image Set:', firstImage); // Debug log
+                // Handle images properly
+                let imagesArray: string[] = [];
+                
+                if (productData.images) {
+                    if (Array.isArray(productData.images)) {
+                        imagesArray = productData.images.filter(img => img && img.trim() !== '');
+                    } else if (typeof productData.images === 'string') {
+                        imagesArray = productData.images.split(',').map(img => img.trim()).filter(img => img !== '');
+                    }
+                }
+                
+                console.log('🖼️ Processed Images:', imagesArray); // Debug log
+                
+                if (imagesArray.length > 0) {
+                    setMainImage(imagesArray[0]);
                 } else {
-                    setMainImage('/placeholder-image.jpg');
+                    // Use a proper placeholder image
+                    setMainImage('/api/placeholder/400/300');
                 }
             } else {
                 setProduct(null);
@@ -69,6 +79,21 @@ const ProductDetail = () => {
             }
         });
     }, [id]);
+
+    // Function to get all images from product
+    const getAllImages = (product: Product): string[] => {
+        if (!product.images) return ['/api/placeholder/400/300'];
+        
+        let imagesArray: string[] = [];
+        
+        if (Array.isArray(product.images)) {
+            imagesArray = product.images.filter(img => img && img.trim() !== '');
+        } else if (typeof product.images === 'string') {
+            imagesArray = product.images.split(',').map(img => img.trim()).filter(img => img !== '');
+        }
+        
+        return imagesArray.length > 0 ? imagesArray : ['/api/placeholder/400/300'];
+    };
 
     const handleThumbnailClick = (image: string) => {
         setMainImage(image);
@@ -104,22 +129,6 @@ const ProductDetail = () => {
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    // Function to get all images from product
-    const getAllImages = (product: Product): string[] => {
-        if (!product.images) return ['/placeholder-image.jpg'];
-        
-        if (Array.isArray(product.images)) {
-            return product.images.filter(img => img && img.trim() !== '');
-        }
-        
-        // If images is a comma-separated string
-        if (typeof product.images === 'string') {
-            return product.images.split(',').map(img => img.trim()).filter(img => img !== '');
-        }
-        
-        return ['/placeholder-image.jpg'];
-    };
 
     if (loading) {
         return (
@@ -158,15 +167,18 @@ const ProductDetail = () => {
     const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
     const productImages = getAllImages(product);
 
+    console.log('🎯 Current Main Image:', mainImage); // Debug log
+    console.log('🎯 All Product Images:', productImages); // Debug log
+
     return (
-        <div className="min-h-screen bg-white"> {/* Changed to solid white background */}
+        <div className="min-h-screen bg-white">
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200"> {/* Added border */}
+                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Image Gallery */}
                         <div className="space-y-4">
                             {/* Main Image */}
-                            <div className="relative aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden border border-gray-200"> {/* Added border */}
+                            <div className="relative aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
                                 {mainImage && !imageError ? (
                                     <Image 
                                         src={mainImage} 
@@ -175,15 +187,20 @@ const ProductDetail = () => {
                                         fill 
                                         style={{objectFit: "contain"}} 
                                         className="cursor-pointer transition-transform hover:scale-105"
-                                        onError={() => {
+                                        onError={(e) => {
                                             console.log('❌ Image failed to load:', mainImage);
                                             setImageError(true);
+                                            // Fallback to placeholder
+                                            const target = e.target as HTMLImageElement;
+                                            target.src = '/api/placeholder/400/300';
                                         }}
                                         priority
+                                        unoptimized={true} // Add this for external images
                                     />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
-                                        <span className="text-gray-400">Image not available</span>
+                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 rounded-lg">
+                                        <div className="text-4xl text-gray-400 mb-2">📷</div>
+                                        <span className="text-gray-500 text-sm">Image not available</span>
                                     </div>
                                 )}
                             </div>
@@ -207,8 +224,9 @@ const ProductDetail = () => {
                                                 className="rounded-lg"
                                                 onError={(e) => {
                                                     const target = e.target as HTMLImageElement;
-                                                    target.src = '/placeholder-image.jpg';
+                                                    target.src = '/api/placeholder/100/100';
                                                 }}
+                                                unoptimized={true} // Add this for external images
                                             />
                                         </div>
                                     ))}
@@ -282,7 +300,7 @@ const ProductDetail = () => {
 
                 {/* Related Products Section */}
                 {relatedProducts.length > 0 && (
-                    <section className="mt-12 bg-white p-6 rounded-lg border border-gray-200"> {/* Added background and border */}
+                    <section className="mt-12 bg-white p-6 rounded-lg border border-gray-200">
                         <h2 className="text-2xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {relatedProducts.slice(0, 4).map((relatedProduct) => {
@@ -293,7 +311,7 @@ const ProductDetail = () => {
                                         className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
                                         onClick={() => router.push(`/product/${relatedProduct.id}`)}
                                     >
-                                        <div className="relative aspect-square bg-gray-50"> {/* Added background */}
+                                        <div className="relative aspect-square bg-gray-50">
                                             <Image
                                                 src={relatedImages[0]}
                                                 alt={relatedProduct.name}
@@ -302,8 +320,9 @@ const ProductDetail = () => {
                                                 className="hover:scale-105 transition-transform"
                                                 onError={(e) => {
                                                     const target = e.target as HTMLImageElement;
-                                                    target.src = '/placeholder-image.jpg';
+                                                    target.src = '/api/placeholder/200/200';
                                                 }}
+                                                unoptimized={true}
                                             />
                                         </div>
                                         <div className="p-3">
@@ -354,14 +373,21 @@ const ProductDetail = () => {
                         ×
                     </button>
                     <div className="relative w-full h-full max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
-                        <Image 
-                            src={mainImage} 
-                            alt={product.name}
-                            fill
-                            style={{objectFit: "contain"}} 
-                            className="cursor-zoom-out"
-                            onError={() => setImageError(true)}
-                        />
+                        {mainImage && !imageError ? (
+                            <Image 
+                                src={mainImage} 
+                                alt={product.name}
+                                fill
+                                style={{objectFit: "contain"}} 
+                                className="cursor-zoom-out"
+                                onError={() => setImageError(true)}
+                                unoptimized={true}
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                                <span className="text-white">Image not available</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
