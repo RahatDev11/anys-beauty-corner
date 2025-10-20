@@ -38,29 +38,12 @@ function HomePageContent() {
     const [products, setProducts] = useState<Product[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
-    const [firebaseError, setFirebaseError] = useState(false);
     const router = useRouter();
     const { cart, addToCart, buyNow } = useCart();
     const { isAdmin } = useAuth();
 
     const searchParams = useSearchParams();
     const categoryFilter = searchParams.get('filter');
-
-    // Remove the problematic useEffect that causes infinite loop
-    // useEffect(() => {
-    //     console.log('🔄 Products state updated:', products?.length || 0, 'products');
-    //     if (products && products.length > 0) {
-    //         products.forEach((product, index) => {
-    //             console.log(`📦 Product ${index + 1}:`, {
-    //                 name: product?.name || 'Unknown',
-    //                 price: product?.price || 'N/A',
-    //                 hasImage: !!product?.image,
-    //                 imageUrl: product?.image || 'NO IMAGE',
-    //                 stockStatus: product?.stockStatus || 'unknown'
-    //             });
-    //         });
-    //     }
-    // }, [products]);
 
     const filteredProducts = products?.filter(product => {
         if (!categoryFilter || categoryFilter === 'all') {
@@ -70,11 +53,8 @@ function HomePageContent() {
     }) || [];
 
     useEffect(() => {
-        console.log('🚀 Fetching products from Firebase...');
-
         let productsUnsubscribe: any = null;
         let eventsUnsubscribe: any = null;
-        let timeoutId: NodeJS.Timeout;
 
         try {
             const productsRef = ref(database, "products/");
@@ -84,18 +64,15 @@ function HomePageContent() {
                         id: key, 
                         ...snapshot.val()[key] 
                     }));
-                    console.log('✅ Firebase products data received:', productsData.length);
                     setProducts(productsData);
                 } else {
-                    console.log('❌ No products found in Firebase');
                     setProducts([]);
                 }
                 setLoading(false);
-                setFirebaseError(false);
             }, (error) => {
-                console.error('🔥 Firebase error:', error);
-                setFirebaseError(true);
+                console.error('Firebase error:', error);
                 setLoading(false);
+                // Error message show korbo na, just console e log korbo
             });
 
             const eventsRef = ref(database, "events/");
@@ -111,25 +88,14 @@ function HomePageContent() {
                 }
             });
 
-            // Fallback timeout if Firebase doesn't respond
-            timeoutId = setTimeout(() => {
-                if (loading) {
-                    console.log('⏰ Firebase timeout - setting default state');
-                    setLoading(false);
-                    setFirebaseError(true);
-                }
-            }, 10000);
-
         } catch (error) {
-            console.error('🔥 Firebase initialization error:', error);
-            setFirebaseError(true);
+            console.error('Firebase initialization error:', error);
             setLoading(false);
         }
 
         return () => {
             if (productsUnsubscribe) productsUnsubscribe();
             if (eventsUnsubscribe) eventsUnsubscribe();
-            if (timeoutId) clearTimeout(timeoutId);
         };
     }, []);
 
@@ -155,28 +121,8 @@ function HomePageContent() {
         );
     }
 
-    if (firebaseError) {
-        return (
-            <main className="pt-24">
-                <div className="container mx-auto px-4">
-                    <div className="text-center py-12 bg-red-50 rounded-lg">
-                        <div className="text-6xl text-red-300 mb-4">⚠️</div>
-                        <h3 className="text-xl font-semibold text-red-600 mb-2">Connection Error</h3>
-                        <p className="text-red-500 mb-4">Unable to load products. Please check your connection.</p>
-                        <button 
-                            onClick={() => window.location.reload()}
-                            className="bg-lipstick text-white px-6 py-2 rounded-lg hover:bg-lipstick-dark"
-                        >
-                            Retry
-                        </button>
-                    </div>
-                </div>
-            </main>
-        );
-    }
-
     return (
-        <main className="pt-24">
+        <main className="pt-0">
             <div className="container mx-auto">
                 {isAdmin && (
                     <section className="mb-6 p-4 bg-white rounded-lg shadow-lg space-y-4">
@@ -187,9 +133,9 @@ function HomePageContent() {
                     </section>
                 )}
 
-                {/* ফিচার প্রোডাক্ট উপরে - Featured Products on top (হেডার ছাড়া) */}
+                {/* Featured Products - Header er niche immediately */}
                 {sliderProducts.length > 0 && (
-                    <section className="mb-8">
+                    <section className="mb-0">
                         <ProductSlider 
                             products={sliderProducts} 
                             showProductDetail={showProductDetail} 
@@ -197,16 +143,16 @@ function HomePageContent() {
                     </section>
                 )}
 
-                {/* আওয়ার ইভেন্টস নিচে - Our Events below */}
+                {/* Our Events */}
                 {events?.filter(event => event.isActive).length > 0 && (
-                    <section className="mb-12 px-4">
-                        <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
+                    <section className="mb-0 px-0">
+                        <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-4">Our Events</h2>
                         <EventSlider events={events.filter(event => event.isActive)} />
                     </section>
                 )}
 
-                <section className="px-4">
-                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
+                <section className="px-0">
+                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-4">
                         {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
                     </h2>
 
@@ -218,9 +164,9 @@ function HomePageContent() {
                             buyNow={buyNow}
                         />
                     ) : (
-                        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-                            <div className="text-6xl text-gray-300 mb-4">📦</div>
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Products Found</h3>
+                        <div className="text-center py-6 bg-white rounded-lg shadow-sm">
+                            <div className="text-6xl text-gray-300 mb-2">📦</div>
+                            <h3 className="text-xl font-semibold text-gray-600 mb-1">No Products Found</h3>
                             <p className="text-gray-500">Check back later for new products!</p>
                         </div>
                     )}
