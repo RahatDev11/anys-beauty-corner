@@ -1,7 +1,19 @@
 // app/context/AuthContext.tsx
 'use client';
+
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
-import { auth, provider, database, ref, set, get, signInWithPopup, signOut, onAuthStateChanged } from '@/lib/firebase'; // ✅ GoogleAuthProvider removed
+import { 
+    auth, 
+    provider, 
+    database, 
+    ref, 
+    set, 
+    get, 
+    signInWithPopup, 
+    signOut, 
+    onAuthStateChanged,
+    User as FirebaseUser 
+} from '@/lib/firebase';
 
 interface User {
     uid: string;
@@ -24,6 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [user, setUser] = useState<User | null>(null);
     const [isAdminUser, setIsAdminUser] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [authInitialized, setAuthInitialized] = useState(false);
 
     const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
         if (typeof window !== 'undefined') {
@@ -65,8 +78,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
             try {
+                setLoading(true);
+                
                 if (firebaseUser) {
                     const currentUser: User = {
                         uid: firebaseUser.uid,
@@ -76,13 +91,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     };
                     setUser(currentUser);
 
+                    // Check admin status
                     const isAdmin = await checkAdminStatus(firebaseUser.uid);
                     setIsAdminUser(isAdmin);
 
+                    // Save user to Firebase
                     await saveUserToFirebase(currentUser);
+                    
+                    console.log('User logged in:', currentUser.email);
                 } else {
                     setUser(null);
                     setIsAdminUser(false);
+                    console.log('User logged out');
                 }
             } catch (error) {
                 console.error("Auth state change error:", error);
@@ -90,6 +110,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setIsAdminUser(false);
             } finally {
                 setLoading(false);
+                setAuthInitialized(true);
             }
         });
 
@@ -98,13 +119,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const loginWithGmail = useCallback(async (): Promise<void> => {
         try {
-            const result = await signInWithPopup(auth, provider);
+            console.log('Starting Google login...');
+            
+            // Add prompt for account selection
+            const providerWithPrompt = {
+                ...provider,
+                customParameters: {
+                    prompt: 'select_account'
+                }
+            };
+
+            const result = await signInWithPopup(auth, providerWithPrompt);
             const loggedInUser = result.user;
-            showToast(`স্বাগতম, ${loggedInUser.displayName || 'User'}`, "success");
-        } catch (error: unknown) { // ✅ any -> unknown
+            
+            console.log('Login successful:', loggedInUser.email);
+            showToast(`স্বাগতম, ${loggedInUser.displayName || 'User'}!`, "success");
+            
+        } catch (error: unknown) {
             console.error("Login failed:", error);
-            const errorMessage = error instanceof Error ? error.message : "লগইন ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।";
+            
+            let errorMessage = "লগইন ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।";
+            
+            if (error instanceof Error) {
+                errorMessage = error.message;
+                
+                // Handle specific Firebase errors
+                if (errorMessage.includes('popup-closed-by-user')) {
+                    errorMessage = "লগইন পপআপ বন্ধ করা হয়েছে।";
+                } else if (errorMessage.includes('popup-blocked')) {
+                    errorMessage = "লগইন পপআপ ব্লক করা হয়েছে। অনুগ্রহ করে পপআপ Allow করুন।";
+                } else if (errorMessage.includes('network-request-failed')) {
+                    errorMessage = "নেটওয়ার্ক সমস্যা। ইন্টারনেট কানেকশন চেক করুন।";
+                }
+            }
+            
             showToast(errorMessage, "error");
+            throw error; // Re-throw to handle in components
         }
     }, [showToast]);
 
@@ -112,17 +162,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             await signOut(auth);
             showToast("সফলভাবে লগআউট হয়েছেন।", "success");
-        } catch (error: unknown) { // ✅ any -> unknown
+        } catch (error: unknown) {
             console.error("Logout failed:", error);
             const errorMessage = error instanceof Error ? error.message : "লগআউট ব্যর্থ হয়েছে।";
             showToast(errorMessage, "error");
+            throw error;
         }
     }, [showToast]);
 
     const value: AuthContextType = {
         user,
         isAdmin: isAdminUser,
-        loading,
+        loading: loading || !authInitialized, // Show loading until auth is initialized
         loginWithGmail,
         logout,
     };
