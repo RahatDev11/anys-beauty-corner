@@ -142,7 +142,7 @@ function HomePageContent() {
 
     if (loading) {
         return (
-            <main className="pt-24">
+            <main className="pt-0">
                 <div className="container mx-auto">
                     <div className="flex justify-center items-center min-h-64">
                         <div className="text-center">
@@ -233,7 +233,7 @@ function HomePageContent() {
 export default function HomePage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center pt-24">
+            <div className="min-h-screen flex items-center justify-center pt-0">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick mx-auto mb-4"></div>
                     <p className="text-gray-600">Loading page...</p>
