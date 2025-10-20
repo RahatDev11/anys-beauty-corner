@@ -31,6 +31,13 @@ const ProductDetail = () => {
     const [imageError, setImageError] = useState(false);
     const { addToCart, buyNow, cart } = useCart();
 
+    // Real placeholder images
+    const placeholderImages = {
+        large: 'https://via.placeholder.com/400x300/ffffff/cccccc?text=Image+Not+Available',
+        small: 'https://via.placeholder.com/100x100/ffffff/cccccc?text=Image',
+        product: 'https://via.placeholder.com/200x200/ffffff/cccccc?text=Product'
+    };
+
     useEffect(() => {
         if (!id) return;
 
@@ -39,7 +46,7 @@ const ProductDetail = () => {
             if (snapshot.exists()) {
                 const productData = { id: snapshot.key, ...snapshot.val() };
                 setProduct(productData);
-                console.log('📦 Product Data:', productData); // Debug log
+                console.log('📦 Product Data:', productData);
                 
                 // Handle images properly
                 let imagesArray: string[] = [];
@@ -52,13 +59,13 @@ const ProductDetail = () => {
                     }
                 }
                 
-                console.log('🖼️ Processed Images:', imagesArray); // Debug log
+                console.log('🖼️ Processed Images:', imagesArray);
                 
                 if (imagesArray.length > 0) {
                     setMainImage(imagesArray[0]);
                 } else {
-                    // Use a proper placeholder image
-                    setMainImage('/api/placeholder/400/300');
+                    // Use real placeholder image
+                    setMainImage(placeholderImages.large);
                 }
             } else {
                 setProduct(null);
@@ -82,7 +89,7 @@ const ProductDetail = () => {
 
     // Function to get all images from product
     const getAllImages = (product: Product): string[] => {
-        if (!product.images) return ['/api/placeholder/400/300'];
+        if (!product.images) return [placeholderImages.large];
         
         let imagesArray: string[] = [];
         
@@ -92,7 +99,7 @@ const ProductDetail = () => {
             imagesArray = product.images.split(',').map(img => img.trim()).filter(img => img !== '');
         }
         
-        return imagesArray.length > 0 ? imagesArray : ['/api/placeholder/400/300'];
+        return imagesArray.length > 0 ? imagesArray : [placeholderImages.large];
     };
 
     const handleThumbnailClick = (image: string) => {
@@ -167,8 +174,8 @@ const ProductDetail = () => {
     const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
     const productImages = getAllImages(product);
 
-    console.log('🎯 Current Main Image:', mainImage); // Debug log
-    console.log('🎯 All Product Images:', productImages); // Debug log
+    console.log('🎯 Current Main Image:', mainImage);
+    console.log('🎯 All Product Images:', productImages);
 
     return (
         <div className="min-h-screen bg-white">
@@ -179,7 +186,7 @@ const ProductDetail = () => {
                         <div className="space-y-4">
                             {/* Main Image */}
                             <div className="relative aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
-                                {mainImage && !imageError ? (
+                                {!imageError ? (
                                     <Image 
                                         src={mainImage} 
                                         alt={product.name}
@@ -190,12 +197,9 @@ const ProductDetail = () => {
                                         onError={(e) => {
                                             console.log('❌ Image failed to load:', mainImage);
                                             setImageError(true);
-                                            // Fallback to placeholder
-                                            const target = e.target as HTMLImageElement;
-                                            target.src = '/api/placeholder/400/300';
                                         }}
                                         priority
-                                        unoptimized={true} // Add this for external images
+                                        unoptimized={true}
                                     />
                                 ) : (
                                     <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 rounded-lg">
@@ -224,9 +228,9 @@ const ProductDetail = () => {
                                                 className="rounded-lg"
                                                 onError={(e) => {
                                                     const target = e.target as HTMLImageElement;
-                                                    target.src = '/api/placeholder/100/100';
+                                                    target.src = placeholderImages.small;
                                                 }}
-                                                unoptimized={true} // Add this for external images
+                                                unoptimized={true}
                                             />
                                         </div>
                                     ))}
@@ -320,7 +324,7 @@ const ProductDetail = () => {
                                                 className="hover:scale-105 transition-transform"
                                                 onError={(e) => {
                                                     const target = e.target as HTMLImageElement;
-                                                    target.src = '/api/placeholder/200/200';
+                                                    target.src = placeholderImages.product;
                                                 }}
                                                 unoptimized={true}
                                             />
@@ -359,7 +363,7 @@ const ProductDetail = () => {
                 </div>
             )}
 
-            {/* Modal */}
+                 {/* Modal */}
             {showModal && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
@@ -373,7 +377,7 @@ const ProductDetail = () => {
                         ×
                     </button>
                     <div className="relative w-full h-full max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
-                        {mainImage && !imageError ? (
+                        {!imageError ? (
                             <Image 
                                 src={mainImage} 
                                 alt={product.name}
