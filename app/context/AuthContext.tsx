@@ -4,7 +4,7 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
 import { 
     auth, 
-    provider, 
+    createGoogleProvider, // পরিবর্তন করুন
     database, 
     ref, 
     set, 
@@ -121,15 +121,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             console.log('Starting Google login...');
             
-            // Add prompt for account selection
-            const providerWithPrompt = {
-                ...provider,
-                customParameters: {
-                    prompt: 'select_account'
-                }
-            };
-
-            const result = await signInWithPopup(auth, providerWithPrompt);
+            // Create new provider instance each time
+            const provider = createGoogleProvider();
+            
+            const result = await signInWithPopup(auth, provider);
             const loggedInUser = result.user;
             
             console.log('Login successful:', loggedInUser.email);
@@ -150,11 +145,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     errorMessage = "লগইন পপআপ ব্লক করা হয়েছে। অনুগ্রহ করে পপআপ Allow করুন।";
                 } else if (errorMessage.includes('network-request-failed')) {
                     errorMessage = "নেটওয়ার্ক সমস্যা। ইন্টারনেট কানেকশন চেক করুন।";
+                } else if (errorMessage.includes('auth/argument-error')) {
+                    errorMessage = "Authentication configuration error. Please check Firebase setup.";
                 }
             }
             
             showToast(errorMessage, "error");
-            throw error; // Re-throw to handle in components
+            throw error;
         }
     }, [showToast]);
 
@@ -173,7 +170,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const value: AuthContextType = {
         user,
         isAdmin: isAdminUser,
-        loading: loading || !authInitialized, // Show loading until auth is initialized
+        loading: loading || !authInitialized,
         loginWithGmail,
         logout,
     };
