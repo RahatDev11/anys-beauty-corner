@@ -72,7 +72,6 @@ function HomePageContent() {
             }, (error) => {
                 console.error('Firebase error:', error);
                 setLoading(false);
-                // Error message show korbo na, just console e log korbo
             });
 
             const eventsRef = ref(database, "events/");
