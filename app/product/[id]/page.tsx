@@ -29,6 +29,7 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const [selectedQuantity, setSelectedQuantity] = useState(1);
     const { addToCart, buyNow, cart } = useCart();
 
     useEffect(() => {
@@ -83,15 +84,26 @@ const ProductDetail = () => {
 
     const handleAddToCart = () => {
         if (product) {
-            addToCart(product);
+            const productWithQuantity = { ...product, quantity: selectedQuantity };
+            addToCart(productWithQuantity);
+            setSelectedQuantity(1);
         }
     };
 
     const handleBuyNow = () => {
         if (product) {
-            buyNow(product);
+            const productWithQuantity = { ...product, quantity: selectedQuantity };
+            buyNow(productWithQuantity);
             router.push('/order-form');
         }
+    };
+
+    const increaseQuantity = () => {
+        setSelectedQuantity(prev => prev + 1);
+    };
+
+    const decreaseQuantity = () => {
+        setSelectedQuantity(prev => prev > 1 ? prev - 1 : 1);
     };
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -134,14 +146,11 @@ const ProductDetail = () => {
     const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
 
     return (
-        <div className="min-h-screen bg-gray-50"> {/* হালকা সাদা ব্যাকগ্রাউন্ড */}
+        <div className="min-h-screen bg-gray-50">
             <main className="p-4 pt-24 md:pt-28 max-w-6xl mx-auto pb-24">
-                {/* মেইন প্রোডাক্ট সেকশন - বেশি সাদা ব্যাকগ্রাউন্ড */}
-                <div className="bg-white rounded-xl shadow-sm p-6 mb-8"> {/* বেশি সাদা */}
+                <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Image Gallery */}
                         <div className="space-y-4">
-                            {/* Main Image */}
                             <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
                                 {mainImage && !imageError ? (
                                     <Image 
@@ -161,7 +170,6 @@ const ProductDetail = () => {
                                 )}
                             </div>
 
-                            {/* Thumbnail Images */}
                             {product.images && product.images.length > 1 && (
                                 <div className="flex gap-2 overflow-x-auto py-2">
                                     {product.images.map((image: string, index: number) => (
@@ -186,7 +194,6 @@ const ProductDetail = () => {
                             )}
                         </div>
 
-                        {/* Product Details */}
                         <div className="flex flex-col justify-center">
                             <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-gray-800">{product.name}</h1>
                             <p className="text-lipstick text-2xl lg:text-3xl font-bold mb-6">{product.price} ৳</p>
@@ -207,7 +214,30 @@ const ProductDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Action Buttons */}
+                            <div className="mb-6">
+                                <label className="block text-gray-700 mb-2 font-semibold">Quantity:</label>
+                                <div className="flex items-center space-x-3">
+                                    <button 
+                                        onClick={decreaseQuantity}
+                                        disabled={selectedQuantity <= 1}
+                                        className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                        </svg>
+                                    </button>
+                                    <span className="text-xl font-semibold w-12 text-center">{selectedQuantity}</span>
+                                    <button 
+                                        onClick={increaseQuantity}
+                                        className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="flex flex-col space-y-3 mb-6">
                                 <button 
                                     onClick={handleAddToCart}
@@ -217,7 +247,7 @@ const ProductDetail = () => {
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
-                                    Add to Cart
+                                    Add to Cart ({selectedQuantity})
                                 </button>
                                 <button 
                                     onClick={handleBuyNow}
@@ -227,11 +257,26 @@ const ProductDetail = () => {
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    Buy Now
+                                    Buy Now ({selectedQuantity})
                                 </button>
                             </div>
 
-                            {/* Description */}
+                            {product.tags && product.tags.length > 0 && (
+                                <div className="mb-6">
+                                    <h3 className="font-semibold text-lg mb-2">Tags:</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {product.tags.map((tag, index) => (
+                                            <span 
+                                                key={index}
+                                                className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="border-t pt-6">
                                 <h3 className="font-semibold text-lg mb-3">Description</h3>
                                 <p className="text-gray-700 mb-3 leading-relaxed">{displayDescription}</p>
@@ -251,15 +296,14 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products Section - বেশি সাদা ব্যাকগ্রাউন্ড */}
                 {relatedProducts.length > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm p-6"> {/* বেশি সাদা */}
+                    <div className="bg-white rounded-xl shadow-sm p-6">
                         <h2 className="text-2xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {relatedProducts.slice(0, 4).map((relatedProduct) => (
                                 <div 
                                     key={relatedProduct.id}
-                                    className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow" {/* হালকা সাদা */}
+                                    className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
                                     onClick={() => router.push(`/product/${relatedProduct.id}`)}
                                 >
                                     <div className="relative aspect-square">
@@ -274,6 +318,13 @@ const ProductDetail = () => {
                                     <div className="p-3">
                                         <h3 className="font-semibold text-sm mb-1 line-clamp-2">{relatedProduct.name}</h3>
                                         <p className="text-lipstick font-bold">{relatedProduct.price} ৳</p>
+                                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                                            relatedProduct.stockStatus === 'in-stock' 
+                                                ? 'bg-green-100 text-green-800' 
+                                                : 'bg-red-100 text-red-800'
+                                        }`}>
+                                            {relatedProduct.stockStatus === 'in-stock' ? 'In Stock' : 'Out of Stock'}
+                                        </span>
                                     </div>
                                 </div>
                             ))}
@@ -282,8 +333,7 @@ const ProductDetail = () => {
                 )}
             </main>
 
-            {/* Fixed Order Bar - বেশি সাদা */}
-            {totalItems > 0 && (
+                  {totalItems > 0 && (
                 <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                     <div className="flex justify-between items-center max-w-6xl mx-auto">
                         <div>
@@ -304,7 +354,6 @@ const ProductDetail = () => {
                 </div>
             )}
 
-            {/* Image Modal */}
             {showModal && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
