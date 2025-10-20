@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { database, ref, onValue } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import { useSession, signIn } from 'next-auth/react'; // ✅ NextAuth imports
 
 interface OrderItem {
     id: string;
@@ -41,7 +42,7 @@ function getStatusText(status: string) {
         confirmed: 'কনফার্মড', 
         packaging: 'প্যাকেজিং',
         shipped: 'ডেলিভারি হয়েছে',
-        delivered: 'সম্পন্ন হয়েছে', 
+        delivered: 'সম্পন্ন হয়েছে', 
         failed: 'ব্যর্থ', 
         cancelled: 'ক্যানসেলড'
     };
@@ -63,12 +64,18 @@ function getStatusColor(status: string) {
 
 const OrderTrack = () => {
     const { user, loginWithGmail, loading: authLoading } = useAuth();
+    const { data: session, status: sessionStatus } = useSession(); // ✅ NextAuth session
+    
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [loginLoading, setLoginLoading] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [showModal, setShowModal] = useState(false);
     const router = useRouter();
+
+    // ✅ Combined User Data (Priority: NextAuth > Your Auth)
+    const currentUser = session?.user || user;
+    const isLoggedIn = !!currentUser;
 
     // Get guest ID from localStorage
     const getGuestId = () => {
@@ -81,8 +88,8 @@ const OrderTrack = () => {
     };
 
     useEffect(() => {
-        if (!authLoading) {
-            if (user) {
+        if (!authLoading && sessionStatus !== 'loading') {
+            if (isLoggedIn) {
                 // Load orders for logged in user
                 const ordersRef = ref(database, 'orders');
                 onValue(ordersRef, (snapshot) => {
@@ -90,8 +97,8 @@ const OrderTrack = () => {
                         const ordersData: Order[] = [];
                         snapshot.forEach((childSnapshot) => {
                             const order = { id: childSnapshot.key, ...childSnapshot.val() };
-                            // Show orders for this user
-                            if (order.userId === user.uid) {
+                            // Show orders for this user (both NextAuth and Firebase auth)
+                            if (order.userId === user?.uid || order.customerEmail === session?.user?.email) {
                                 ordersData.push(order);
                             }
                         });
@@ -123,17 +130,40 @@ const OrderTrack = () => {
                 });
             }
         }
-    }, [user, authLoading]);
+    }, [user, authLoading, isLoggedIn, session, sessionStatus]);
 
+    // ✅ NextAuth Google Login Handler
+    const handleGoogleLogin = async () => {
+        setLoginLoading(true);
+        try {
+            await signIn('google', { 
+                callbackUrl: '/order-track',
+                redirect: true 
+            });
+        } catch (error) {
+            console.error('Google login failed:', error);
+            setLoginLoading(false);
+        }
+    };
+
+    // ✅ Combined Login Handler (Both Auth Systems)
     const handleLogin = async () => {
         setLoginLoading(true);
         try {
-            await loginWithGmail();
-            // Login successful - page will automatically update due to auth state change
+            // Try NextAuth first, if fails try Firebase
+            await signIn('google', { 
+                callbackUrl: '/order-track',
+                redirect: true 
+            });
         } catch (error) {
-            console.error('Login failed:', error);
-        } finally {
-            setLoginLoading(false);
+            console.error('NextAuth login failed, trying Firebase:', error);
+            try {
+                await loginWithGmail();
+            } catch (firebaseError) {
+                console.error('Firebase login also failed:', firebaseError);
+            } finally {
+                setLoginLoading(false);
+            }
         }
     };
 
@@ -152,7 +182,10 @@ const OrderTrack = () => {
         });
     };
 
-    if (authLoading) {
+    // ✅ Combined loading state
+    const isLoading = authLoading || sessionStatus === 'loading';
+
+    if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center pt-20">
                 <div className="text-center">
@@ -168,10 +201,10 @@ const OrderTrack = () => {
             <div className="container mx-auto pt-20 pb-8 px-4 min-h-screen">
                 <div className="p-6 bg-white rounded-lg shadow-md">
                     <h2 className="text-2xl font-bold text-center mb-4 text-lipstick">
-                        {user ? `My Orders (${user.displayName || user.email})` : 'My Orders (Guest)'}
+                        {isLoggedIn ? `My Orders (${currentUser.name || currentUser.displayName || currentUser.email})` : 'My Orders (Guest)'}
                     </h2>
-                    
-                    {!user && (
+
+                    {!isLoggedIn && (
                         <div className="text-center mb-6">
                             <p className="text-gray-600 mb-4">
                                 You are viewing orders as a guest. Login to access all features.
@@ -184,22 +217,17 @@ const OrderTrack = () => {
                                 {loginLoading ? (
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                                 ) : (
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                                    </svg>
+                                    <i className="fab fa-google text-white"></i>
                                 )}
                                 {loginLoading ? 'Logging in...' : 'Login with Google'}
                             </button>
                         </div>
                     )}
 
-                    {user && (
+                    {isLoggedIn && (
                         <div className="text-center mb-4">
                             <p className="text-green-600 font-semibold">
-                                ✅ Logged in as {user.displayName || user.email}
+                                ✅ Logged in as {currentUser.name || currentUser.displayName || currentUser.email}
                             </p>
                         </div>
                     )}
