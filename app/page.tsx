@@ -84,10 +84,8 @@ const ProductDetail = () => {
 
     const handleAddToCart = () => {
         if (product) {
-            // Add selected quantity to cart
             const productWithQuantity = { ...product, quantity: selectedQuantity };
             addToCart(productWithQuantity);
-            // Reset quantity after adding to cart
             setSelectedQuantity(1);
         }
     };
@@ -150,12 +148,9 @@ const ProductDetail = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             <main className="p-4 pt-24 md:pt-28 max-w-6xl mx-auto pb-24">
-                {/* Main Product Section */}
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Image Gallery */}
                         <div className="space-y-4">
-                            {/* Main Image */}
                             <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
                                 {mainImage && !imageError ? (
                                     <Image 
@@ -175,7 +170,6 @@ const ProductDetail = () => {
                                 )}
                             </div>
 
-                            {/* Thumbnail Images */}
                             {product.images && product.images.length > 1 && (
                                 <div className="flex gap-2 overflow-x-auto py-2">
                                     {product.images.map((image: string, index: number) => (
@@ -200,7 +194,6 @@ const ProductDetail = () => {
                             )}
                         </div>
 
-                        {/* Product Details */}
                         <div className="flex flex-col justify-center">
                             <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-gray-800">{product.name}</h1>
                             <p className="text-lipstick text-2xl lg:text-3xl font-bold mb-6">{product.price} ৳</p>
@@ -221,7 +214,6 @@ const ProductDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Quantity Selector */}
                             <div className="mb-6">
                                 <label className="block text-gray-700 mb-2 font-semibold">Quantity:</label>
                                 <div className="flex items-center space-x-3">
@@ -246,7 +238,6 @@ const ProductDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Action Buttons */}
                             <div className="flex flex-col space-y-3 mb-6">
                                 <button 
                                     onClick={handleAddToCart}
@@ -270,7 +261,6 @@ const ProductDetail = () => {
                                 </button>
                             </div>
 
-                            {/* Product Tags */}
                             {product.tags && product.tags.length > 0 && (
                                 <div className="mb-6">
                                     <h3 className="font-semibold text-lg mb-2">Tags:</h3>
@@ -287,7 +277,6 @@ const ProductDetail = () => {
                                 </div>
                             )}
 
-                            {/* Description */}
                             <div className="border-t pt-6">
                                 <h3 className="font-semibold text-lg mb-3">Description</h3>
                                 <p className="text-gray-700 mb-3 leading-relaxed">{displayDescription}</p>
@@ -307,7 +296,6 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products Section */}
                 {relatedProducts.length > 0 && (
                     <div className="bg-white rounded-xl shadow-sm p-6">
                         <h2 className="text-2xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
@@ -345,8 +333,7 @@ const ProductDetail = () => {
                 )}
             </main>
 
-            {/* Fixed Order Bar */}
-            {totalItems > 0 && (
+                 {totalItems > 0 && (
                 <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                     <div className="flex justify-between items-center max-w-6xl mx-auto">
                         <div>
@@ -367,7 +354,6 @@ const ProductDetail = () => {
                 </div>
             )}
 
-            {/* Image Modal */}
             {showModal && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
