@@ -1,4 +1,4 @@
-'use client'; // ✅ Add this directive
+'use client';
 
 export interface Product {
     id: string;
@@ -6,10 +6,11 @@ export interface Product {
     price: number;
     category: string;
     stockStatus: string;
-    images: string[];
+    image: string; // ✅ REQUIRED - আপনার database এ এটাই আছে
     tags: string[];
     description: string;
-    image?: string;
     isInSlider?: boolean;
     sliderOrder?: number;
+    quantity?: number;
+    images?: string[]; // ✅ OPTIONAL - পরে如果需要 multiple images
 }
