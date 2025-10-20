@@ -333,7 +333,8 @@ const ProductDetail = () => {
                 )}
             </main>
 
-                 {totalItems > 0 && (
+            {/* Fixed Order Bar - FIXED INDENTATION */}
+            {totalItems > 0 && (
                 <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                     <div className="flex justify-between items-center max-w-6xl mx-auto">
                         <div>
@@ -354,6 +355,7 @@ const ProductDetail = () => {
                 </div>
             )}
 
+            {/* Image Modal */}
             {showModal && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
@@ -365,7 +367,7 @@ const ProductDetail = () => {
                         aria-label="Close modal"
                     >
                         ×
-                    </button>
+                  </button>
                     <div className="relative w-full h-full max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
                         <Image 
                             src={mainImage} 
