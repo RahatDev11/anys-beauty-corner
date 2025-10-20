@@ -1,4 +1,4 @@
-'use client'; // ✅ Add this directive
+'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -20,7 +20,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
     cartItemQuantity = 0,
     showProductDetail,
 }) => {
-    const imageUrl = product.images && product.images.length > 0 ? product.images[0] : "https://via.placeholder.com/150";
+    // ✅ FIX: Use product.image instead of product.images[0]
+    const imageUrl = product.image || "https://via.placeholder.com/150";
+    
     const router = useRouter();
 
     const handleShowProductDetail = (id: string) => {
@@ -40,6 +42,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 onClick={() => handleShowProductDetail(product.id)}
                 width={250}
                 height={144}
+                onError={(e) => {
+                    // Fallback if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://via.placeholder.com/150";
+                }}
             />
             <div className="p-3 flex flex-col flex-grow bg-white">
                 <div className="flex-grow">
