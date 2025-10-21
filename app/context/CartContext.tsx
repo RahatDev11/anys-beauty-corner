@@ -1,4 +1,3 @@
-
 // app/context/CartContext.tsx
 'use client';
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
@@ -11,6 +10,7 @@ interface Product {
     name: string;
     price: number;
     image?: string;
+    stockStatus?: string;
     // Add other product properties as needed
 }
 
@@ -26,6 +26,7 @@ interface CartContextType {
     cart: CartItem[];
     addToCart: (product: Product, quantity?: number) => void;
     updateQuantity: (productId: string, change: number) => void;
+    updateCartQuantity: (productId: string, quantity: number) => void; // নতুন ফাংশন
     removeFromCart: (productId: string) => void;
     checkout: () => void;
     buyNow: (product: Product, quantity?: number) => void;
@@ -62,8 +63,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (auth.currentUser) {
             set(ref(database, `carts/${getUserId()}`), currentCart);
         }
-        // Dispatch a custom event if needed for other components to react
-        // window.dispatchEvent(new CustomEvent('cartUpdated'));
     }, [getUserId]);
 
     const loadCart = useCallback(() => {
@@ -117,6 +116,25 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         });
     }, [saveCart]);
 
+    // ✅ নতুন ফাংশন: সরাসরি কোয়ান্টিটি সেট করতে
+    const updateCartQuantity = useCallback((productId: string, quantity: number) => {
+        setCart((prevCart) => {
+            if (quantity <= 0) {
+                // যদি কোয়ান্টিটি ০ বা তার কম হয়, আইটেম রিমুভ করুন
+                const updatedCart = prevCart.filter(item => item.id !== productId);
+                saveCart(updatedCart);
+                return updatedCart;
+            } else {
+                // কোয়ান্টিটি আপডেট করুন
+                const updatedCart = prevCart.map(item =>
+                    item.id === productId ? { ...item, quantity } : item
+                );
+                saveCart(updatedCart);
+                return updatedCart;
+            }
+        });
+    }, [saveCart]);
+
     const removeFromCart = useCallback((productId: string) => {
         setCart((prevCart) => {
             const updatedCart = prevCart.filter(item => item.id !== productId);
@@ -134,12 +152,21 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [cart, router, showToast]);
 
     const buyNow = useCallback((product: Product, quantity: number = 1) => {
-        const tempCart = [
-            { id: product.id, name: product.name, price: product.price, image: product.image, quantity: quantity },
-        ];
-        const cartData = encodeURIComponent(JSON.stringify(tempCart));
-        router.push(`/order-form?cart=${cartData}`);
-    }, [router]);
+        // যদি কার্টে ইতিমধ্যে আইটেম থাকে, সবগুলো নিয়ে যাবে
+        // যদি কার্ট খালি থাকে, শুধু বর্তমান প্রোডাক্ট নিয়ে যাবে
+        if (cart.length > 0) {
+            // কার্টের সব আইটেম নিয়ে অর্ডার ফর্মে যাবে
+            const cartData = encodeURIComponent(JSON.stringify(cart));
+            router.push(`/order-form?cart=${cartData}`);
+        } else {
+            // শুধু বর্তমান প্রোডাক্ট নিয়ে যাবে
+            const tempCart = [
+                { id: product.id, name: product.name, price: product.price, image: product.image, quantity: quantity },
+            ];
+            const cartData = encodeURIComponent(JSON.stringify(tempCart));
+            router.push(`/order-form?cart=${cartData}`);
+        }
+    }, [router, cart]);
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -155,6 +182,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             cart,
             addToCart,
             updateQuantity,
+            updateCartQuantity, // নতুন ফাংশন যোগ করা হয়েছে
             removeFromCart,
             checkout,
             buyNow,
