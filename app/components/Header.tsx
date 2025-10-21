@@ -46,9 +46,13 @@ const Header = () => {
 
     // Close menus when clicking outside
     useEffect(() => {
-        const handleClickOutside = () => {
-            setIsLogoutMenuOpen(false);
-            setIsProductsMenuOpen(false);
+        const handleClickOutside = (event: MouseEvent) => {
+            if (!(event.target as Element).closest('.logout-container')) {
+                setIsLogoutMenuOpen(false);
+            }
+            if (!(event.target as Element).closest('.products-menu-container')) {
+                setIsProductsMenuOpen(false);
+            }
         };
 
         document.addEventListener('click', handleClickOutside);
@@ -186,14 +190,14 @@ const Header = () => {
                 </Link>
 
                 <div className="flex items-center space-x-[10px] md:space-x-[30px]">
-                    {/* ✅ FIXED: ডেস্কটপ সার্চ বার - এখন দেখা যাবে */}
-                    <div className="hidden md:block w-64">
+                    {/* ✅ FIXED: ডেস্কটপ সার্চ বার - সরাসরি দেখা যাবে */}
+                    <div className="hidden md:block w-80">
                         <SearchInput />
                     </div>
 
-                    {/* মোবাইল সার্চ আইকন */}
-                    <div className="md:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
-                        <i className="fas fa-search text-2xl text-gray-800"></i>
+                    {/* ✅ FIXED: মোবাইল সার্চ বার - সরাসরি দেখা যাবে (ওপেন করার দরকার নাই) */}
+                    <div className="md:hidden w-40">
+                        <SearchInput />
                     </div>
 
                     {/* Notification icon */}
@@ -220,7 +224,7 @@ const Header = () => {
                         <i className="fas fa-bars text-2xl"></i>
                     </button>
 
-                    {/* ✅ FIXED: ডেস্কটপ মেনু - মেনু ও সাবমেনু আলাদা */}
+                    {/* ✅ FIXED: ডেস্কটপ মেনু - সাবমেনু সহ */}
                     <nav className="desktop-menu hidden md:flex space-x-6 items-center">
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
@@ -230,10 +234,10 @@ const Header = () => {
                             হোম
                         </Link>
                         
-                        {/* পণ্য সমূহ ড্রপডাউন মেনু */}
-                        <div className="relative">
+                        {/* ✅ FIXED: পণ্য সমূহ ড্রপডাউন মেনু - এখন কাজ করবে */}
+                        <div className="relative products-menu-container">
                             <button 
-                                className="desktop-menu-item flex items-center"
+                                className="desktop-menu-item flex items-center focus:outline-none"
                                 onClick={handleToggleProductsMenu}
                             >
                                 পণ্য সমূহ
@@ -241,12 +245,12 @@ const Header = () => {
                             </button>
                             
                             {isProductsMenuOpen && (
-                                <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-10">
+                                <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200">
                                     {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
                                         <button
                                             key={category}
                                             onClick={() => handleSubMenuItemClick(category)}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
                                         >
                                             {category === 'all' && 'সকল প্রোডাক্ট'}
                                             {category === 'health' && 'স্বাস্থ্য'}
@@ -343,7 +347,7 @@ const Header = () => {
                 </div>
             </div>
 
-                 {/* ✅ FIXED: কার্ট সাইডবার Overlay */}
+            {/* ✅ FIXED: কার্ট সাইডবার Overlay */}
             {isCartSidebarOpen && (
                 <div 
                     className="cart-sidebar-overlay"
@@ -396,7 +400,7 @@ const Header = () => {
                                         {category === 'haircare' && 'হেয়ারকেয়ার'}
                                         {category === 'mehandi' && 'মেহেদী'}
                                     </button>
-                                ))}
+             ))}
                             </div>
                         )}
 
@@ -414,18 +418,6 @@ const Header = () => {
                     onClick={closeSidebar}
                 />
             )}
-
-            {/* মোবাইল সার্চ বার */}
-            <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
-                <div className="relative">
-                    <input 
-                        className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
-                        placeholder="প্রোডাক্ট সার্চ করুন..." 
-                        type="text" 
-                    />
-                    <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400/80"></i>
-                </div>
-            </div>
         </>
     );
 };
