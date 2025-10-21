@@ -189,13 +189,15 @@ const Header = () => {
                     </div>
                 </Link>
 
-                <div className="flex items-center space-x-[10px] md:space-x-[30px]">
-                    {/* ✅ FIXED: ডেস্কটপ সার্চ বার - শুধু ডেস্কটপে দেখা যাবে */}
-                    <div className="hidden md:block w-80">
+                {/* ✅ FIXED: ডেস্কটপ সার্চ বার - মধ্যেভাগে */}
+                <div className="hidden md:flex flex-1 justify-center mx-8">
+                    <div className="w-full max-w-2xl">
                         <SearchInput />
                     </div>
+                </div>
 
-                    {/* ✅ FIXED: মোবাইল সার্চ আইকন - শুধু মোবাইলে দেখা যাবে */}
+                <div className="flex items-center space-x-4 md:space-x-6">
+                    {/* ✅ FIXED: মোবাইল সার্চ আইকন - শুধু মোবাইলে */}
                     <div className="md:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
                         <i className="fas fa-search text-2xl text-gray-800"></i>
                     </div>
@@ -224,7 +226,7 @@ const Header = () => {
                         <i className="fas fa-bars text-2xl"></i>
                     </button>
 
-                    {/* ✅ FIXED: ডেস্কটপ মেনু - সাবমেনু সহ */}
+                    {/* ✅ FIXED: ডেস্কটপ মেনু - ডানদিকে */}
                     <nav className="desktop-menu hidden md:flex space-x-6 items-center">
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
@@ -234,7 +236,7 @@ const Header = () => {
                             হোম
                         </Link>
                         
-                        {/* ✅ FIXED: পণ্য সমূহ ড্রপডাউন মেনু - এখন কাজ করবে */}
+                        {/* ✅ FIXED: পণ্য সমূহ ড্রপডাউন মেনু */}
                         <div className="relative products-menu-container">
                             <button 
                                 className="desktop-menu-item flex items-center focus:outline-none"
@@ -398,7 +400,7 @@ const Header = () => {
                                         {category === 'cosmetics' && 'মেকআপ'}
                                         {category === 'skincare' && 'স্কিনকেয়ার'}
                                         {category === 'haircare' && 'হেয়ারকেয়ার'}
-                                             {category === 'mehandi' && 'মেহেদী'}
+                       {category === 'mehandi' && 'মেহেদী'}
                                     </button>
                                 ))}
                             </div>
@@ -419,7 +421,7 @@ const Header = () => {
                 />
             )}
 
-            {/* ✅ FIXED: মোবাইল সার্চ বার - আইকনে ক্লিক করলে দেখা যাবে */}
+            {/* ✅ FIXED: মোবাইল সার্চ বার */}
             <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
                 <div className="relative">
                     <input 
