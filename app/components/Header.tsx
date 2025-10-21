@@ -53,15 +53,11 @@ const Header = () => {
             if (!(event.target as Element).closest('.products-menu-container')) {
                 setIsProductsMenuOpen(false);
             }
-            // Close mobile search bar if clicking outside and it's open
-            if (isMobileSearchBarOpen && !(event.target as Element).closest('.mobile-search-bar-container')) {
-                setIsMobileSearchBarOpen(false);
-            }
         };
 
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
-    }, [isMobileSearchBarOpen]); // Add isMobileSearchBarOpen to dependencies
+    }, []);
 
     const handleSubMenuItemClick = (category: string) => {
         router.push(`/?filter=${category}`);
@@ -70,7 +66,7 @@ const Header = () => {
         closeSidebar();
     };
 
-    const handleToggleMobileSearchBar = () => {
+    const handleFocusMobileSearch = () => {
         setIsMobileSearchBarOpen((prev) => !prev);
     };
 
@@ -126,8 +122,7 @@ const Header = () => {
         return "https://via.placeholder.com/50?text=Invalid+URL";
     };
 
-    // ✅ UPDATED: ডেস্কটপের জন্য লগইন/প্রোফাইল বাটন
-    const renderDesktopLoginButton = () => {
+    const renderLoginButton = (isMobile: boolean) => {
         if (currentUser) {
             return (
                 <div className="relative logout-container">
@@ -146,7 +141,7 @@ const Header = () => {
                                 {displayName.charAt(0).toUpperCase()}
                             </div>
                         )}
-                        <span className="text-black font-semibold text-sm lg:text-base">{displayName}</span>
+                        <span className="text-black font-semibold">{displayName}</span>
                         <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
                     </button>
                     {isLogoutMenuOpen && (
@@ -164,54 +159,11 @@ const Header = () => {
         } else {
             return (
                 <button 
-                    className="flex items-center hover:text-gray-600 transition-colors text-sm lg:text-base" 
+                    className={`flex items-center ${isMobile ? 'w-full' : ''} hover:text-gray-600`} 
                     onClick={handleGoogleLogin}
                 >
                     <i className="fas fa-user-circle mr-2"></i>
                     <span className="text-black">লগইন</span>
-                </button>
-            );
-        }
-    };
-
-    // ✅ UPDATED: মোবাইল সাইডবারের জন্য লগইন/প্রোফাইল সেকশন
-    const renderMobileLoginSection = () => {
-        if (currentUser) {
-            return (
-                <div className="flex items-center space-x-3 py-2 px-4 border-b pb-4">
-                    {photoURL && !imgError ? (
-                        <Image 
-                            src={photoURL} 
-                            className="w-8 h-8 rounded-full" 
-                            alt="User Avatar" 
-                            width={32} 
-                            height={32}
-                            onError={() => setImgError(true)}
-                        />
-                    ) : (
-                        <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
-                            {displayName.charAt(0).toUpperCase()}
-                        </div>
-                    )}
-                    <div>
-                        <p className="font-semibold text-gray-800">{displayName}</p>
-                        <button 
-                            className="text-sm text-red-600 hover:text-red-800"
-                            onClick={handleConfirmLogout}
-                        >
-                            লগআউট
-                        </button>
-                    </div>
-                </div>
-            );
-        } else {
-            return (
-                <button 
-                    className="w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-100 rounded flex items-center"
-                    onClick={handleGoogleLogin}
-                >
-                    <i className="fas fa-user-circle mr-2"></i>
-                    লগইন
                 </button>
             );
         }
@@ -237,57 +189,59 @@ const Header = () => {
                     </div>
                 </Link>
 
-                {/* ✅ ADDED: ডেস্কটপ সার্চ বার - মধ্যেভাগে দেখা যাবে */}
+                {/* ✅ FIXED: ডেস্কটপ সার্চ বার - মধ্যেভাগে দেখা যাবে */}
                 <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-80 lg:w-96">
                     <SearchInput />
                 </div>
 
-                {/* ✅ FIXED: মোবাইল আইকনগুলো ও ডেস্কটপ নেভিগেশন */}
-                <div className="flex items-center space-x-2 sm:space-x-3">
-                    {/* মোবাইল সার্চ আইকন - শুধু মোবাইলে */}
-                    <div className="md:hidden cursor-pointer flex-shrink-0">
-                        <i className="fas fa-search text-xl sm:text-2xl text-gray-800" onClick={handleToggleMobileSearchBar}></i>
+                {/* ✅ FIXED: মোবাইলে শুধু ৪টি বাটন */}
+                <div className="flex items-center space-x-3">
+                    {/* ১. সার্চ আইকন */}
+                    <div className="md:hidden cursor-pointer">
+                        <i className="fas fa-search text-xl text-gray-800" onClick={handleFocusMobileSearch}></i>
                     </div>
 
-                    {/* Notification icon - ছোট সাইজ */}
-                    <div className="flex-shrink-0">
+                    {/* ২. নোটিফিকেশন আইকন */}
+                    <div className="md:hidden">
                         <NotificationIcon />
                     </div>
 
-                    {/* শপিং ব্যাগ আইকন - ছোট সাইজ */}
+                    {/* ৩. কার্ড আইকন */}
                     <button 
-                        className="text-gray-800 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center relative bg-transparent border-none flex-shrink-0" 
+                        className="text-gray-800 w-8 h-8 rounded-full flex items-center justify-center relative bg-transparent border-none md:hidden" 
                         onClick={openCartSidebar}
                     >
-                        <i className="fas fa-shopping-bag text-xl sm:text-2xl"></i>
+                        <i className="fas fa-shopping-bag text-xl"></i>
                         {totalItems > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">
                                 {totalItems}
                             </span>
                         )}
                     </button>
 
-                    {/* মোবাইল মেনু বাটন - ছোট সাইজ */}
+                    {/* ৪. মেনু বাটন */}
                     <button 
-                        className="text-gray-800 w-8 h-8 sm:w-10 sm:h-10 rounded md:hidden flex items-center justify-center bg-transparent border-none flex-shrink-0 ml-1" 
+                        className="text-gray-800 w-8 h-8 rounded flex items-center justify-center bg-transparent border-none md:hidden" 
                         onClick={openSidebar}
                     >
-                        <i className="fas fa-bars text-xl sm:text-2xl"></i>
+                        <i className="fas fa-bars text-xl"></i>
                     </button>
 
-                    {/* ✅ FIXED: ডেস্কটপ মেনু - শুধু ডেস্কটপে দেখাবে, সম্পূর্ণ hidden মোবাইলে */}
-                    <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 ml-4 lg:ml-8">
-                        {/* ✅ FIXED: ডেস্কটপে লগইন বাটন থাকবে */}
-                        {renderDesktopLoginButton()}
+                    {/* ✅ FIXED: ডেস্কটপ মেনু - লগইন বাটন সহ */}
+                    <nav className="desktop-menu hidden md:flex items-center space-x-6 lg:space-x-8 ml-4 lg:ml-8">
+                        {/* ✅ ডেস্কটপে লগইন বাটন থাকবে */}
+                        <div className="desktop-login-button">
+                            {renderLoginButton(false)}
+                        </div>
                         
-                        <Link className="hover:text-gray-600 transition-colors text-sm lg:text-base" href="/">
+                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/">
                             হোম
                         </Link>
                         
-                        {/* ✅ FIXED: পণ্য সমূহ ড্রপডাউন মেনু */}
+                        {/* ✅ পণ্য সমূহ ড্রপডাউন মেনু */}
                         <div className="relative products-menu-container">
                             <button 
-                                className="flex items-center focus:outline-none hover:text-gray-600 transition-colors text-sm lg:text-base"
+                                className="desktop-menu-item flex items-center focus:outline-none hover:text-gray-600 transition-colors text-sm lg:text-base"
                                 onClick={handleToggleProductsMenu}
                             >
                                 পণ্য সমূহ
@@ -314,7 +268,7 @@ const Header = () => {
                             )}
                         </div>
 
-                        <Link className="hover:text-gray-600 transition-colors text-sm lg:text-base" href="/order-track">
+                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/order-track">
                             অর্ডার ট্র্যাক
                         </Link>
                     </nav>
@@ -397,7 +351,7 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* ✅ FIXED: কার্ট সাইдবার Overlay */}
+            {/* ✅ FIXED: কার্ট সাইডবার Overlay */}
             {isCartSidebarOpen && (
                 <div 
                     className="cart-sidebar-overlay"
@@ -405,7 +359,7 @@ const Header = () => {
                 />
             )}
 
-              {/* ✅ FIXED: মোবাইল সাইডবার - সব মেনু আইটেম এখানে থাকবে */}
+            {/* ✅ FIXED: মোবাইল সাইডবার - লগইন অপশন সহ */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4">
                     <div className="flex justify-between items-center mb-6">
@@ -419,8 +373,42 @@ const Header = () => {
                     </div>
 
                     <nav className="space-y-2">
-                        {/* ✅ FIXED: লগইন অপশন মোবাইল সাইডবারে */}
-                        {renderMobileLoginSection()}
+                            {/* ✅ লগইন অপশন মোবাইল সাইডবারে */}
+                        {currentUser ? (
+                            <div className="flex items-center space-x-3 py-2 px-4 border-b pb-4">
+                                {currentUser?.image && !imgError ? (
+                                    <Image 
+                                        src={currentUser.image} 
+                                        className="w-8 h-8 rounded-full" 
+                                        alt="User Avatar" 
+                                        width={32} 
+                                        height={32}
+                                        onError={() => setImgError(true)}
+                                    />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+                                        {displayName.charAt(0).toUpperCase()}
+                                    </div>
+                                )}
+                                <div>
+                                    <p className="font-semibold text-gray-800">{displayName}</p>
+                                    <button 
+                                        className="text-sm text-red-600 hover:text-red-800"
+                                        onClick={handleConfirmLogout}
+                                    >
+                                        লগআউট
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button 
+                                className="w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-100 rounded flex items-center"
+                                onClick={handleGoogleLogin}
+                            >
+                                <i className="fas fa-user-circle mr-2"></i>
+                                লগইন
+                            </button>
+                        )}
 
                         <Link href="/" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
                             হোম
@@ -469,7 +457,7 @@ const Header = () => {
             )}
 
             {/* ✅ FIXED: মোবাইল সার্চ বার */}
-            <div className={`mobile-search-bar-container fixed top-[52px] sm:top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
+            <div className={`fixed top-[52px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
                 <div className="relative">
                     <input 
                         className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
