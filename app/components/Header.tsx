@@ -227,9 +227,9 @@ const Header = () => {
                         <i className="fas fa-bars text-xl sm:text-2xl"></i>
                     </button>
 
-                    {/* ✅ FIXED: ডেস্কটপ মেনু - ডানদিকে স্পেস সহ */}
+                    {/* ✅ FIXED: ডেস্কটপ মেনু - লগইন বাটন সহ */}
                     <nav className="desktop-menu hidden md:flex items-center space-x-6 lg:space-x-8 ml-4 lg:ml-8">
-                        {/* ✅ FIXED: লগইন বাটন শুধু ডেস্কটপে */}
+                        {/* ✅ FIXED: ডেস্কটপে লগইন বাটন থাকবে */}
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
                         </div>
@@ -359,7 +359,7 @@ const Header = () => {
                 />
             )}
 
-            {/* ✅ FIXED: মোবাইল সাইডবার - লগইন অপশন মেনুর মধ্যে */}
+                 {/* ✅ FIXED: মোবাইল সাইডবার - লগইন অপশন সহ */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4">
                     <div className="flex justify-between items-center mb-6">
@@ -372,13 +372,43 @@ const Header = () => {
                         </button>
                     </div>
 
-                    {/* ✅ FIXED: মোবাইলে লগইন বাটন রিমুভ করা হয়েছে */}
-
                     <nav className="space-y-2">
-                         {/* ✅ FIXED: লগইন অপশন সরাসরি মেনুতে */}
-                        <div className="py-2 px-4">
-                            {renderLoginButton(true)}
-                        </div>
+                        {/* ✅ FIXED: লগইন অপশন মোবাইল সাইডবারে */}
+                        {currentUser ? (
+                            <div className="flex items-center space-x-3 py-2 px-4 border-b pb-4">
+                                {currentUser?.image && !imgError ? (
+                                    <Image 
+                                        src={currentUser.image} 
+                                        className="w-8 h-8 rounded-full" 
+                                        alt="User Avatar" 
+                                        width={32} 
+                                        height={32}
+                                        onError={() => setImgError(true)}
+                                    />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+                                        {displayName.charAt(0).toUpperCase()}
+                                    </div>
+                                )}
+                                <div>
+                                    <p className="font-semibold text-gray-800">{displayName}</p>
+                                    <button 
+                                        className="text-sm text-red-600 hover:text-red-800"
+                                        onClick={handleConfirmLogout}
+                                    >
+                                        লগআউট
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button 
+                                className="w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-100 rounded flex items-center"
+                                onClick={handleGoogleLogin}
+                            >
+                                <i className="fas fa-user-circle mr-2"></i>
+                                লগইন
+                            </button>
+                        )}
 
                         <Link href="/" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
                             হোম
@@ -441,4 +471,4 @@ const Header = () => {
     );
 };
 
-export default Header;    
+export default Header;
