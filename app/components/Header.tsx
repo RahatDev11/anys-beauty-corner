@@ -229,6 +229,7 @@ const Header = () => {
 
                     {/* ✅ FIXED: ডেস্কটপ মেনু - ডানদিকে স্পেস সহ */}
                     <nav className="desktop-menu hidden md:flex items-center space-x-6 lg:space-x-8 ml-4 lg:ml-8">
+                        {/* ✅ FIXED: লগইন বাটন শুধু ডেস্কটপে */}
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
                         </div>
@@ -358,7 +359,7 @@ const Header = () => {
                 />
             )}
 
-                {/* ✅ FIXED: মোবাইল সাইডবার */}
+            {/* ✅ FIXED: মোবাইল সাইডবার - লগইন অপশন মেনুর মধ্যে */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4">
                     <div className="flex justify-between items-center mb-6">
@@ -371,11 +372,14 @@ const Header = () => {
                         </button>
                     </div>
 
-                    <div className="mb-4">
-                        {renderLoginButton(true)}
-                    </div>
+                    {/* ✅ FIXED: মোবাইলে লগইন বাটন রিমুভ করা হয়েছে */}
 
                     <nav className="space-y-2">
+                         {/* ✅ FIXED: লগইন অপশন সরাসরি মেনুতে */}
+                        <div className="py-2 px-4">
+                            {renderLoginButton(true)}
+                        </div>
+
                         <Link href="/" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
                             হোম
                         </Link>
@@ -437,4 +441,4 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default Header;    
