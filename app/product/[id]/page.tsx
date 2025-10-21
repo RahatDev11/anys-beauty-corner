@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { database, ref, onValue } from '@/lib/firebase';
 import { useCart } from '@/app/context/CartContext';
 import Image from 'next/image';
-import { Product } from '@/types/product'; // আপনার interface import করুন
+import { Product } from '@/types/product';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -19,12 +19,8 @@ const ProductDetail = () => {
     const [imageError, setImageError] = useState(false);
     const { addToCart, buyNow, cart } = useCart();
 
-    // Real placeholder images
-    const placeholderImages = {
-        large: 'https://via.placeholder.com/400x300/ffffff/cccccc?text=Image+Not+Available',
-        small: 'https://via.placeholder.com/100x100/ffffff/cccccc?text=Image',
-        product: 'https://via.placeholder.com/200x200/ffffff/cccccc?text=Product'
-    };
+    // Simple placeholder
+    const placeholderImage = 'https://via.placeholder.com/400x300/ffffff/cccccc?text=Image+Not+Available';
 
     useEffect(() => {
         if (!id) return;
@@ -34,15 +30,12 @@ const ProductDetail = () => {
             if (snapshot.exists()) {
                 const productData = { id: snapshot.key, ...snapshot.val() } as Product;
                 setProduct(productData);
-                console.log('📦 Product Data from Firebase:', productData);
                 
-                // আপনার database-এ single image field আছে
+                // Direct image set - no complex processing
                 if (productData.image && productData.image.trim() !== '') {
                     setMainImage(productData.image.trim());
-                    console.log('🖼️ Main image set:', productData.image.trim());
                 } else {
-                    setMainImage(placeholderImages.large);
-                    console.log('❌ No image found, using placeholder');
+                    setMainImage(placeholderImage);
                 }
             } else {
                 setProduct(null);
@@ -64,11 +57,11 @@ const ProductDetail = () => {
         });
     }, [id]);
 
-    // Single image field এর জন্য simplified function
+    // Simple image getter
     const getProductImage = (product: Product): string => {
         return product.image && product.image.trim() !== '' 
             ? product.image.trim() 
-            : placeholderImages.large;
+            : placeholderImage;
     };
 
     const handleThumbnailClick = (image: string) => {
@@ -142,18 +135,16 @@ const ProductDetail = () => {
 
     const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
 
-    console.log('🎯 Current Main Image:', mainImage);
-    console.log('🎯 Related Products:', relatedProducts);
-
     return (
         <div className="min-h-screen bg-white">
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                {/* Main Product Card - REMOVED border and background */}
+                <div className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Image Gallery - Single Image */}
+                        {/* Image Gallery */}
                         <div className="space-y-4">
                             {/* Main Image */}
-                            <div className="relative aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+                            <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
                                 {!imageError ? (
                                     <Image 
                                         src={mainImage} 
@@ -162,10 +153,7 @@ const ProductDetail = () => {
                                         fill 
                                         style={{objectFit: "cover"}} 
                                         className="cursor-pointer transition-transform hover:scale-105"
-                                        onError={(e) => {
-                                            console.log('❌ Image failed to load:', mainImage);
-                                            setImageError(true);
-                                        }}
+                                        onError={() => setImageError(true)}
                                         priority
                                         unoptimized={true}
                                     />
@@ -176,13 +164,6 @@ const ProductDetail = () => {
                                     </div>
                                 )}
                             </div>
-
-                            {/* No thumbnails since single image */}
-                            {product.image && (
-                                <div className="text-center">
-                                    <p className="text-sm text-gray-500">Click image to zoom</p>
-                                </div>
-                            )}
                         </div>
 
                         {/* Product Details */}
@@ -231,7 +212,7 @@ const ProductDetail = () => {
                             </div>
 
                             {/* Description */}
-                            <div className="description-container">
+                            <div>
                                 <p className="text-gray-700 mb-3 leading-relaxed">{displayDescription}</p>
                                 {shouldTruncate && (
                                     <button 
@@ -249,18 +230,18 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products Section */}
+                {/* Related Products Section - REMOVED border and background */}
                 {relatedProducts.length > 0 && (
-                    <section className="mt-12 bg-white p-6 rounded-lg border border-gray-200">
+                    <section className="mt-12 p-6">
                         <h2 className="text-2xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {relatedProducts.slice(0, 4).map((relatedProduct) => (
                                 <div 
                                     key={relatedProduct.id}
-                                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                                    className="rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
                                     onClick={() => router.push(`/product/${relatedProduct.id}`)}
                                 >
-                                    <div className="relative aspect-square bg-gray-50">
+                                    <div className="relative aspect-square">
                                         <Image
                                             src={getProductImage(relatedProduct)}
                                             alt={relatedProduct.name}
@@ -269,7 +250,7 @@ const ProductDetail = () => {
                                             className="hover:scale-105 transition-transform"
                                             onError={(e) => {
                                                 const target = e.target as HTMLImageElement;
-                                                target.src = placeholderImages.product;
+                                                target.src = placeholderImage;
                                             }}
                                             unoptimized={true}
                                         />
