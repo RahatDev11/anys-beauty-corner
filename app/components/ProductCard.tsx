@@ -1,4 +1,4 @@
-// ProductCard কম্পোনেন্ট - সংশোধিত
+// components/ProductCard.tsx - FINAL VERSION
 'use client';
 
 import React from 'react';
@@ -116,7 +116,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 >
                                     -
                                 </button>
-                                <span className="text-lg">{cartItemQuantity}</span> {/* শুধু সংখ্যা দেখাবে */}
+                                <span className="text-lg">{cartItemQuantity}</span>
                                 <button
                                     onClick={handleIncrement}
                                     className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
