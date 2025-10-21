@@ -22,9 +22,9 @@ const SearchInput = () => (
 );
 
 const NotificationIcon = () => (
-    <Link href="/notifications" className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative">
-        <i className="fas fa-bell text-2xl"></i>
-        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+    <Link href="/notifications" className="text-gray-800 w-8 h-8 rounded-full flex items-center justify-center relative">
+        <i className="fas fa-bell text-xl"></i>
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
     </Link>
 );
 
@@ -171,77 +171,80 @@ const Header = () => {
 
     return (
         <>
-            <header className="bg-brushstroke text-black py-2 px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
-                {/* লোগো */}
+            <header className="bg-brushstroke text-black py-2 px-3 sm:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
+                {/* লোগো - মোবাইলে ছোট */}
                 <Link className="flex items-center text-white" href="/">
                     <div className="flex items-center">
                         <Image 
                             alt="Any's Beauty Corner লোগো" 
-                            className="h-10 w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" 
-                            height={40} 
-                            width={40} 
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" 
+                            height={32} 
+                            width={32} 
                             src="/img.jpg"
                             priority
                         />
-                        <span className="text-base md:text-lg font-bold whitespace-nowrap text-black">
+                        <span className="text-sm sm:text-base md:text-lg font-bold whitespace-nowrap text-black">
                             Any&apos;s Beauty Corner
                         </span>
                     </div>
                 </Link>
 
                 {/* ✅ FIXED: ডেস্কটপ সার্চ বার - মধ্যেভাগে দেখা যাবে */}
-                <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-96">
+                <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-80 lg:w-96">
                     <SearchInput />
                 </div>
 
-                <div className="flex items-center space-x-4">
-                    {/* ✅ FIXED: মোবাইল সার্চ আইকন - শুধু মোবাইলে */}
-                    <div className="md:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
-                        <i className="fas fa-search text-2xl text-gray-800"></i>
+                {/* ✅ FIXED: মোবাইল আইকনগুলো - ছোট এবং কম্প্যাক্ট */}
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                    {/* মোবাইল সার্চ আইকন - শুধু মোবাইলে */}
+                    <div className="md:hidden cursor-pointer flex-shrink-0">
+                        <i className="fas fa-search text-xl sm:text-2xl text-gray-800" onClick={handleFocusMobileSearch}></i>
                     </div>
 
-                    {/* Notification icon */}
-                    <NotificationIcon />
+                    {/* Notification icon - ছোট সাইজ */}
+                    <div className="flex-shrink-0">
+                        <NotificationIcon />
+                    </div>
 
-                    {/* শপিং ব্যাগ আইকন */}
+                    {/* শপিং ব্যাগ আইকন - ছোট সাইজ */}
                     <button 
-                        className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative bg-transparent border-none" 
+                        className="text-gray-800 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center relative bg-transparent border-none flex-shrink-0" 
                         onClick={openCartSidebar}
                     >
-                        <i className="fas fa-shopping-bag text-2xl"></i>
+                        <i className="fas fa-shopping-bag text-xl sm:text-2xl"></i>
                         {totalItems > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
                                 {totalItems}
                             </span>
                         )}
                     </button>
 
-                    {/* ✅ FIXED: মোবাইল মেনু বাটন - ডানপাশে স্পেস সহ */}
+                    {/* মোবাইল মেনু বাটন - ছোট সাইজ */}
                     <button 
-                        className="text-gray-800 w-10 h-10 rounded md:hidden flex items-center justify-center bg-transparent border-none ml-2" 
+                        className="text-gray-800 w-8 h-8 sm:w-10 sm:h-10 rounded md:hidden flex items-center justify-center bg-transparent border-none flex-shrink-0 ml-1" 
                         onClick={openSidebar}
                     >
-                        <i className="fas fa-bars text-2xl"></i>
+                        <i className="fas fa-bars text-xl sm:text-2xl"></i>
                     </button>
 
                     {/* ✅ FIXED: ডেস্কটপ মেনু - ডানদিকে স্পেস সহ */}
-                    <nav className="desktop-menu hidden md:flex items-center space-x-8 ml-8">
+                    <nav className="desktop-menu hidden md:flex items-center space-x-6 lg:space-x-8 ml-4 lg:ml-8">
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
                         </div>
                         
-                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors" href="/">
+                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/">
                             হোম
                         </Link>
                         
                         {/* ✅ FIXED: পণ্য সমূহ ড্রপডাউন মেনু */}
                         <div className="relative products-menu-container">
                             <button 
-                                className="desktop-menu-item flex items-center focus:outline-none hover:text-gray-600 transition-colors"
+                                className="desktop-menu-item flex items-center focus:outline-none hover:text-gray-600 transition-colors text-sm lg:text-base"
                                 onClick={handleToggleProductsMenu}
                             >
                                 পণ্য সমূহ
-                                <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isProductsMenuOpen ? 'rotate-180' : ''}`}></i>
+                                <i className={`fas fa-chevron-down ml-1 lg:ml-2 transition-transform duration-300 ${isProductsMenuOpen ? 'rotate-180' : ''}`}></i>
                             </button>
                             
                             {isProductsMenuOpen && (
@@ -264,7 +267,7 @@ const Header = () => {
                             )}
                         </div>
 
-                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors" href="/order-track">
+                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/order-track">
                             অর্ডার ট্র্যাক
                         </Link>
                     </nav>
@@ -355,7 +358,7 @@ const Header = () => {
                 />
             )}
 
-            {/* ✅ FIXED: মোবাইল সাইডবার - বামপাশে স্পেস সহ */}
+                {/* ✅ FIXED: মোবাইল সাইডবার */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4">
                     <div className="flex justify-between items-center mb-6">
@@ -397,7 +400,7 @@ const Header = () => {
                                         {category === 'health' && 'স্বাস্থ্য'}
                                         {category === 'cosmetics' && 'মেকআপ'}
                                         {category === 'skincare' && 'স্কিনকেয়ার'}
-      {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                        {category === 'haircare' && 'হেয়ারকেয়ার'}
                                         {category === 'mehandi' && 'মেহেদী'}
                                     </button>
                                 ))}
@@ -420,7 +423,7 @@ const Header = () => {
             )}
 
             {/* ✅ FIXED: মোবাইল সার্চ বার */}
-            <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
+            <div className={`fixed top-[52px] sm:top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
                 <div className="relative">
                     <input 
                         className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
