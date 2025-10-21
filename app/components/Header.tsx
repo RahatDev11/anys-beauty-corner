@@ -171,7 +171,7 @@ const Header = () => {
 
     return (
         <>
-            <header className="bg-brushstroke text-black py-2 px-2 md:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
+            <header className="bg-brushstroke text-black py-2 px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
                 {/* লোগো */}
                 <Link className="flex items-center text-white" href="/">
                     <div className="flex items-center">
@@ -189,14 +189,12 @@ const Header = () => {
                     </div>
                 </Link>
 
-                {/* ✅ FIXED: ডেস্কটপ সার্চ বার - মধ্যেভাগে */}
-                <div className="hidden md:flex flex-1 justify-center mx-8">
-                    <div className="w-full max-w-2xl">
-                        <SearchInput />
-                    </div>
+                {/* ✅ FIXED: ডেস্কটপ সার্চ বার - মধ্যেভাগে দেখা যাবে */}
+                <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-96">
+                    <SearchInput />
                 </div>
 
-                <div className="flex items-center space-x-4 md:space-x-6">
+                <div className="flex items-center space-x-4">
                     {/* ✅ FIXED: মোবাইল সার্চ আইকন - শুধু মোবাইলে */}
                     <div className="md:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
                         <i className="fas fa-search text-2xl text-gray-800"></i>
@@ -218,28 +216,28 @@ const Header = () => {
                         )}
                     </button>
 
-                    {/* মোবাইল মেনু বাটন */}
+                    {/* ✅ FIXED: মোবাইল মেনু বাটন - ডানপাশে স্পেস সহ */}
                     <button 
-                        className="mobile-menu-button text-gray-800 w-10 h-10 rounded md:hidden flex items-center justify-center bg-transparent border-none" 
+                        className="text-gray-800 w-10 h-10 rounded md:hidden flex items-center justify-center bg-transparent border-none ml-2" 
                         onClick={openSidebar}
                     >
                         <i className="fas fa-bars text-2xl"></i>
                     </button>
 
-                    {/* ✅ FIXED: ডেস্কটপ মেনু - ডানদিকে */}
-                    <nav className="desktop-menu hidden md:flex space-x-6 items-center">
+                    {/* ✅ FIXED: ডেস্কটপ মেনু - ডানদিকে স্পেস সহ */}
+                    <nav className="desktop-menu hidden md:flex items-center space-x-8 ml-8">
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
                         </div>
                         
-                        <Link className="desktop-menu-item" href="/">
+                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors" href="/">
                             হোম
                         </Link>
                         
                         {/* ✅ FIXED: পণ্য সমূহ ড্রপডাউন মেনু */}
                         <div className="relative products-menu-container">
                             <button 
-                                className="desktop-menu-item flex items-center focus:outline-none"
+                                className="desktop-menu-item flex items-center focus:outline-none hover:text-gray-600 transition-colors"
                                 onClick={handleToggleProductsMenu}
                             >
                                 পণ্য সমূহ
@@ -266,7 +264,7 @@ const Header = () => {
                             )}
                         </div>
 
-                        <Link className="desktop-menu-item" href="/order-track">
+                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors" href="/order-track">
                             অর্ডার ট্র্যাক
                         </Link>
                     </nav>
@@ -357,7 +355,7 @@ const Header = () => {
                 />
             )}
 
-            {/* মোবাইল সাইডবার */}
+            {/* ✅ FIXED: মোবাইল সাইডবার - বামপাশে স্পেস সহ */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4">
                     <div className="flex justify-between items-center mb-6">
@@ -399,8 +397,8 @@ const Header = () => {
                                         {category === 'health' && 'স্বাস্থ্য'}
                                         {category === 'cosmetics' && 'মেকআপ'}
                                         {category === 'skincare' && 'স্কিনকেয়ার'}
-                                        {category === 'haircare' && 'হেয়ারকেয়ার'}
-                       {category === 'mehandi' && 'মেহেদী'}
+      {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                        {category === 'mehandi' && 'মেহেদী'}
                                     </button>
                                 ))}
                             </div>
