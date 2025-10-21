@@ -6,6 +6,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import ProductList from './components/ProductList';
 import ProductSlider from './components/ProductSlider';
 import EventSlider from './components/EventSlider';
+import CartSummary from './components/CartSummary'; // ✅ নতুন import
 import { database, ref, onValue } from '@/lib/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from './context/CartContext';
@@ -131,7 +132,7 @@ function HomePageContent() {
     }
 
     return (
-        <main className="pt-24"> {/* Header থেকে proper spacing */}
+        <main className="pt-24 pb-20"> {/* ✅ নিচে space রাখুন CartSummary এর জন্য */}
             <div className="container mx-auto">
                 {isAdmin && (
                     <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
@@ -189,6 +190,9 @@ function HomePageContent() {
                     )}
                 </section>
             </div>
+
+            {/* ✅ Fixed Cart Summary Component */}
+            <CartSummary />
         </main>
     );
 }
