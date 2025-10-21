@@ -132,7 +132,7 @@ function HomePageContent() {
     }
 
     return (
-        <main className="pt-24 pb-12"> {/* কম padding */}
+        <main className="pt-0 pb-12"> {/* কম padding */}
             <div className="container mx-auto">
                 {isAdmin && (
                     <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
