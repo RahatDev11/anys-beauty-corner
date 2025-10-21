@@ -55,8 +55,6 @@ const Header = () => {
         closeSidebar();
     };
 
-
-
     const handleFocusMobileSearch = () => {
         setIsMobileSearchBarOpen((prev) => !prev);
     };
@@ -71,6 +69,29 @@ const Header = () => {
             logout();
             setIsLogoutMenuOpen(false);
         }
+    };
+
+    // ✅ FIXED: Multiple images handling function - SAME AS PRODUCT DETAIL PAGE
+    const getCartItemImage = (imageString: string | undefined) => {
+        if (!imageString) return "https://via.placeholder.com/50?text=No+Image";
+
+        // Handle comma separated multiple images (YOUR MAIN CASE)
+        if (typeof imageString === 'string' && imageString.includes(',')) {
+            const urls = imageString
+                .split(',')
+                .map(url => url.trim())
+                .filter(url => url !== '' && (url.startsWith('http') || url.startsWith('https')));
+            
+            // Return the first valid URL
+            return urls[0] || "https://via.placeholder.com/50?text=Invalid+URL";
+        }
+
+        // Handle single image
+        if (typeof imageString === 'string' && imageString.startsWith('http')) {
+            return imageString;
+        }
+
+        return "https://via.placeholder.com/50?text=Invalid+URL";
     };
 
     const renderLoginButton = (isMobile: boolean) => {
@@ -182,37 +203,35 @@ const Header = () => {
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
                         </div>
-                                                <Link className="text-black hover:text-gray-600 transition-colors" href="/">
-                                                    হোম
-                                                </Link>
-                                                {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
-                                                    <Link
-                                                        key={category}
-                                                        href={`/?filter=${category}`}
-                                                        className="text-black hover:text-gray-600 transition-colors"
-                                                    >
-                                                        {category === 'all' && 'সকল প্রোডাক্ট'}
-                                                        {category === 'health' && 'স্বাস্থ্য'}
-                                                        {category === 'cosmetics' && 'মেকআপ'}
-                                                        {category === 'skincare' && 'স্কিনকেয়ার'}
-                                                        {category === 'haircare' && 'হেয়ারকেয়ার'}
-                                                        {category === 'mehandi' && 'মেহেদী'}
-                                                    </Link>
-                                                ))}
-                        
-                                                <Link
-                                                    className="text-black hover:text-gray-600 transition-colors"
-                                                    href="/order-track"
-                                                >
-                                                    অর্ডার ট্র্যাক
-                                                </Link>
+                        <Link className="text-black hover:text-gray-600 transition-colors" href="/">
+                            হোম
+                        </Link>
+                        {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
+                            <Link
+                                key={category}
+                                href={`/?filter=${category}`}
+                                className="text-black hover:text-gray-600 transition-colors"
+                            >
+                                {category === 'all' && 'সকল প্রোডাক্ট'}
+                                {category === 'health' && 'স্বাস্থ্য'}
+                                {category === 'cosmetics' && 'মেকআপ'}
+                                {category === 'skincare' && 'স্কিনকেয়ার'}
+                                {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                {category === 'mehandi' && 'মেহেদী'}
+                            </Link>
+                        ))}
+
+                        <Link
+                            className="text-black hover:text-gray-600 transition-colors"
+                            href="/order-track"
+                        >
+                            অর্ডার ট্র্যাক
+                        </Link>
                     </nav>
                 </div>
-
-
             </header>
 
-            {/* কার্ট সাইডবার */}
+            {/* ✅ FIXED: কার্ট সাইডবার - Multiple Images Support */}
             <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-4">
@@ -231,22 +250,48 @@ const Header = () => {
                                 <p>আপনার কার্ট খালি</p>
                             </div>
                         ) : (
-                            cart.map(item => (
-                                <div key={item.id} className="flex items-center justify-between py-2 border-b">
-                                    <div className="flex items-center">
-                                        <Image src={item.image || ''} alt={item.name} width={50} height={50} className="rounded" />
-                                        <div className="ml-4">
-                                            <p className="font-semibold">{item.name}</p>
-                                            <p className="text-gray-600">{item.price} টাকা</p>
+                            cart.map(item => {
+                                // ✅ FIXED: Use the same image handling function as product detail page
+                                const cartItemImage = getCartItemImage(item.image);
+
+                                return (
+                                    <div key={item.id} className="flex items-center justify-between py-2 border-b">
+                                        <div className="flex items-center">
+                                            <Image 
+                                                src={cartItemImage} 
+                                                alt={item.name} 
+                                                width={50} 
+                                                height={50} 
+                                                className="rounded object-cover"
+                                                onError={(e) => {
+                                                    e.currentTarget.src = "https://via.placeholder.com/50?text=Error";
+                                                }}
+                                                unoptimized={true}
+                                            />
+                                            <div className="ml-4">
+                                                <p className="font-semibold text-sm">{item.name}</p>
+                                                <p className="text-gray-600 text-sm">{item.price} টাকা</p>
+                                                <p className="text-xs text-gray-500">পরিমাণ: {item.quantity}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <button 
+                                                onClick={() => updateQuantity(item.id, -1)} 
+                                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
+                                            >
+                                                -
+                                            </button>
+                                            <span className="font-semibold w-6 text-center">{item.quantity}</span>
+                                            <button 
+                                                onClick={() => updateQuantity(item.id, 1)} 
+                                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
+                                            >
+                                                +
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="flex items-center">
-                                        <button onClick={() => updateQuantity(item.id, -1)} className="px-2 text-lg font-bold">-</button>
-                                        <span>{item.quantity}</span>
-                                        <button onClick={() => updateQuantity(item.id, 1)} className="px-2 text-lg font-bold">+</button>
-                                    </div>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                     </div>
                     <div className="border-t pt-4">
@@ -347,8 +392,6 @@ const Header = () => {
                     <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400/80"></i>
                 </div>
             </div>
-
-
         </>
     );
 };
