@@ -51,6 +51,16 @@ const ProductDetail = () => {
         });
     }, [id]);
 
+    // Function to process tags (handle both string and array)
+    const processTags = (tags: any): string[] => {
+        if (Array.isArray(tags)) {
+            return tags;
+        } else if (typeof tags === 'string') {
+            return tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+        }
+        return [];
+    };
+
     const openModal = () => {
         setShowModal(true);
     };
@@ -214,65 +224,69 @@ const ProductDetail = () => {
                     <section className="mt-16">
                         <h2 className="text-3xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                            {relatedProducts.slice(0, 4).map((relatedProduct) => (
-                                <div 
-                                    key={relatedProduct.id}
-                                    className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg border border-gray-100"
-                                    onClick={() => router.push(`/product/${relatedProduct.id}`)}
-                                >
-                                    <div className="relative h-48 bg-gray-100 overflow-hidden">
-                                        <Image
-                                            src={relatedProduct.image || ''}
-                                            alt={relatedProduct.name}
-                                            fill
-                                            style={{ objectFit: 'cover' }}
-                                            className="transition-transform duration-500 hover:scale-110"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.style.display = 'none';
-                                            }}
-                                            unoptimized={true}
-                                        />
-                                        {relatedProduct.stockStatus !== 'in_stock' && (
-                                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                                                <span className="text-white font-bold text-sm bg-red-500 px-3 py-1 rounded">
-                                                    Out of Stock
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2">
-                                            {relatedProduct.name}
-                                        </h3>
-                                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                                            {relatedProduct.description || 'Product description'}
-                                        </p>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-lipstick font-bold text-xl">
-                                                ৳{relatedProduct.price}
-                                            </span>
-                                            {relatedProduct.stockStatus === 'in_stock' && (
-                                                <span className="text-green-600 text-sm font-medium">
-                                                    In Stock
-                                                </span>
+                            {relatedProducts.slice(0, 4).map((relatedProduct) => {
+                                const productTags = processTags(relatedProduct.tags);
+                                
+                                return (
+                                    <div 
+                                        key={relatedProduct.id}
+                                        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg border border-gray-100"
+                                        onClick={() => router.push(`/product/${relatedProduct.id}`)}
+                                    >
+                                        <div className="relative h-48 bg-gray-100 overflow-hidden">
+                                            <Image
+                                                src={relatedProduct.image || ''}
+                                                alt={relatedProduct.name}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                                className="transition-transform duration-500 hover:scale-110"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                }}
+                                                unoptimized={true}
+                                            />
+                                            {relatedProduct.stockStatus !== 'in_stock' && (
+                                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                                    <span className="text-white font-bold text-sm bg-red-500 px-3 py-1 rounded">
+                                                        Out of Stock
+                                                    </span>
+                                                </div>
                                             )}
                                         </div>
-                                        {relatedProduct.tags && relatedProduct.tags.length > 0 && (
-                                            <div className="mt-2 flex flex-wrap gap-1">
-                                                {relatedProduct.tags.slice(0, 2).map((tag, index) => (
-                                                    <span 
-                                                        key={index}
-                                                        className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
-                                                    >
-                                                        {tag}
+                                        <div className="p-4">
+                                            <h3 className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2">
+                                                {relatedProduct.name}
+                                            </h3>
+                                            <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                                                {relatedProduct.description || 'Product description'}
+                                            </p>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-lipstick font-bold text-xl">
+                                                    ৳{relatedProduct.price}
+                                                </span>
+                                                {relatedProduct.stockStatus === 'in_stock' && (
+                                                    <span className="text-green-600 text-sm font-medium">
+                                                        In Stock
                                                     </span>
-                                                ))}
+                                                )}
                                             </div>
-                                        )}
+                                            {productTags.length > 0 && (
+                                                <div className="mt-2 flex flex-wrap gap-1">
+                                                    {productTags.slice(0, 2).map((tag, index) => (
+                                                        <span 
+                                                            key={index}
+                                                            className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                                                        >
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </section>
                 )}
