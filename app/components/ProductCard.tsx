@@ -1,4 +1,4 @@
-// ProductCard কম্পোনেন্টের সংশোধিত অংশ
+// ProductCard কম্পোনেন্ট - debug version
 'use client';
 
 import React from 'react';
@@ -26,37 +26,32 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
     const router = useRouter();
 
-    // ✅ COMPREHENSIVE NULL CHECK
+    // Debug: Check what props are received
+    console.log('🔍 ProductCard Debug:', {
+        productName: product?.name,
+        productId: product?.id,
+        cartItemQuantity,
+        hasUpdateCartQuantity: typeof updateCartQuantity === 'function',
+        hasRemoveFromCart: typeof removeFromCart === 'function'
+    });
+
     const getImageUrl = () => {
-        // Product null check
         if (!product) {
-            console.warn('❌ Product is undefined/null');
             return "https://via.placeholder.com/150?text=No+Product";
         }
-
-        // Product.image null check
         if (!product.image) {
-            console.log(`❌ No image for product: ${product.name || 'Unknown'}`);
             return "https://via.placeholder.com/150?text=No+Image";
         }
-
-        // Multiple URLs handling
         if (typeof product.image === 'string' && product.image.includes(',')) {
             const urls = product.image.split(',').map(url => url.trim());
             const firstUrl = urls[0];
-
-            // First URL validation
             if (firstUrl && firstUrl.startsWith('http')) {
                 return firstUrl;
             }
         }
-
-        // Single URL validation
         if (typeof product.image === 'string' && product.image.startsWith('http')) {
             return product.image;
         }
-
-        // Fallback for invalid URLs
         return "https://via.placeholder.com/150?text=Invalid+URL";
     };
 
@@ -73,23 +68,41 @@ const ProductCard: React.FC<ProductCardProps> = ({
     };
 
     const handleIncrement = () => {
-        if (product) {
+        console.log('➕ Increment clicked:', {
+            productName,
+            productId,
+            currentQuantity: cartItemQuantity,
+            newQuantity: cartItemQuantity + 1
+        });
+        
+        if (product && updateCartQuantity) {
             updateCartQuantity(productId, cartItemQuantity + 1);
+        } else {
+            console.error('❌ Cannot increment: missing product or updateCartQuantity');
         }
     };
 
     const handleDecrement = () => {
-        if (product && cartItemQuantity > 1) {
-            updateCartQuantity(productId, cartItemQuantity - 1);
-        } else if (product && cartItemQuantity === 1) {
-            removeFromCart(productId);
+        console.log('➖ Decrement clicked:', {
+            productName,
+            productId,
+            currentQuantity: cartItemQuantity
+        });
+        
+        if (product && updateCartQuantity) {
+            if (cartItemQuantity > 1) {
+                updateCartQuantity(productId, cartItemQuantity - 1);
+            } else if (cartItemQuantity === 1) {
+                console.log('🗑️ Removing item from cart');
+                removeFromCart(productId);
+            }
+        } else {
+            console.error('❌ Cannot decrement: missing product or updateCartQuantity');
         }
     };
 
     const handleBuyNow = () => {
         if (product) {
-            // যদি কার্টে আইটেম থাকে, তাহলে সেই কোয়ান্টিটি নিয়ে যাবে
-            // যদি না থাকে, তাহলে ১টি প্রোডাক্ট নিয়ে যাবে
             const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
             buyNow(product, quantity);
         }
@@ -103,28 +116,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     alt={productName}
                     className="w-full h-36 object-cover cursor-pointer"
                     onClick={() => handleShowProductDetail(productId)}
-                    onLoad={() => console.log(`✅ Loaded: ${productName}`)}
-                    onError={(e) => {
-                        console.log(`❌ Failed: ${productName} - ${imageUrl}`);
-                        const target = e.target as HTMLImageElement;
-                        target.src = "https://via.placeholder.com/150?text=Error+Loading";
-                    }}
                 />
-
-                {/* ✅ Safe debug badge */}
-                <div className={`absolute top-2 right-2 text-white text-xs px-2 py-1 rounded ${
-                    product?.image 
-                        ? (typeof product.image === 'string' && product.image.includes(',') 
-                            ? 'bg-blue-500' 
-                            : 'bg-green-500')
-                        : 'bg-red-500'
-                }`}>
-                    {product?.image 
-                        ? (typeof product.image === 'string' && product.image.includes(',') 
-                            ? 'MULTI' 
-                            : 'SINGLE')
-                        : 'NONE'}
-                </div>
             </div>
 
             <div className="p-3 flex flex-col flex-grow bg-white">
