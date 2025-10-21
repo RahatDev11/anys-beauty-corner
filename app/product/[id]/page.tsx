@@ -27,9 +27,7 @@ const ProductDetail = () => {
             if (snapshot.exists()) {
                 const productData = { id: snapshot.key, ...snapshot.val() } as Product;
                 setProduct(productData);
-                console.log('📦 Product Data:', productData);
                 
-                // Direct image setting
                 if (productData.image) {
                     setMainImage(productData.image);
                 }
@@ -122,11 +120,11 @@ const ProductDetail = () => {
     return (
         <div className="min-h-screen bg-white">
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
-                {/* Main Product - NO EXTRA DIV WRAPPERS */}
+                {/* Main Product */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                     {/* Image Section */}
                     <div>
-                        <div className="relative aspect-[4/3] rounded-lg overflow-hidden mb-4">
+                        <div className="relative aspect-[4/3] rounded-lg overflow-hidden mb-4 bg-gray-100">
                             {product.image ? (
                                 <Image 
                                     src={product.image} 
@@ -211,38 +209,72 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products - NO EXTRA DIV WRAPPERS */}
+                {/* Related Products - Home Page Style */}
                 {relatedProducts.length > 0 && (
-                    <div>
-                        <h2 className="text-2xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <section className="mt-16">
+                        <h2 className="text-3xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                             {relatedProducts.slice(0, 4).map((relatedProduct) => (
                                 <div 
                                     key={relatedProduct.id}
-                                    className="rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                                    className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg border border-gray-100"
                                     onClick={() => router.push(`/product/${relatedProduct.id}`)}
                                 >
-                                    <div className="relative aspect-square">
+                                    <div className="relative h-48 bg-gray-100 overflow-hidden">
                                         <Image
                                             src={relatedProduct.image || ''}
                                             alt={relatedProduct.name}
                                             fill
                                             style={{ objectFit: 'cover' }}
-                                            className="hover:scale-105 transition-transform"
+                                            className="transition-transform duration-500 hover:scale-110"
                                             onError={(e) => {
-                                                // Fallback handled by CSS
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
                                             }}
                                             unoptimized={true}
                                         />
+                                        {relatedProduct.stockStatus !== 'in_stock' && (
+                                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                                <span className="text-white font-bold text-sm bg-red-500 px-3 py-1 rounded">
+                                                    Out of Stock
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="p-3">
-                                        <h3 className="font-semibold text-sm mb-1 line-clamp-2">{relatedProduct.name}</h3>
-                                        <p className="text-lipstick font-bold">{relatedProduct.price} ৳</p>
+                                    <div className="p-4">
+                                        <h3 className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2">
+                                            {relatedProduct.name}
+                                        </h3>
+                                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                                            {relatedProduct.description || 'Product description'}
+                                        </p>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-lipstick font-bold text-xl">
+                                                ৳{relatedProduct.price}
+                                            </span>
+                                            {relatedProduct.stockStatus === 'in_stock' && (
+                                                <span className="text-green-600 text-sm font-medium">
+                                                    In Stock
+                                                </span>
+                                            )}
+                                        </div>
+                                        {relatedProduct.tags && relatedProduct.tags.length > 0 && (
+                                            <div className="mt-2 flex flex-wrap gap-1">
+                                                {relatedProduct.tags.slice(0, 2).map((tag, index) => (
+                                                    <span 
+                                                        key={index}
+                                                        className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                                                    >
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </section>
                 )}
             </main>
 
