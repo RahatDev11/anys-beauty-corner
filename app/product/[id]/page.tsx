@@ -20,47 +20,111 @@ const ProductDetail = () => {
     const [imageError, setImageError] = useState(false);
     const { addToCart, buyNow, cart } = useCart();
 
-    // Function to get all images from product - FIXED for comma-separated strings
-    const getAllImages = (productData: Product): string[] => {
+    // Function to get all images from product - COMPLETELY UPDATED
+    const getAllImages = (productData: any): string[] => {
         let images: string[] = [];
 
-        // Case 1: If images is a comma-separated string (your database case)
+        console.log('=== IMAGE DEBUG START ===');
+        console.log('📦 Full product data:', productData);
+        
+        // Check ALL possible image fields
+        const possibleImageFields = ['images', 'image', 'img', 'productImages', 'productImage'];
+        
+        possibleImageFields.forEach(field => {
+            if (productData[field]) {
+                console.log(`🔍 Found field "${field}":`, productData[field]);
+                console.log(`🔍 Type of "${field}":`, typeof productData[field]);
+            }
+        });
+
+        // Case 1: If images field exists as string (comma separated)
         if (productData.images && typeof productData.images === 'string') {
-            images = productData.images
-                .split(',')
-                .map(img => img.trim())
-                .filter(img => img !== '' && img.startsWith('http'));
+            console.log('🔄 Processing images as comma-separated string');
+            const rawImages = productData.images.split(',');
+            console.log('📸 Raw split images:', rawImages);
+            
+            images = rawImages
+                .map((img: string) => img.trim())
+                .filter((img: string) => {
+                    const isValid = img !== '' && (img.startsWith('http') || img.startsWith('https'));
+                    console.log(`✅ Image: "${img}" → Valid: ${isValid}`);
+                    return isValid;
+                });
         }
-        // Case 2: If images is an array
+        // Case 2: If images field exists as array
         else if (productData.images && Array.isArray(productData.images)) {
-            images = productData.images.filter(img => img && img.trim() !== '' && img.startsWith('http'));
+            console.log('🔄 Processing images as array');
+            images = productData.images.filter((img: any) => {
+                const imgStr = String(img).trim();
+                const isValid = imgStr !== '' && (imgStr.startsWith('http') || imgStr.startsWith('https'));
+                console.log(`✅ Image: "${imgStr}" → Valid: ${isValid}`);
+                return isValid;
+            });
         }
-        // Case 3: If single image exists
+        // Case 3: If single image field exists
         else if (productData.image && typeof productData.image === 'string' && productData.image.trim() !== '') {
-            images = [productData.image.trim()];
+            console.log('🔄 Using single image field');
+            const img = productData.image.trim();
+            if (img.startsWith('http') || img.startsWith('https')) {
+                images = [img];
+            }
+        }
+        // Case 4: Check for any other image fields
+        else {
+            // Check all fields that might contain images
+            Object.keys(productData).forEach(key => {
+                if (typeof productData[key] === 'string' && 
+                    (productData[key].includes('http') || productData[key].includes('cloudinary'))) {
+                    console.log(`🎯 Found potential image in field "${key}":`, productData[key]);
+                    
+                    const potentialImages = productData[key]
+                        .split(',')
+                        .map((img: string) => img.trim())
+                        .filter((img: string) => img.startsWith('http'));
+                    
+                    if (potentialImages.length > 0) {
+                        images = [...images, ...potentialImages];
+                    }
+                }
+            });
         }
 
-        return images.length > 0 ? images : ['https://via.placeholder.com/400x300/ffffff/cccccc?text=No+Image'];
+        // Remove duplicates
+        images = [...new Set(images)];
+        
+        console.log('🎉 Final images array:', images);
+        console.log('=== IMAGE DEBUG END ===');
+
+        return images.length > 0 ? images : ['https://via.placeholder.com/400x300/ffffff/cccccc?text=No+Image+Available'];
     };
 
     useEffect(() => {
         if (!id) return;
 
+        console.log('🚀 Fetching product with ID:', id);
+
         const productRef = ref(database, `products/${id}`);
         onValue(productRef, (snapshot) => {
             if (snapshot.exists()) {
-                const productData = { id: snapshot.key, ...snapshot.val() } as Product;
+                const productData = { id: snapshot.key, ...snapshot.val() };
                 setProduct(productData);
                 
-                // Get all images
+                console.log('=== PRODUCT LOADED ===');
+                console.log('📦 Product Data:', productData);
+                
+                // Get all images with enhanced detection
                 const allImages = getAllImages(productData);
                 setProductImages(allImages);
                 
                 // Set main image
                 if (allImages.length > 0) {
                     setMainImage(allImages[0]);
+                    console.log('⭐ Main image set to:', allImages[0]);
+                } else {
+                    console.log('❌ No valid images found');
                 }
             } else {
+                console.log('❌ Product not found in database');
                 setProduct(null);
             }
             setLoading(false);
@@ -74,6 +138,7 @@ const ProductDetail = () => {
                     ...snapshot.val()[key] 
                 } as Product));
                 setProducts(productsData);
+                console.log('📚 Loaded all products:', productsData.length);
             } else {
                 setProducts([]);
             }
@@ -93,6 +158,7 @@ const ProductDetail = () => {
     const handleThumbnailClick = (image: string) => {
         setMainImage(image);
         setImageError(false);
+        console.log('🖼️ Switched to image:', image);
     };
 
     const openModal = () => {
@@ -112,12 +178,14 @@ const ProductDetail = () => {
     const handleAddToCart = () => {
         if (product) {
             addToCart(product);
+            console.log('🛒 Added to cart:', product.name);
         }
     };
 
     const handleBuyNow = () => {
         if (product) {
             buyNow(product);
+            console.log('⚡ Buy now:', product.name);
             router.push('/order-form');
         }
     };
@@ -161,6 +229,12 @@ const ProductDetail = () => {
 
     const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
 
+    console.log('=== RENDER DEBUG ===');
+    console.log('🖼️ Product Images:', productImages);
+    console.log('⭐ Main Image:', mainImage);
+    console.log('🔗 Related Products:', relatedProducts.length);
+    console.log('=== END RENDER DEBUG ===');
+
     return (
         <div className="min-h-screen bg-white">
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
@@ -169,7 +243,7 @@ const ProductDetail = () => {
                     {/* Image Gallery */}
                     <div className="space-y-4">
                         {/* Main Image */}
-                        <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
+                        <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
                             {mainImage && !imageError ? (
                                 <Image 
                                     src={mainImage} 
@@ -178,19 +252,23 @@ const ProductDetail = () => {
                                     fill 
                                     style={{objectFit: "cover"}} 
                                     className="cursor-pointer transition-transform hover:scale-105"
-                                    onError={() => setImageError(true)}
+                                    onError={(e) => {
+                                        console.log('❌ Image load error:', mainImage);
+                                        setImageError(true);
+                                    }}
                                     priority
                                     unoptimized={true}
                                 />
                             ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center">
+                                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
                                     <div className="text-4xl text-gray-400 mb-2">📷</div>
                                     <span className="text-gray-500">No image available</span>
+                                    <p className="text-xs text-gray-400 mt-2">Image URL: {mainImage}</p>
                                 </div>
                             )}
                         </div>
 
-                        {/* Thumbnail Images - Show only if multiple images */}
+                        {/* Thumbnail Images */}
                         {productImages.length > 1 && (
                             <div className="flex gap-2 overflow-x-auto py-2">
                                 {productImages.map((image, index) => (
@@ -207,13 +285,22 @@ const ProductDetail = () => {
                                             fill
                                             style={{ objectFit: 'cover' }}
                                             className="rounded-lg"
-                                            onError={() => {}}
+                                            onError={() => console.log('❌ Thumbnail load error:', image)}
                                             unoptimized={true}
                                         />
                                     </div>
                                 ))}
                             </div>
                         )}
+
+                        {/* Debug Info */}
+                        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-xs text-blue-700">
+                                <strong>Debug:</strong> {productImages.length} images found | 
+                                Main: {mainImage ? '✅' : '❌'} | 
+                                Check browser console for details
+                            </p>
+                        </div>
                     </div>
 
                     {/* Product Details Section */}
@@ -279,7 +366,7 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products */}
+                   {/* Related Products */}
                 {relatedProducts.length > 0 && (
                     <section className="mt-16">
                         <h2 className="text-3xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
@@ -375,7 +462,7 @@ const ProductDetail = () => {
                 </div>
             )}
 
-                   {/* Modal */}
+            {/* Modal */}
             {showModal && mainImage && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
