@@ -1029,7 +1029,53 @@ textarea:focus-visible {
   display: none;
   flex-grow: 1;
 }
+/* ✅ FIXED: Desktop Menu Visibility - IMPORTANT */
+.desktop-menu {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+}
 
+.desktop-menu-item {
+  color: black !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+  font-family: 'SolaimanLipi', sans-serif !important;
+  white-space: nowrap !important;
+  transition: color 0.3s ease !important;
+}
+
+.desktop-menu-item:hover {
+  color: #4b5563 !important;
+}
+
+@media (max-width: 768px) {
+  .desktop-menu {
+    display: none !important;
+  }
+}
+
+.desktop-login-button {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.header-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.5rem 1rem !important;
+}
+
+nav.hidden.md\:flex {
+  display: flex !important;
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-button {
+    display: none !important;
+  }
+}
 /* ✅ NEW: Fixed Sidebar Transition Classes */
 .translate-x-full {
   transform: translateX(100%) !important;
