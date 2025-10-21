@@ -1,4 +1,4 @@
-// app/layout.tsx
+// app/layout.tsx - UPDATED WITH GLOBAL DEBUGGER
 import { Inter } from "next/font/google";
 import './globals.css';
 import Header from './components/Header';
@@ -7,7 +7,8 @@ import { ToastProvider } from './components/Toast';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
-import { AuthProvider as NextAuthProvider } from './providers'; // ✅ নতুন NextAuth Provider যোগ করুন
+import { AuthProvider as NextAuthProvider } from './providers';
+import GlobalDebugger from './components/GlobalDebugger'; // ✅ GlobalDebugger import করুন
 
 const pageMetadata = {
   title: "Any's Beauty Corner - Premium Beauty Products",
@@ -35,9 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={inter.className}>
-        <NextAuthProvider> {/* ✅ NextAuth Provider যোগ করুন - সবচেয়ে বাইরে */}
+        <NextAuthProvider>
           <ToastProvider>
-            <AuthProvider> {/* ✅ আপনার existing AuthProvider */}
+            <AuthProvider>
               <CartProvider>
                 <NotificationProvider>
                   <Header />
@@ -45,6 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     {children}
                   </main>
                   <Footer />
+                  
+                  {/* ✅ Global Debugger - সব Providers এর ভিতরে কিন্তু সব Components এর বাইরে */}
+                  <GlobalDebugger />
                 </NotificationProvider>
               </CartProvider>
             </AuthProvider>
