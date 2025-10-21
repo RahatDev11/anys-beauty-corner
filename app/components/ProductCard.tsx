@@ -1,3 +1,4 @@
+// ProductCard কম্পোনেন্টের সংশোধিত অংশ
 'use client';
 
 import React from 'react';
@@ -27,29 +28,35 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     // ✅ COMPREHENSIVE NULL CHECK
     const getImageUrl = () => {
+        // Product null check
         if (!product) {
             console.warn('❌ Product is undefined/null');
             return "https://via.placeholder.com/150?text=No+Product";
         }
 
+        // Product.image null check
         if (!product.image) {
             console.log(`❌ No image for product: ${product.name || 'Unknown'}`);
             return "https://via.placeholder.com/150?text=No+Image";
         }
 
+        // Multiple URLs handling
         if (typeof product.image === 'string' && product.image.includes(',')) {
             const urls = product.image.split(',').map(url => url.trim());
             const firstUrl = urls[0];
 
+            // First URL validation
             if (firstUrl && firstUrl.startsWith('http')) {
                 return firstUrl;
             }
         }
 
+        // Single URL validation
         if (typeof product.image === 'string' && product.image.startsWith('http')) {
             return product.image;
         }
 
+        // Fallback for invalid URLs
         return "https://via.placeholder.com/150?text=Invalid+URL";
     };
 
