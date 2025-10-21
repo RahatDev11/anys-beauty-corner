@@ -1,22 +1,22 @@
-// components/CartSummary.tsx - PERFECT SIZE VERSION
+// components/CartSummary.tsx - UPDATED VERSION
 'use client';
 
 import React from 'react';
 import { useCart } from '@/app/context/CartContext';
 import { useRouter } from 'next/navigation';
+import { useCartSidebar } from '@/app/hooks/useCartSidebar'; // ✅ useCartSidebar import করুন
 
 const CartSummary: React.FC = () => {
     const { totalItems, totalPrice } = useCart();
     const router = useRouter();
+    const { openCartSidebar } = useCartSidebar(); // ✅ useCartSidebar hook use করুন
 
     if (totalItems === 0) {
         return null;
     }
 
     const handleViewCart = () => {
-        // সাইডবার কার্ড ওপেন করার লজিক
-        console.log('কার্ড সাইডবার ওপেন করুন');
-        // setIsCartOpen(true) ইত্যাদি
+        openCartSidebar(); // ✅ এই ফাংশন কার্ট সাইডবার ওপেন করবে
     };
 
     const handleCheckout = () => {
@@ -25,7 +25,7 @@ const CartSummary: React.FC = () => {
 
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-50">
-            <div className="container mx-auto px-4 py-2.5"> {/* perfect padding */}
+            <div className="container mx-auto px-4 py-2.5">
                 <div className="flex items-center justify-between">
                     {/* Left side - সংখ্যা এবং price */}
                     <div className="flex items-center space-x-3">
