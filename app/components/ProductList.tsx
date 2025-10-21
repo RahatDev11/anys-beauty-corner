@@ -12,13 +12,17 @@ interface ProductListProps {
         quantity: number;
     }>;
     addToCart: (product: Product) => void;
-    buyNow: (product: Product) => void;
+    removeFromCart: (productId: string) => void;
+    updateCartQuantity: (productId: string, quantity: number) => void;
+    buyNow: (product: Product, quantity?: number) => void;
 }
 
 const ProductList: React.FC<ProductListProps> = ({
     products,
     cartItems,
     addToCart,
+    removeFromCart,
+    updateCartQuantity,
     buyNow,
 }) => {
     const router = useRouter();
@@ -37,6 +41,8 @@ const ProductList: React.FC<ProductListProps> = ({
                         key={product.id}
                         product={product}
                         addToCart={(productItem) => addToCart(productItem)}
+                        removeFromCart={removeFromCart}
+                        updateCartQuantity={updateCartQuantity}
                         buyNow={(productItem) => buyNow(productItem)}
                         cartItemQuantity={cartItemQuantity}
                         showProductDetail={showProductDetail}
