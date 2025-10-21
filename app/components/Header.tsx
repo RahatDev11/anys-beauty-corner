@@ -53,11 +53,15 @@ const Header = () => {
             if (!(event.target as Element).closest('.products-menu-container')) {
                 setIsProductsMenuOpen(false);
             }
+            // Close mobile search bar if clicking outside and it's open
+            if (isMobileSearchBarOpen && !(event.target as Element).closest('.mobile-search-bar-container')) {
+                setIsMobileSearchBarOpen(false);
+            }
         };
 
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+    }, [isMobileSearchBarOpen]); // Add isMobileSearchBarOpen to dependencies
 
     const handleSubMenuItemClick = (category: string) => {
         router.push(`/?filter=${category}`);
@@ -66,7 +70,7 @@ const Header = () => {
         closeSidebar();
     };
 
-    const handleFocusMobileSearch = () => {
+    const handleToggleMobileSearchBar = () => {
         setIsMobileSearchBarOpen((prev) => !prev);
     };
 
@@ -233,16 +237,16 @@ const Header = () => {
                     </div>
                 </Link>
 
-                {/* ✅ FIXED: ডেস্কটপ সার্চ বার - মধ্যেভাগে দেখা যাবে */}
+                {/* ✅ ADDED: ডেস্কটপ সার্চ বার - মধ্যেভাগে দেখা যাবে */}
                 <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-80 lg:w-96">
                     <SearchInput />
                 </div>
 
-                {/* ✅ FIXED: মোবাইল আইকনগুলো - শুধু আইকন, কোন মেনু আইটেম না */}
+                {/* ✅ FIXED: মোবাইল আইকনগুলো ও ডেস্কটপ নেভিগেশন */}
                 <div className="flex items-center space-x-2 sm:space-x-3">
                     {/* মোবাইল সার্চ আইকন - শুধু মোবাইলে */}
                     <div className="md:hidden cursor-pointer flex-shrink-0">
-                        <i className="fas fa-search text-xl sm:text-2xl text-gray-800" onClick={handleFocusMobileSearch}></i>
+                        <i className="fas fa-search text-xl sm:text-2xl text-gray-800" onClick={handleToggleMobileSearchBar}></i>
                     </div>
 
                     {/* Notification icon - ছোট সাইজ */}
@@ -393,7 +397,7 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* ✅ FIXED: কার্ট সাইডবার Overlay */}
+            {/* ✅ FIXED: কার্ট সাইдবার Overlay */}
             {isCartSidebarOpen && (
                 <div 
                     className="cart-sidebar-overlay"
@@ -465,7 +469,7 @@ const Header = () => {
             )}
 
             {/* ✅ FIXED: মোবাইল সার্চ বার */}
-            <div className={`fixed top-[52px] sm:top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
+            <div className={`mobile-search-bar-container fixed top-[52px] sm:top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
                 <div className="relative">
                     <input 
                         className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
