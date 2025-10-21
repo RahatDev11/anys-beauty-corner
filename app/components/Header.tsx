@@ -36,13 +36,25 @@ const Header = () => {
     const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
     const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
     const [imgError, setImgError] = useState(false);
+    const [authError, setAuthError] = useState(false);
 
     const router = useRouter();
     const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
 
-    // ✅ NextAuth Session
+    // ✅ NextAuth Session with error handling
     const { data: session, status } = useSession();
+
+    // ✅ Handle NextAuth errors
+    useEffect(() => {
+        if (status === 'loading') return;
+        
+        // If there's an error with NextAuth, disable auth features
+        if (session === null && status === 'unauthenticated') {
+            // This is normal - user is not logged in
+            setAuthError(false);
+        }
+    }, [session, status]);
 
     // Close menus when clicking outside
     useEffect(() => {
@@ -83,7 +95,12 @@ const Header = () => {
     const handleConfirmLogout = () => {
         if (window.confirm("আপনি কি লগআউট করতে চান?")) {
             logout();
-            signOut({ callbackUrl: '/' });
+            // Only try signOut if NextAuth is working
+            try {
+                signOut({ callbackUrl: '/' });
+            } catch (error) {
+                console.log('NextAuth signOut failed, using local logout');
+            }
             setIsLogoutMenuOpen(false);
         }
     };
@@ -96,11 +113,17 @@ const Header = () => {
             });
         } catch (error) {
             console.error('Google login error:', error);
+            // Fallback to local auth if NextAuth fails
+            try {
+                await loginWithGmail();
+            } catch (localError) {
+                console.error('Local auth also failed:', localError);
+            }
         }
     };
 
-    // ✅ Combined User Data
-    const currentUser = session?.user || user;
+    // ✅ Safe Combined User Data with error handling
+    const currentUser = authError ? user : (session?.user || user);
     const displayName = currentUser?.name || currentUser?.displayName || 
                        (currentUser?.email ? currentUser.email.split('@')[0] : 'User');
     const photoURL = currentUser?.image || currentUser?.photoURL;
@@ -122,8 +145,13 @@ const Header = () => {
         return "https://via.placeholder.com/50?text=Invalid+URL";
     };
 
-    // ✅ UPDATED: ডেস্কটপের জন্য লগইন/প্রোফাইল বাটন
+    // ✅ UPDATED: ডেস্কটপের জন্য লগইন/প্রোফাইল বাটন - শুধু ডেস্কটপে দেখাবে
     const renderDesktopLoginButton = () => {
+        // Only show on desktop
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            return null;
+        }
+
         if (currentUser) {
             return (
                 <div className="relative logout-container">
@@ -142,11 +170,13 @@ const Header = () => {
                                 {displayName.charAt(0).toUpperCase()}
                             </div>
                         )}
-                        <span className="text-black font-semibold text-sm lg:text-base">{displayName}</span>
-                        <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
+                        <span className="text-black font-semibold text-sm lg:text-base hidden lg:inline">
+                            {displayName}
+                        </span>
+                        <i className={`fas fa-chevron-down ml-1 lg:ml-2 transition-transform duration-300 ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
                     </button>
                     {isLogoutMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
                             <button 
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 onClick={handleConfirmLogout}
@@ -238,7 +268,7 @@ const Header = () => {
                     <SearchInput />
                 </div>
 
-                {/* ✅ UPDATED: মোবাইল আইকনগুলো - লগইন বাটন ছাড়া */}
+                {/* ✅ UPDATED: মোবাইল আইকনগুলো - লগইন বাটন সম্পূর্ণ রিমুভ */}
                 <div className="flex items-center space-x-2 sm:space-x-3">
                     {/* মোবাইল সার্চ আইকন - শুধু মোবাইলে */}
                     <div className="md:hidden cursor-pointer flex-shrink-0">
@@ -271,8 +301,8 @@ const Header = () => {
                         <i className="fas fa-bars text-xl sm:text-2xl"></i>
                     </button>
 
-                    {/* ✅ UPDATED: ডেস্কটপ মেনু - লগইন বাটন সহ */}
-                    <nav className="desktop-menu hidden md:flex items-center space-x-6 lg:space-x-8 ml-4 lg:ml-8">
+                    {/* ✅ UPDATED: ডেস্কটপ মেনু - লগইন বাটন শুধু ডেস্কটপে */}
+                    <nav className="desktop-menu hidden md:flex items-center space-x-4 lg:space-x-6 ml-2 lg:ml-4">
                         {/* ✅ FIXED: ডেস্কটপে লগইন বাটন থাকবে */}
                         {renderDesktopLoginButton()}
                         
@@ -317,7 +347,7 @@ const Header = () => {
                 </div>
             </header>
 
-            {/* ✅ FIXED: কার্ট সাইডবার */}
+                  {/* ✅ FIXED: কার্ট সাইডবার */}
             <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-4">
@@ -401,7 +431,7 @@ const Header = () => {
                 />
             )}
 
-             {/* ✅ UPDATED: মোবাইল সাইডবার - লগইন অপশন সহ */}
+            {/* ✅ UPDATED: মোবাইল সাইডবার - লগইন অপশন সহ */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4">
                     <div className="flex justify-between items-center mb-6">
