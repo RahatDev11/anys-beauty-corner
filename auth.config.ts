@@ -7,10 +7,19 @@ export const authConfig: NextAuthConfig = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: "openid email profile",
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     })
   ],
   session: {
-    strategy: "jwt", // এটি যোগ করুন
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async session({ session, token }: any) {
@@ -20,10 +29,12 @@ export const authConfig: NextAuthConfig = {
       return session;
     },
     async redirect({ url, baseUrl }: any) {
-      return baseUrl; // Home page-এ redirect
+      return baseUrl;
     },
   },
   pages: {
     signIn: "/auth/signin",
+    error: "/auth/signin",
   },
+  debug: process.env.NODE_ENV === "development",
 };
