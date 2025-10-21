@@ -36,25 +36,26 @@ const Header = () => {
     const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
     const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
     const [imgError, setImgError] = useState(false);
-    const [authError, setAuthError] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
     const router = useRouter();
     const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
 
-    // ✅ NextAuth Session with error handling
+    // ✅ NextAuth Session
     const { data: session, status } = useSession();
 
-    // ✅ Handle NextAuth errors
+    // ✅ Detect mobile device
     useEffect(() => {
-        if (status === 'loading') return;
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
         
-        // If there's an error with NextAuth, disable auth features
-        if (session === null && status === 'unauthenticated') {
-            // This is normal - user is not logged in
-            setAuthError(false);
-        }
-    }, [session, status]);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Close menus when clicking outside
     useEffect(() => {
@@ -95,12 +96,7 @@ const Header = () => {
     const handleConfirmLogout = () => {
         if (window.confirm("আপনি কি লগআউট করতে চান?")) {
             logout();
-            // Only try signOut if NextAuth is working
-            try {
-                signOut({ callbackUrl: '/' });
-            } catch (error) {
-                console.log('NextAuth signOut failed, using local logout');
-            }
+            signOut({ callbackUrl: '/' });
             setIsLogoutMenuOpen(false);
         }
     };
@@ -113,17 +109,11 @@ const Header = () => {
             });
         } catch (error) {
             console.error('Google login error:', error);
-            // Fallback to local auth if NextAuth fails
-            try {
-                await loginWithGmail();
-            } catch (localError) {
-                console.error('Local auth also failed:', localError);
-            }
         }
     };
 
-    // ✅ Safe Combined User Data with error handling
-    const currentUser = authError ? user : (session?.user || user);
+    // ✅ Combined User Data
+    const currentUser = session?.user || user;
     const displayName = currentUser?.name || currentUser?.displayName || 
                        (currentUser?.email ? currentUser.email.split('@')[0] : 'User');
     const photoURL = currentUser?.image || currentUser?.photoURL;
@@ -148,9 +138,7 @@ const Header = () => {
     // ✅ UPDATED: ডেস্কটপের জন্য লগইন/প্রোফাইল বাটন - শুধু ডেস্কটপে দেখাবে
     const renderDesktopLoginButton = () => {
         // Only show on desktop
-        if (typeof window !== 'undefined' && window.innerWidth < 768) {
-            return null;
-        }
+        if (isMobile) return null;
 
         if (currentUser) {
             return (
@@ -247,7 +235,7 @@ const Header = () => {
         <>
             <header className="bg-brushstroke text-black py-2 px-3 sm:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
                 {/* লোগো - মোবাইলে ছোট */}
-                <Link className="flex items-center text-white" href="/">
+                <Link className="flex items-center text-white z-10" href="/">
                     <div className="flex items-center">
                         <Image 
                             alt="Any's Beauty Corner লোগো" 
@@ -264,12 +252,12 @@ const Header = () => {
                 </Link>
 
                 {/* ✅ FIXED: ডেস্কটপ সার্চ বার - মধ্যেভাগে দেখা যাবে */}
-                <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-80 lg:w-96">
+                <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-80 lg:w-96 z-10">
                     <SearchInput />
                 </div>
 
-                {/* ✅ UPDATED: মোবাইল আইকনগুলো - লগইন বাটন সম্পূর্ণ রিমুভ */}
-                <div className="flex items-center space-x-2 sm:space-x-3">
+                {/* ✅ UPDATED: মোবাইল আইকনগুলো - লগইন বাটন ছাড়া */}
+                <div className="flex items-center space-x-2 sm:space-x-3 z-10">
                     {/* মোবাইল সার্চ আইকন - শুধু মোবাইলে */}
                     <div className="md:hidden cursor-pointer flex-shrink-0">
                         <i className="fas fa-search text-xl sm:text-2xl text-gray-800" onClick={handleFocusMobileSearch}></i>
@@ -301,19 +289,19 @@ const Header = () => {
                         <i className="fas fa-bars text-xl sm:text-2xl"></i>
                     </button>
 
-                    {/* ✅ UPDATED: ডেস্কটপ মেনু - লগইন বাটন শুধু ডেস্কটপে */}
-                    <nav className="desktop-menu hidden md:flex items-center space-x-4 lg:space-x-6 ml-2 lg:ml-4">
+                    {/* ✅ FIXED: ডেস্কটপ মেনু - শুধু ডেস্কটপে দেখাবে */}
+                    <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 ml-2 lg:ml-4">
                         {/* ✅ FIXED: ডেস্কটপে লগইন বাটন থাকবে */}
                         {renderDesktopLoginButton()}
                         
-                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/">
+                        <Link className="hover:text-gray-600 transition-colors text-sm lg:text-base whitespace-nowrap" href="/">
                             হোম
                         </Link>
                         
                         {/* ✅ FIXED: পণ্য সমূহ ড্রপডাউন মেনু */}
                         <div className="relative products-menu-container">
                             <button 
-                                className="desktop-menu-item flex items-center focus:outline-none hover:text-gray-600 transition-colors text-sm lg:text-base"
+                                className="flex items-center focus:outline-none hover:text-gray-600 transition-colors text-sm lg:text-base whitespace-nowrap"
                                 onClick={handleToggleProductsMenu}
                             >
                                 পণ্য সমূহ
@@ -326,7 +314,7 @@ const Header = () => {
                                         <button
                                             key={category}
                                             onClick={() => handleSubMenuItemClick(category)}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 whitespace-nowrap"
                                         >
                                             {category === 'all' && 'সকল প্রোডাক্ট'}
                                             {category === 'health' && 'স্বাস্থ্য'}
@@ -340,14 +328,15 @@ const Header = () => {
                             )}
                         </div>
 
-                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/order-track">
+                        <Link className="hover:text-gray-600 transition-colors text-sm lg:text-base whitespace-nowrap" href="/order-track">
                             অর্ডার ট্র্যাক
                         </Link>
                     </nav>
                 </div>
             </header>
 
-                  {/* ✅ FIXED: কার্ট সাইডবার */}
+            
+            {/* ✅ FIXED: কার্ট সাইডবার */}
             <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-4">
