@@ -36,7 +36,6 @@ const Header = () => {
     const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
     const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
     const [imgError, setImgError] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
 
     const router = useRouter();
     const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
@@ -44,18 +43,6 @@ const Header = () => {
 
     // ✅ NextAuth Session
     const { data: session, status } = useSession();
-
-    // ✅ Detect mobile device
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-        
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     // Close menus when clicking outside
     useEffect(() => {
@@ -135,11 +122,8 @@ const Header = () => {
         return "https://via.placeholder.com/50?text=Invalid+URL";
     };
 
-    // ✅ UPDATED: ডেস্কটপের জন্য লগইন/প্রোফাইল বাটন - শুধু ডেস্কটপে দেখাবে
+    // ✅ UPDATED: ডেস্কটপের জন্য লগইন/প্রোফাইল বাটন
     const renderDesktopLoginButton = () => {
-        // Only show on desktop
-        if (isMobile) return null;
-
         if (currentUser) {
             return (
                 <div className="relative logout-container">
@@ -158,13 +142,11 @@ const Header = () => {
                                 {displayName.charAt(0).toUpperCase()}
                             </div>
                         )}
-                        <span className="text-black font-semibold text-sm lg:text-base hidden lg:inline">
-                            {displayName}
-                        </span>
-                        <i className={`fas fa-chevron-down ml-1 lg:ml-2 transition-transform duration-300 ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
+                        <span className="text-black font-semibold text-sm lg:text-base">{displayName}</span>
+                        <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
                     </button>
                     {isLogoutMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                             <button 
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 onClick={handleConfirmLogout}
@@ -235,7 +217,7 @@ const Header = () => {
         <>
             <header className="bg-brushstroke text-black py-2 px-3 sm:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
                 {/* লোগো - মোবাইলে ছোট */}
-                <Link className="flex items-center text-white z-10" href="/">
+                <Link className="flex items-center text-white" href="/">
                     <div className="flex items-center">
                         <Image 
                             alt="Any's Beauty Corner লোগো" 
@@ -252,12 +234,12 @@ const Header = () => {
                 </Link>
 
                 {/* ✅ FIXED: ডেস্কটপ সার্চ বার - মধ্যেভাগে দেখা যাবে */}
-                <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-80 lg:w-96 z-10">
+                <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-80 lg:w-96">
                     <SearchInput />
                 </div>
 
-                {/* ✅ UPDATED: মোবাইল আইকনগুলো - লগইন বাটন ছাড়া */}
-                <div className="flex items-center space-x-2 sm:space-x-3 z-10">
+                {/* ✅ FIXED: মোবাইল আইকনগুলো - শুধু আইকন, কোন মেনু আইটেম না */}
+                <div className="flex items-center space-x-2 sm:space-x-3">
                     {/* মোবাইল সার্চ আইকন - শুধু মোবাইলে */}
                     <div className="md:hidden cursor-pointer flex-shrink-0">
                         <i className="fas fa-search text-xl sm:text-2xl text-gray-800" onClick={handleFocusMobileSearch}></i>
@@ -289,19 +271,19 @@ const Header = () => {
                         <i className="fas fa-bars text-xl sm:text-2xl"></i>
                     </button>
 
-                    {/* ✅ FIXED: ডেস্কটপ মেনু - শুধু ডেস্কটপে দেখাবে */}
-                    <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 ml-2 lg:ml-4">
+                    {/* ✅ FIXED: ডেস্কটপ মেনু - শুধু ডেস্কটপে দেখাবে, সম্পূর্ণ hidden মোবাইলে */}
+                    <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 ml-4 lg:ml-8">
                         {/* ✅ FIXED: ডেস্কটপে লগইন বাটন থাকবে */}
                         {renderDesktopLoginButton()}
                         
-                        <Link className="hover:text-gray-600 transition-colors text-sm lg:text-base whitespace-nowrap" href="/">
+                        <Link className="hover:text-gray-600 transition-colors text-sm lg:text-base" href="/">
                             হোম
                         </Link>
                         
                         {/* ✅ FIXED: পণ্য সমূহ ড্রপডাউন মেনু */}
                         <div className="relative products-menu-container">
                             <button 
-                                className="flex items-center focus:outline-none hover:text-gray-600 transition-colors text-sm lg:text-base whitespace-nowrap"
+                                className="flex items-center focus:outline-none hover:text-gray-600 transition-colors text-sm lg:text-base"
                                 onClick={handleToggleProductsMenu}
                             >
                                 পণ্য সমূহ
@@ -314,7 +296,7 @@ const Header = () => {
                                         <button
                                             key={category}
                                             onClick={() => handleSubMenuItemClick(category)}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 whitespace-nowrap"
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
                                         >
                                             {category === 'all' && 'সকল প্রোডাক্ট'}
                                             {category === 'health' && 'স্বাস্থ্য'}
@@ -328,14 +310,13 @@ const Header = () => {
                             )}
                         </div>
 
-                        <Link className="hover:text-gray-600 transition-colors text-sm lg:text-base whitespace-nowrap" href="/order-track">
+                        <Link className="hover:text-gray-600 transition-colors text-sm lg:text-base" href="/order-track">
                             অর্ডার ট্র্যাক
                         </Link>
                     </nav>
                 </div>
             </header>
 
-            
             {/* ✅ FIXED: কার্ট সাইডবার */}
             <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4 h-full flex flex-col">
@@ -420,7 +401,7 @@ const Header = () => {
                 />
             )}
 
-            {/* ✅ UPDATED: মোবাইল সাইডবার - লগইন অপশন সহ */}
+              {/* ✅ FIXED: মোবাইল সাইডবার - সব মেনু আইটেম এখানে থাকবে */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4">
                     <div className="flex justify-between items-center mb-6">
@@ -434,7 +415,7 @@ const Header = () => {
                     </div>
 
                     <nav className="space-y-2">
-                        {/* ✅ UPDATED: লগইন অপশন মোবাইল সাইডবারে */}
+                        {/* ✅ FIXED: লগইন অপশন মোবাইল সাইডবারে */}
                         {renderMobileLoginSection()}
 
                         <Link href="/" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
