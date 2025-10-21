@@ -190,14 +190,14 @@ const Header = () => {
                 </Link>
 
                 <div className="flex items-center space-x-[10px] md:space-x-[30px]">
-                    {/* ✅ FIXED: ডেস্কটপ সার্চ বার - সরাসরি দেখা যাবে */}
+                    {/* ✅ FIXED: ডেস্কটপ সার্চ বার - শুধু ডেস্কটপে দেখা যাবে */}
                     <div className="hidden md:block w-80">
                         <SearchInput />
                     </div>
 
-                    {/* ✅ FIXED: মোবাইল সার্চ বার - সরাসরি দেখা যাবে (ওপেন করার দরকার নাই) */}
-                    <div className="md:hidden w-40">
-                        <SearchInput />
+                    {/* ✅ FIXED: মোবাইল সার্চ আইকন - শুধু মোবাইলে দেখা যাবে */}
+                    <div className="md:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
+                        <i className="fas fa-search text-2xl text-gray-800"></i>
                     </div>
 
                     {/* Notification icon */}
@@ -398,9 +398,9 @@ const Header = () => {
                                         {category === 'cosmetics' && 'মেকআপ'}
                                         {category === 'skincare' && 'স্কিনকেয়ার'}
                                         {category === 'haircare' && 'হেয়ারকেয়ার'}
-                                        {category === 'mehandi' && 'মেহেদী'}
+                                             {category === 'mehandi' && 'মেহেদী'}
                                     </button>
-             ))}
+                                ))}
                             </div>
                         )}
 
@@ -418,6 +418,18 @@ const Header = () => {
                     onClick={closeSidebar}
                 />
             )}
+
+            {/* ✅ FIXED: মোবাইল সার্চ বার - আইকনে ক্লিক করলে দেখা যাবে */}
+            <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
+                <div className="relative">
+                    <input 
+                        className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
+                        placeholder="প্রোডাক্ট সার্চ করুন..." 
+                        type="text" 
+                    />
+                    <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400/80"></i>
+                </div>
+            </div>
         </>
     );
 };
