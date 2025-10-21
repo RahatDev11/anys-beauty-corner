@@ -1,15 +1,15 @@
-// components/CartSummary.tsx - UPDATED VERSION
+// components/CartSummary.tsx - FINAL VERSION
 'use client';
 
 import React from 'react';
 import { useCart } from '@/app/context/CartContext';
 import { useRouter } from 'next/navigation';
-import { useCartSidebar } from '@/app/hooks/useCartSidebar'; // ✅ useCartSidebar import করুন
+import { useCartSidebar } from '@/app/hooks/useCartSidebar'; // ✅ সঠিক hook import
 
 const CartSummary: React.FC = () => {
     const { totalItems, totalPrice } = useCart();
     const router = useRouter();
-    const { openCartSidebar } = useCartSidebar(); // ✅ useCartSidebar hook use করুন
+    const { openCartSidebar } = useCartSidebar(); // ✅ hook use করুন
 
     if (totalItems === 0) {
         return null;
