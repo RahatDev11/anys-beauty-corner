@@ -171,10 +171,10 @@ const Header = () => {
 
     return (
         <>
-            <header className="bg-brushstroke text-black py-2 px-3 sm:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
+            <header className="bg-brushstroke text-black py-2 px-3 sm:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50 header-fixed">
                 {/* লোগো - মোবাইলে ছোট */}
-                <Link className="flex items-center text-white" href="/">
-                    <div className="flex items-center">
+                <Link className="flex items-center text-white logo-container" href="/">
+                    <div className="flex items-center mobile-logo">
                         <Image 
                             alt="Any's Beauty Corner লোগো" 
                             className="h-8 w-8 sm:h-10 sm:w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" 
@@ -183,7 +183,7 @@ const Header = () => {
                             src="/img.jpg"
                             priority
                         />
-                        <span className="text-sm sm:text-base md:text-lg font-bold whitespace-nowrap text-black">
+                        <span className="text-sm sm:text-base md:text-lg font-bold whitespace-nowrap text-black logo-text">
                             Any&apos;s Beauty Corner
                         </span>
                     </div>
@@ -194,85 +194,88 @@ const Header = () => {
                     <SearchInput />
                 </div>
 
-                <div className="flex items-center">
-                    {/* ✅ FIXED: মোবাইলে শুধু ৪টি বাটন এবং মেনু বাটন ডানদিকে */}
-                    
-                    {/* ১. সার্চ আইকন */}
-                    <div className="md:hidden cursor-pointer mr-3">
-                        <i className="fas fa-search text-xl text-gray-800" onClick={handleFocusMobileSearch}></i>
-                    </div>
-
-                    {/* ২. নোটিফিকেশন আইকন */}
-                    <div className="md:hidden mr-3">
-                        <NotificationIcon />
-                    </div>
-
-                    {/* ৩. কার্ড আইকন */}
-                    <button 
-                        className="text-gray-800 w-8 h-8 rounded-full flex items-center justify-center relative bg-transparent border-none md:hidden mr-3" 
-                        onClick={openCartSidebar}
-                    >
-                        <i className="fas fa-shopping-bag text-xl"></i>
-                        {totalItems > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">
-                                {totalItems}
-                            </span>
-                        )}
-                    </button>
-
-                    {/* ✅ FIXED: ডেস্কটপ মেনু - লগইন বাটন সহ */}
-                    <nav className="desktop-menu hidden md:flex items-center space-x-6 lg:space-x-8 ml-4 lg:ml-8">
-                        {/* ✅ ডেস্কটপে লগইন বাটন থাকবে */}
-                        <div className="desktop-login-button">
-                            {renderLoginButton(false)}
+                <div className="flex items-center icons-container">
+                    {/* ✅ FIXED: মোবাইল আইকনগুলো - শুধু ৪টি বাটন */}
+                    <div className="flex items-center mobile-header-icons">
+                        {/* ১. সার্চ আইকন */}
+                        <div className="search-icon-container md:hidden cursor-pointer mobile-icon">
+                            <i className="fas fa-search text-xl text-gray-800" onClick={handleFocusMobileSearch}></i>
                         </div>
-                        
-                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/">
-                            হোম
-                        </Link>
-                        
-                        {/* ✅ পণ্য সমূহ ড্রপডাউন মেনু */}
-                        <div className="relative products-menu-container">
+
+                        {/* ২. নোটিফিকেশন আইকন */}
+                        <div className="notification-icon md:hidden mobile-icon">
+                            <NotificationIcon />
+                        </div>
+
+                        {/* ৩. কার্ড আইকন */}
+                        <div className="cart-icon-container md:hidden mobile-icon">
                             <button 
-                                className="desktop-menu-item flex items-center focus:outline-none hover:text-gray-600 transition-colors text-sm lg:text-base"
-                                onClick={handleToggleProductsMenu}
+                                className="text-gray-800 w-full h-full rounded-full flex items-center justify-center relative bg-transparent border-none" 
+                                onClick={openCartSidebar}
                             >
-                                পণ্য সমূহ
-                                <i className={`fas fa-chevron-down ml-1 lg:ml-2 transition-transform duration-300 ${isProductsMenuOpen ? 'rotate-180' : ''}`}></i>
+                                <i className="fas fa-shopping-bag text-xl"></i>
+                                {totalItems > 0 && (
+                                    <span className="cart-badge">
+                                        {totalItems}
+                                    </span>
+                                )}
                             </button>
-                            
-                            {isProductsMenuOpen && (
-                                <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200">
-                                    {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
-                                        <button
-                                            key={category}
-                                            onClick={() => handleSubMenuItemClick(category)}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                                        >
-                                            {category === 'all' && 'সকল প্রোডাক্ট'}
-                                            {category === 'health' && 'স্বাস্থ্য'}
-                                            {category === 'cosmetics' && 'মেকআপ'}
-                                            {category === 'skincare' && 'স্কিনকেয়ার'}
-                                            {category === 'haircare' && 'হেয়ারকেয়ার'}
-                                            {category === 'mehandi' && 'মেহেদী'}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
                         </div>
 
-                        <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/order-track">
-                            অর্ডার ট্র্যাক
-                        </Link>
-                    </nav>
+                        {/* ✅ FIXED: ডেস্কটপ মেনু - লগইন বাটন সহ */}
+                        <nav className="desktop-menu hidden md:flex items-center space-x-6 lg:space-x-8 ml-4 lg:ml-8">
+                            {/* ✅ ডেস্কটপে লগইন বাটন থাকবে */}
+                            <div className="desktop-login-button">
+                                {renderLoginButton(false)}
+                            </div>
+                            
+                            <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/">
+                                হোম
+                            </Link>
+                            
+                            {/* ✅ পণ্য সমূহ ড্রপডাউন মেনু */}
+                            <div className="relative products-menu-container">
+                                <button 
+                                    className="desktop-menu-item flex items-center focus:outline-none hover:text-gray-600 transition-colors text-sm lg:text-base"
+                                    onClick={handleToggleProductsMenu}
+                                >
+                                    পণ্য সমূহ
+                                    <i className={`fas fa-chevron-down ml-1 lg:ml-2 transition-transform duration-300 ${isProductsMenuOpen ? 'rotate-180' : ''}`}></i>
+                                </button>
+                                
+                                {isProductsMenuOpen && (
+                                    <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200">
+                                        {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
+                                            <button
+                                                key={category}
+                                                onClick={() => handleSubMenuItemClick(category)}
+                                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                                            >
+                                                {category === 'all' && 'সকল প্রোডাক্ট'}
+                                                {category === 'health' && 'স্বাস্থ্য'}
+                                                {category === 'cosmetics' && 'মেকআপ'}
+                                                {category === 'skincare' && 'স্কিনকেয়ার'}
+                                                {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                                {category === 'mehandi' && 'মেহেদী'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
 
-                    {/* ✅ FIXED: ৪. মেনু বাটন - একেবারে ডানদিকে */}
-                    <button 
-                        className="text-gray-800 w-8 h-8 rounded flex items-center justify-center bg-transparent border-none md:hidden" 
-                        onClick={openSidebar}
-                    >
-                        <i className="fas fa-bars text-xl"></i>
-                    </button>
+                            <Link className="desktop-menu-item hover:text-gray-600 transition-colors text-sm lg:text-base" href="/order-track">
+                                অর্ডার ট্র্যাক
+                            </Link>
+                        </nav>
+
+                        {/* ✅ FIXED: ৪. মেনু বাটন - একেবারে ডানদিকে */}
+                        <button 
+                            className="mobile-menu-button md:hidden mobile-icon mobile-menu-btn" 
+                            onClick={openSidebar}
+                        >
+                            <i className="fas fa-bars text-xl"></i>
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -374,7 +377,7 @@ const Header = () => {
                     </div>
 
                     <nav className="space-y-2">
-                          {/* ✅ লগইন অপশন মোবাইল সাইডবারে */}
+                            {/* ✅ লগইন অপশন মোবাইল সাইডবারে */}
                         {currentUser ? (
                             <div className="flex items-center space-x-3 py-2 px-4 border-b pb-4">
                                 {currentUser?.image && !imgError ? (
@@ -458,7 +461,7 @@ const Header = () => {
             )}
 
             {/* ✅ FIXED: মোবাইল সার্চ বার */}
-            <div className={`fixed top-[52px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
+            <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 mobile-search-bar-container ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
                 <div className="relative">
                     <input 
                         className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
