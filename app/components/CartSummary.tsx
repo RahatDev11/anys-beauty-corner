@@ -1,4 +1,4 @@
-// components/CartSummary.tsx - FINAL VERSION
+// components/CartSummary.tsx - PERFECT SIZE VERSION
 'use client';
 
 import React from 'react';
@@ -14,10 +14,8 @@ const CartSummary: React.FC = () => {
     }
 
     const handleViewCart = () => {
-        // সাইডবার কার্ড ওপেন করার লজিক এখানে যোগ করুন
-        // যেমন: cart sidebar toggle function call
+        // সাইডবার কার্ড ওপেন করার লজিক
         console.log('কার্ড সাইডবার ওপেন করুন');
-        // অথবা যদি আপনার cart sidebar component থাকে
         // setIsCartOpen(true) ইত্যাদি
     };
 
@@ -27,25 +25,31 @@ const CartSummary: React.FC = () => {
 
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-50">
-            <div className="container mx-auto px-4 py-3"> {/* padding বাড়ানো */}
+            <div className="container mx-auto px-4 py-2.5"> {/* perfect padding */}
                 <div className="flex items-center justify-between">
                     {/* Left side - সংখ্যা এবং price */}
-                    <div className="flex items-center space-x-4">
-                        <div className="bg-lipstick text-white rounded-full w-12 h-12 flex items-center justify-center"> {/* আরও বড় */}
-                            <span className="font-bold text-xl">{totalItems}</span> {/* বড় font */}
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-lipstick text-white rounded-full w-10 h-10 flex items-center justify-center">
+                            <span className="font-bold text-lg">{totalItems}</span>
                         </div>
-                        <span className="text-lg font-bold text-gray-800"> {/* বড় font */}
+                        <span className="text-md font-semibold text-gray-800">
                             {totalPrice} টাকা
                         </span>
                     </div>
 
                     {/* Right side - Buttons */}
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
                         <button
                             onClick={handleViewCart}
-                            className="px-6 py-3 bg-lipstick text-white rounded-lg font-semibold hover:bg-lipstick-dark transition-colors whitespace-nowrap text-base" /* বড় বাটন */
+                            className="px-4 py-2 border border-lipstick text-lipstick rounded font-semibold hover:bg-lipstick hover:text-white transition-colors text-sm"
                         >
                             কার্ড দেখুন
+                        </button>
+                        <button
+                            onClick={handleCheckout}
+                            className="px-4 py-2 bg-lipstick text-white rounded font-semibold hover:bg-lipstick-dark transition-colors text-sm"
+                        >
+                            অর্ডার করুন
                         </button>
                     </div>
                 </div>
