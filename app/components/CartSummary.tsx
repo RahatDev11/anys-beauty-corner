@@ -1,34 +1,22 @@
-// components/CartSummary.tsx - ALTERNATIVE VERSION
+// components/CartSummary.tsx - UPDATED VERSION
 'use client';
 
 import React from 'react';
 import { useCart } from '@/app/context/CartContext';
 import { useRouter } from 'next/navigation';
-
-// Global function for cart sidebar (যদি hook use করতে সমস্যা হয়)
-const openCartSidebar = () => {
-    // DOM manipulation দিয়ে সাইডবার ওপেন করুন
-    const cartSidebar = document.querySelector('.cart-sidebar');
-    const overlay = document.querySelector('.cart-sidebar-overlay');
-    
-    if (cartSidebar) {
-        cartSidebar.classList.add('open');
-    }
-    if (overlay) {
-        overlay.classList.add('active');
-    }
-};
+import { useCartSidebar } from '@/app/hooks/useCartSidebar'; // ✅ useCartSidebar import করুন
 
 const CartSummary: React.FC = () => {
     const { totalItems, totalPrice } = useCart();
     const router = useRouter();
+    const { openCartSidebar } = useCartSidebar(); // ✅ useCartSidebar hook use করুন
 
     if (totalItems === 0) {
         return null;
     }
 
     const handleViewCart = () => {
-        openCartSidebar();
+        openCartSidebar(); // ✅ এই ফাংশন কার্ট সাইডবার ওপেন করবে
     };
 
     const handleCheckout = () => {
