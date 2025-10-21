@@ -20,18 +20,27 @@ const ProductDetail = () => {
     const [imageError, setImageError] = useState(false);
     const { addToCart, buyNow, cart } = useCart();
 
-    // Function to get all images from product - SIMPLIFIED
+    // ✅ FIXED: Multiple images handling - UPDATED VERSION
     const getAllImages = (productData: Product): string[] => {
         let images: string[] = [];
 
-        // Case 1: If single image field exists (your database case)
+        // Case 1: If image field exists as comma-separated string (YOUR MAIN CASE)
         if (productData.image && typeof productData.image === 'string' && productData.image.trim() !== '') {
-            const singleImage = productData.image.trim();
-            if (singleImage.startsWith('http') || singleImage.startsWith('https')) {
-                images = [singleImage];
+            const imageString = productData.image.trim();
+            
+            // Check if it's comma separated multiple images
+            if (imageString.includes(',')) {
+                images = imageString
+                    .split(',')
+                    .map(img => img.trim())
+                    .filter(img => img !== '' && (img.startsWith('http') || img.startsWith('https')));
+            } 
+            // Single image
+            else if (imageString.startsWith('http') || imageString.startsWith('https')) {
+                images = [imageString];
             }
         }
-        // Case 2: If images field exists as comma-separated string
+        // Case 2: If images field exists as comma-separated string (backup)
         else if (productData.images && typeof productData.images === 'string' && productData.images.trim() !== '') {
             images = productData.images
                 .split(',')
@@ -43,6 +52,7 @@ const ProductDetail = () => {
             images = ['https://via.placeholder.com/400x300/ffffff/cccccc?text=No+Image+Available'];
         }
 
+        console.log('🖼️ Extracted images:', images); // Debug log
         return images;
     };
 
@@ -54,15 +64,18 @@ const ProductDetail = () => {
             if (snapshot.exists()) {
                 const productData = { id: snapshot.key, ...snapshot.val() } as Product;
                 setProduct(productData);
-                
-                // Get all images
+
+                // ✅ Get all images - FIXED
                 const allImages = getAllImages(productData);
                 setProductImages(allImages);
-                
+
                 // Set main image
                 if (allImages.length > 0) {
                     setMainImage(allImages[0]);
                 }
+
+                console.log('📦 Product data:', productData); // Debug log
+                console.log('🖼️ All images:', allImages); // Debug log
             } else {
                 setProduct(null);
             }
@@ -210,7 +223,9 @@ const ProductDetail = () => {
                                             fill
                                             style={{ objectFit: 'cover' }}
                                             className="rounded-lg"
-                                            onError={() => {}}
+                                            onError={(e) => {
+                                                console.log('❌ Thumbnail image failed to load:', image);
+                                            }}
                                             unoptimized={true}
                                         />
                                     </div>
@@ -290,7 +305,7 @@ const ProductDetail = () => {
                             {relatedProducts.slice(0, 4).map((relatedProduct) => {
                                 const productTags = processTags(relatedProduct.tags);
                                 const relatedImages = getAllImages(relatedProduct);
-                                
+
                                 return (
                                     <div 
                                         key={relatedProduct.id}
@@ -299,14 +314,14 @@ const ProductDetail = () => {
                                     >
                                         <div className="relative h-48 bg-gray-100 overflow-hidden">
                                             <Image
-                                                src={relatedImages[0] || ''}
+                                                src={relatedImages[0] || 'https://via.placeholder.com/200x200?text=No+Image'}
                                                 alt={relatedProduct.name}
                                                 fill
                                                 style={{ objectFit: 'cover' }}
                                                 className="transition-transform duration-500 hover:scale-110"
                                                 onError={(e) => {
                                                     const target = e.target as HTMLImageElement;
-                                                    target.style.display = 'none';
+                                                    target.src = 'https://via.placeholder.com/200x200?text=No+Image';
                                                 }}
                                                 unoptimized={true}
                                             />
@@ -356,7 +371,7 @@ const ProductDetail = () => {
                 )}
             </main>
 
-            {/* Fixed Order Bar */}
+               {/* Fixed Order Bar */}
             {totalItems > 0 && (
                 <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                     <div className="flex justify-between items-center max-w-4xl mx-auto">
@@ -378,7 +393,7 @@ const ProductDetail = () => {
                 </div>
             )}
 
-                 {/* Modal */}
+            {/* Modal */}
             {showModal && mainImage && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
