@@ -1,4 +1,4 @@
-// ProductCard কম্পোনেন্ট - debug version
+// ProductCard কম্পোনেন্ট - সংশোধিত
 'use client';
 
 import React from 'react';
@@ -25,15 +25,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     showProductDetail,
 }) => {
     const router = useRouter();
-
-    // Debug: Check what props are received
-    console.log('🔍 ProductCard Debug:', {
-        productName: product?.name,
-        productId: product?.id,
-        cartItemQuantity,
-        hasUpdateCartQuantity: typeof updateCartQuantity === 'function',
-        hasRemoveFromCart: typeof removeFromCart === 'function'
-    });
 
     const getImageUrl = () => {
         if (!product) {
@@ -68,36 +59,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
     };
 
     const handleIncrement = () => {
-        console.log('➕ Increment clicked:', {
-            productName,
-            productId,
-            currentQuantity: cartItemQuantity,
-            newQuantity: cartItemQuantity + 1
-        });
-        
         if (product && updateCartQuantity) {
             updateCartQuantity(productId, cartItemQuantity + 1);
-        } else {
-            console.error('❌ Cannot increment: missing product or updateCartQuantity');
         }
     };
 
     const handleDecrement = () => {
-        console.log('➖ Decrement clicked:', {
-            productName,
-            productId,
-            currentQuantity: cartItemQuantity
-        });
-        
         if (product && updateCartQuantity) {
             if (cartItemQuantity > 1) {
                 updateCartQuantity(productId, cartItemQuantity - 1);
             } else if (cartItemQuantity === 1) {
-                console.log('🗑️ Removing item from cart');
                 removeFromCart(productId);
             }
-        } else {
-            console.error('❌ Cannot decrement: missing product or updateCartQuantity');
         }
     };
 
@@ -143,7 +116,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 >
                                     -
                                 </button>
-                                <span className="text-lg">{cartItemQuantity} in cart</span>
+                                <span className="text-lg">{cartItemQuantity}</span> {/* শুধু সংখ্যা দেখাবে */}
                                 <button
                                     onClick={handleIncrement}
                                     className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
