@@ -5,19 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { database, ref, onValue } from '@/lib/firebase';
 import { useCart } from '@/app/context/CartContext';
 import Image from 'next/image';
-
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    category: string;
-    stockStatus: string;
-    images: string[];
-    tags: string[];
-    description: string;
-    isInSlider?: boolean;
-    sliderOrder?: number;
-}
+import { Product } from '@/types/product'; // আপনার interface import করুন
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -44,28 +32,17 @@ const ProductDetail = () => {
         const productRef = ref(database, `products/${id}`);
         onValue(productRef, (snapshot) => {
             if (snapshot.exists()) {
-                const productData = { id: snapshot.key, ...snapshot.val() };
+                const productData = { id: snapshot.key, ...snapshot.val() } as Product;
                 setProduct(productData);
-                console.log('📦 Product Data:', productData);
+                console.log('📦 Product Data from Firebase:', productData);
                 
-                // Handle images properly
-                let imagesArray: string[] = [];
-                
-                if (productData.images) {
-                    if (Array.isArray(productData.images)) {
-                        imagesArray = productData.images.filter(img => img && img.trim() !== '');
-                    } else if (typeof productData.images === 'string') {
-                        imagesArray = productData.images.split(',').map(img => img.trim()).filter(img => img !== '');
-                    }
-                }
-                
-                console.log('🖼️ Processed Images:', imagesArray);
-                
-                if (imagesArray.length > 0) {
-                    setMainImage(imagesArray[0]);
+                // আপনার database-এ single image field আছে
+                if (productData.image && productData.image.trim() !== '') {
+                    setMainImage(productData.image.trim());
+                    console.log('🖼️ Main image set:', productData.image.trim());
                 } else {
-                    // Use real placeholder image
                     setMainImage(placeholderImages.large);
+                    console.log('❌ No image found, using placeholder');
                 }
             } else {
                 setProduct(null);
@@ -79,7 +56,7 @@ const ProductDetail = () => {
                 const productsData = Object.keys(snapshot.val()).map(key => ({ 
                     id: key, 
                     ...snapshot.val()[key] 
-                }));
+                } as Product));
                 setProducts(productsData);
             } else {
                 setProducts([]);
@@ -87,19 +64,11 @@ const ProductDetail = () => {
         });
     }, [id]);
 
-    // Function to get all images from product
-    const getAllImages = (product: Product): string[] => {
-        if (!product.images) return [placeholderImages.large];
-        
-        let imagesArray: string[] = [];
-        
-        if (Array.isArray(product.images)) {
-            imagesArray = product.images.filter(img => img && img.trim() !== '');
-        } else if (typeof product.images === 'string') {
-            imagesArray = product.images.split(',').map(img => img.trim()).filter(img => img !== '');
-        }
-        
-        return imagesArray.length > 0 ? imagesArray : [placeholderImages.large];
+    // Single image field এর জন্য simplified function
+    const getProductImage = (product: Product): string => {
+        return product.image && product.image.trim() !== '' 
+            ? product.image.trim() 
+            : placeholderImages.large;
     };
 
     const handleThumbnailClick = (image: string) => {
@@ -172,17 +141,16 @@ const ProductDetail = () => {
         : `${description.substring(0, 150)}...`;
 
     const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
-    const productImages = getAllImages(product);
 
     console.log('🎯 Current Main Image:', mainImage);
-    console.log('🎯 All Product Images:', productImages);
+    console.log('🎯 Related Products:', relatedProducts);
 
     return (
         <div className="min-h-screen bg-white">
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
                 <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Image Gallery */}
+                        {/* Image Gallery - Single Image */}
                         <div className="space-y-4">
                             {/* Main Image */}
                             <div className="relative aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
@@ -192,7 +160,7 @@ const ProductDetail = () => {
                                         alt={product.name}
                                         onClick={openModal}
                                         fill 
-                                        style={{objectFit: "contain"}} 
+                                        style={{objectFit: "cover"}} 
                                         className="cursor-pointer transition-transform hover:scale-105"
                                         onError={(e) => {
                                             console.log('❌ Image failed to load:', mainImage);
@@ -209,31 +177,10 @@ const ProductDetail = () => {
                                 )}
                             </div>
 
-                            {/* Thumbnail Images */}
-                            {productImages.length > 1 && (
-                                <div className="flex gap-2 overflow-x-auto py-2">
-                                    {productImages.map((image: string, index: number) => (
-                                        <div 
-                                            key={index}
-                                            className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 cursor-pointer border-2 rounded-lg transition-all ${
-                                                mainImage === image ? 'border-lipstick' : 'border-gray-200 hover:border-lipstick'
-                                            }`}
-                                            onClick={() => handleThumbnailClick(image)}
-                                        >
-                                            <Image
-                                                src={image}
-                                                alt={`${product.name} thumbnail ${index + 1}`}
-                                                fill
-                                                style={{ objectFit: 'cover' }}
-                                                className="rounded-lg"
-                                                onError={(e) => {
-                                                    const target = e.target as HTMLImageElement;
-                                                    target.src = placeholderImages.small;
-                                                }}
-                                                unoptimized={true}
-                                            />
-                                        </div>
-                                    ))}
+                            {/* No thumbnails since single image */}
+                            {product.image && (
+                                <div className="text-center">
+                                    <p className="text-sm text-gray-500">Click image to zoom</p>
                                 </div>
                             )}
                         </div>
@@ -250,11 +197,11 @@ const ProductDetail = () => {
                                 </div>
                                 <div>
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        product.stockStatus === 'in-stock' 
+                                        product.stockStatus === 'in_stock' 
                                             ? 'bg-green-100 text-green-800' 
                                             : 'bg-red-100 text-red-800'
                                     }`}>
-                                        {product.stockStatus === 'in-stock' ? 'In Stock' : 'Out of Stock'}
+                                        {product.stockStatus === 'in_stock' ? 'In Stock' : 'Out of Stock'}
                                     </span>
                                 </div>
                             </div>
@@ -264,7 +211,7 @@ const ProductDetail = () => {
                                 <button 
                                     onClick={handleAddToCart}
                                     className="bg-lipstick text-white py-3 px-6 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                    disabled={product.stockStatus !== 'in-stock'}
+                                    disabled={product.stockStatus !== 'in_stock'}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -274,7 +221,7 @@ const ProductDetail = () => {
                                 <button 
                                     onClick={handleBuyNow}
                                     className="bg-gray-800 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                    disabled={product.stockStatus !== 'in-stock'}
+                                    disabled={product.stockStatus !== 'in_stock'}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -307,35 +254,32 @@ const ProductDetail = () => {
                     <section className="mt-12 bg-white p-6 rounded-lg border border-gray-200">
                         <h2 className="text-2xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {relatedProducts.slice(0, 4).map((relatedProduct) => {
-                                const relatedImages = getAllImages(relatedProduct);
-                                return (
-                                    <div 
-                                        key={relatedProduct.id}
-                                        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                                        onClick={() => router.push(`/product/${relatedProduct.id}`)}
-                                    >
-                                        <div className="relative aspect-square bg-gray-50">
-                                            <Image
-                                                src={relatedImages[0]}
-                                                alt={relatedProduct.name}
-                                                fill
-                                                style={{ objectFit: 'cover' }}
-                                                className="hover:scale-105 transition-transform"
-                                                onError={(e) => {
-                                                    const target = e.target as HTMLImageElement;
-                                                    target.src = placeholderImages.product;
-                                                }}
-                                                unoptimized={true}
-                                            />
-                                        </div>
-                                        <div className="p-3">
-                                            <h3 className="font-semibold text-sm mb-1 line-clamp-2">{relatedProduct.name}</h3>
-                                            <p className="text-lipstick font-bold">{relatedProduct.price} ৳</p>
-                                        </div>
+                            {relatedProducts.slice(0, 4).map((relatedProduct) => (
+                                <div 
+                                    key={relatedProduct.id}
+                                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                                    onClick={() => router.push(`/product/${relatedProduct.id}`)}
+                                >
+                                    <div className="relative aspect-square bg-gray-50">
+                                        <Image
+                                            src={getProductImage(relatedProduct)}
+                                            alt={relatedProduct.name}
+                                            fill
+                                            style={{ objectFit: 'cover' }}
+                                            className="hover:scale-105 transition-transform"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.src = placeholderImages.product;
+                                            }}
+                                            unoptimized={true}
+                                        />
                                     </div>
-                                );
-                            })}
+                                    <div className="p-3">
+                                        <h3 className="font-semibold text-sm mb-1 line-clamp-2">{relatedProduct.name}</h3>
+                                        <p className="text-lipstick font-bold">{relatedProduct.price} ৳</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </section>
                 )}
@@ -363,7 +307,7 @@ const ProductDetail = () => {
                 </div>
             )}
 
-                 {/* Modal */}
+            {/* Modal */}
             {showModal && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
