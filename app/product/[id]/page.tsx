@@ -13,11 +13,35 @@ const ProductDetail = () => {
     const [product, setProduct] = useState<Product | null>(null);
     const [products, setProducts] = useState<Product[]>([]);
     const [mainImage, setMainImage] = useState('');
+    const [productImages, setProductImages] = useState<string[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [imageError, setImageError] = useState(false);
     const { addToCart, buyNow, cart } = useCart();
+
+    // Function to get all images from product - FIXED for comma-separated strings
+    const getAllImages = (productData: Product): string[] => {
+        let images: string[] = [];
+
+        // Case 1: If images is a comma-separated string (your database case)
+        if (productData.images && typeof productData.images === 'string') {
+            images = productData.images
+                .split(',')
+                .map(img => img.trim())
+                .filter(img => img !== '' && img.startsWith('http'));
+        }
+        // Case 2: If images is an array
+        else if (productData.images && Array.isArray(productData.images)) {
+            images = productData.images.filter(img => img && img.trim() !== '' && img.startsWith('http'));
+        }
+        // Case 3: If single image exists
+        else if (productData.image && typeof productData.image === 'string' && productData.image.trim() !== '') {
+            images = [productData.image.trim()];
+        }
+
+        return images.length > 0 ? images : ['https://via.placeholder.com/400x300/ffffff/cccccc?text=No+Image'];
+    };
 
     useEffect(() => {
         if (!id) return;
@@ -28,8 +52,13 @@ const ProductDetail = () => {
                 const productData = { id: snapshot.key, ...snapshot.val() } as Product;
                 setProduct(productData);
                 
-                if (productData.image) {
-                    setMainImage(productData.image);
+                // Get all images
+                const allImages = getAllImages(productData);
+                setProductImages(allImages);
+                
+                // Set main image
+                if (allImages.length > 0) {
+                    setMainImage(allImages[0]);
                 }
             } else {
                 setProduct(null);
@@ -51,7 +80,7 @@ const ProductDetail = () => {
         });
     }, [id]);
 
-    // Function to process tags (handle both string and array)
+    // Function to process tags
     const processTags = (tags: any): string[] => {
         if (Array.isArray(tags)) {
             return tags;
@@ -59,6 +88,11 @@ const ProductDetail = () => {
             return tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
         }
         return [];
+    };
+
+    const handleThumbnailClick = (image: string) => {
+        setMainImage(image);
+        setImageError(false);
     };
 
     const openModal = () => {
@@ -132,12 +166,13 @@ const ProductDetail = () => {
             <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
                 {/* Main Product */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                    {/* Image Section */}
-                    <div>
-                        <div className="relative aspect-[4/3] rounded-lg overflow-hidden mb-4 bg-gray-100">
-                            {product.image ? (
+                    {/* Image Gallery */}
+                    <div className="space-y-4">
+                        {/* Main Image */}
+                        <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
+                            {mainImage && !imageError ? (
                                 <Image 
-                                    src={product.image} 
+                                    src={mainImage} 
                                     alt={product.name}
                                     onClick={openModal}
                                     fill 
@@ -148,12 +183,37 @@ const ProductDetail = () => {
                                     unoptimized={true}
                                 />
                             ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 rounded-lg">
+                                <div className="w-full h-full flex flex-col items-center justify-center">
                                     <div className="text-4xl text-gray-400 mb-2">📷</div>
                                     <span className="text-gray-500">No image available</span>
                                 </div>
                             )}
                         </div>
+
+                        {/* Thumbnail Images - Show only if multiple images */}
+                        {productImages.length > 1 && (
+                            <div className="flex gap-2 overflow-x-auto py-2">
+                                {productImages.map((image, index) => (
+                                    <div 
+                                        key={index}
+                                        className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 cursor-pointer border-2 rounded-lg transition-all ${
+                                            mainImage === image ? 'border-lipstick' : 'border-gray-200 hover:border-lipstick'
+                                        }`}
+                                        onClick={() => handleThumbnailClick(image)}
+                                    >
+                                        <Image
+                                            src={image}
+                                            alt={`${product.name} thumbnail ${index + 1}`}
+                                            fill
+                                            style={{ objectFit: 'cover' }}
+                                            className="rounded-lg"
+                                            onError={() => {}}
+                                            unoptimized={true}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Product Details Section */}
@@ -219,13 +279,14 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products - Home Page Style */}
+                {/* Related Products */}
                 {relatedProducts.length > 0 && (
                     <section className="mt-16">
                         <h2 className="text-3xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                             {relatedProducts.slice(0, 4).map((relatedProduct) => {
                                 const productTags = processTags(relatedProduct.tags);
+                                const relatedImages = getAllImages(relatedProduct);
                                 
                                 return (
                                     <div 
@@ -235,7 +296,7 @@ const ProductDetail = () => {
                                     >
                                         <div className="relative h-48 bg-gray-100 overflow-hidden">
                                             <Image
-                                                src={relatedProduct.image || ''}
+                                                src={relatedImages[0] || ''}
                                                 alt={relatedProduct.name}
                                                 fill
                                                 style={{ objectFit: 'cover' }}
@@ -314,8 +375,8 @@ const ProductDetail = () => {
                 </div>
             )}
 
-            {/* Modal */}
-            {showModal && product.image && (
+                   {/* Modal */}
+            {showModal && mainImage && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
                     onClick={handleModalClick}
@@ -329,7 +390,7 @@ const ProductDetail = () => {
                     </button>
                     <div className="relative w-full h-full max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
                         <Image 
-                            src={product.image} 
+                            src={mainImage} 
                             alt={product.name}
                             fill
                             style={{objectFit: "contain"}} 
