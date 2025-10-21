@@ -34,6 +34,7 @@ const Header = () => {
     const [isMobileSubMenuOpen, setIsMobileSubMenuOpen] = useState(false);
     const [isMobileSearchBarOpen, setIsMobileSearchBarOpen] = useState(false);
     const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
+    const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
     const [imgError, setImgError] = useState(false);
 
     const router = useRouter();
@@ -43,10 +44,11 @@ const Header = () => {
     // ✅ NextAuth Session
     const { data: session, status } = useSession();
 
-    // Close logout menu when clicking outside
+    // Close menus when clicking outside
     useEffect(() => {
         const handleClickOutside = () => {
             setIsLogoutMenuOpen(false);
+            setIsProductsMenuOpen(false);
         };
 
         document.addEventListener('click', handleClickOutside);
@@ -56,6 +58,7 @@ const Header = () => {
     const handleSubMenuItemClick = (category: string) => {
         router.push(`/?filter=${category}`);
         setIsMobileSubMenuOpen(false);
+        setIsProductsMenuOpen(false);
         closeSidebar();
     };
 
@@ -68,16 +71,19 @@ const Header = () => {
         setIsLogoutMenuOpen((prev) => !prev);
     };
 
+    const handleToggleProductsMenu = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        setIsProductsMenuOpen((prev) => !prev);
+    };
+
     const handleConfirmLogout = () => {
         if (window.confirm("আপনি কি লগআউট করতে চান?")) {
-            // ✅ Both logouts call করুন
-            logout(); // আপনার existing auth context
-            signOut({ callbackUrl: '/' }); // NextAuth logout
+            logout();
+            signOut({ callbackUrl: '/' });
             setIsLogoutMenuOpen(false);
         }
     };
 
-    // ✅ Google Login Handler
     const handleGoogleLogin = async () => {
         try {
             await signIn('google', { 
@@ -89,7 +95,7 @@ const Header = () => {
         }
     };
 
-    // ✅ Combined User Data (Priority: NextAuth > Your Auth)
+    // ✅ Combined User Data
     const currentUser = session?.user || user;
     const displayName = currentUser?.name || currentUser?.displayName || 
                        (currentUser?.email ? currentUser.email.split('@')[0] : 'User');
@@ -99,14 +105,12 @@ const Header = () => {
     const getCartItemImage = (imageString: string | undefined) => {
         if (!imageString) return "https://via.placeholder.com/50?text=No+Image";
 
-        // Handle comma separated multiple images
         if (typeof imageString === 'string' && imageString.includes(',')) {
             const urls = imageString.split(',').map(url => url.trim());
             const firstValidUrl = urls.find(url => url.startsWith('http'));
             return firstValidUrl || "https://via.placeholder.com/50?text=Invalid+URL";
         }
 
-        // Handle single image
         if (typeof imageString === 'string' && imageString.startsWith('http')) {
             return imageString;
         }
@@ -181,9 +185,9 @@ const Header = () => {
                     </div>
                 </Link>
 
-                <div className="flex items-center space-x-[10px] md:space-x-[50px]">
-                    {/* ডেস্কটপ সার্চ বার */}
-                    <div className="hidden md:block p-2 md:flex-grow relative">
+                <div className="flex items-center space-x-[10px] md:space-x-[30px]">
+                    {/* ✅ FIXED: ডেস্কটপ সার্চ বার - এখন দেখা যাবে */}
+                    <div className="hidden md:block w-64">
                         <SearchInput />
                     </div>
 
@@ -216,7 +220,7 @@ const Header = () => {
                         <i className="fas fa-bars text-2xl"></i>
                     </button>
 
-                    {/* ✅ FIXED: ডেস্কটপ মেনু - সরাসরি দেখা যাবে */}
+                    {/* ✅ FIXED: ডেস্কটপ মেনু - মেনু ও সাবমেনু আলাদা */}
                     <nav className="desktop-menu hidden md:flex space-x-6 items-center">
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
@@ -226,20 +230,35 @@ const Header = () => {
                             হোম
                         </Link>
                         
-                        {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
-                            <Link
-                                key={category}
-                                href={`/?filter=${category}`}
-                                className="desktop-menu-item"
+                        {/* পণ্য সমূহ ড্রপডাউন মেনু */}
+                        <div className="relative">
+                            <button 
+                                className="desktop-menu-item flex items-center"
+                                onClick={handleToggleProductsMenu}
                             >
-                                {category === 'all' && 'সকল প্রোডাক্ট'}
-                                {category === 'health' && 'স্বাস্থ্য'}
-                                {category === 'cosmetics' && 'মেকআপ'}
-                                {category === 'skincare' && 'স্কিনকেয়ার'}
-                                {category === 'haircare' && 'হেয়ারকেয়ার'}
-                                {category === 'mehandi' && 'মেহেদী'}
-                            </Link>
-                        ))}
+                                পণ্য সমূহ
+                                <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isProductsMenuOpen ? 'rotate-180' : ''}`}></i>
+                            </button>
+                            
+                            {isProductsMenuOpen && (
+                                <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-10">
+                                    {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
+                                        <button
+                                            key={category}
+                                            onClick={() => handleSubMenuItemClick(category)}
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                        >
+                                            {category === 'all' && 'সকল প্রোডাক্ট'}
+                                            {category === 'health' && 'স্বাস্থ্য'}
+                                            {category === 'cosmetics' && 'মেকআপ'}
+                                            {category === 'skincare' && 'স্কিনকেয়ার'}
+                                            {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                            {category === 'mehandi' && 'মেহেদী'}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         <Link className="desktop-menu-item" href="/order-track">
                             অর্ডার ট্র্যাক
@@ -248,7 +267,7 @@ const Header = () => {
                 </div>
             </header>
 
-            {/* ✅ FIXED: কার্ট সাইডবার - Multiple Images Support */}
+            {/* ✅ FIXED: কার্ট সাইডবার */}
             <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-4">
@@ -324,7 +343,7 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* ✅ FIXED: কার্ট সাইডবার Overlay */}
+                 {/* ✅ FIXED: কার্ট সাইডবার Overlay */}
             {isCartSidebarOpen && (
                 <div 
                     className="cart-sidebar-overlay"
