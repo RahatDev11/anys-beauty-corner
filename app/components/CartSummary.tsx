@@ -1,24 +1,26 @@
-// components/CartSummary.tsx - UPDATED VERSION
+// components/CartSummary.tsx - FINAL VERSION
 'use client';
 
 import React from 'react';
 import { useCart } from '@/app/context/CartContext';
 import { useRouter } from 'next/navigation';
 
-interface CartSummaryProps {
-    onAddToCart?: () => void; // নতুন prop
-}
-
-const CartSummary: React.FC<CartSummaryProps> = ({ onAddToCart }) => {
-    const { cart, totalItems, totalPrice, checkout } = useCart();
+const CartSummary: React.FC = () => {
+    const { cart, totalItems, totalPrice } = useCart();
     const router = useRouter();
 
     if (totalItems === 0) {
         return null;
     }
 
+    const handleViewCart = () => {
+        // কার্ড পেজে নিয়ে যাবে - আপনি যেভাবে cart page implement করেছেন
+        router.push('/cart'); // অথবা '/cart-page' যেটা আপনার route
+    };
+
     const handleCheckout = () => {
-        checkout();
+        // অর্ডার ফর্মে নিয়ে যাবে
+        router.push('/order-form');
     };
 
     const handleProductClick = (productId: string) => {
@@ -28,7 +30,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ onAddToCart }) => {
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-50">
             <div className="container mx-auto px-3 py-2">
-                {/* Cart items list - উপরে */}
+                {/* Cart items list - উপরে (ক্লিক করলে প্রোডাক্ট পেজে যাবে) */}
                 <div className="mb-2">
                     <div className="flex space-x-2 overflow-x-auto pb-1">
                         {cart.map((item) => (
@@ -70,10 +72,10 @@ const CartSummary: React.FC<CartSummaryProps> = ({ onAddToCart }) => {
                     {/* Right side - Buttons */}
                     <div className="flex items-center space-x-2">
                         <button
-                            onClick={onAddToCart}
-                            className="px-3 py-1.5 border border-lipstick text-lipstick rounded text-sm font-semibold hover:bg-lipstick hover:text-white transition-colors whitespace-nowrap"
+                            onClick={handleViewCart}
+                            className="px-4 py-1.5 border border-lipstick text-lipstick rounded text-sm font-semibold hover:bg-lipstick hover:text-white transition-colors whitespace-nowrap"
                         >
-                            কার্টে যোগ করুন
+                            কার্ড দেখুন
                         </button>
                         <button
                             onClick={handleCheckout}
