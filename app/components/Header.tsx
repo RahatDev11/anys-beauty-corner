@@ -359,7 +359,7 @@ const Header = () => {
                 />
             )}
 
-                 {/* ✅ FIXED: মোবাইল সাইডবার - লগইন অপশন সহ */}
+                {/* ✅ FIXED: মোবাইল সাইডবার - লগইন অপশন সহ */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4">
                     <div className="flex justify-between items-center mb-6">
