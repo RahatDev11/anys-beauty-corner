@@ -1110,3 +1110,227 @@ nav.hidden.md\:flex {
   opacity: 1 !important;
   visibility: visible !important;
 }
+/* ✅ FIXED: Mobile Header Layout - IMPORTANT */
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0.25rem 0.5rem !important;
+  }
+  
+  /* Ensure mobile icons don't overflow */
+  .mobile-header-icons {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* Mobile icons spacing */
+  .mobile-icon {
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* Logo sizing for mobile */
+  .mobile-logo {
+    max-width: 120px !important;
+    overflow: hidden !important;
+  }
+  
+  /* Prevent desktop menu from showing on mobile */
+  .desktop-menu {
+    display: none !important;
+  }
+  
+  /* Mobile menu button positioning */
+  .mobile-menu-btn {
+    margin-left: auto !important;
+  }
+}
+
+/* ✅ FIXED: Header Layout for All Screens */
+header.bg-brushstroke {
+  min-height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* ✅ FIXED: Mobile Search Bar Positioning */
+.mobile-search-bar-container {
+  position: fixed !important;
+  top: 56px !important;
+  left: 0 !important;
+  width: 100% !important;
+  z-index: 40 !important;
+  background: white !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ✅ FIXED: Prevent horizontal scrolling on mobile */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden !important;
+    position: relative !important;
+  }
+  
+  html {
+    overflow-x: hidden !important;
+  }
+}
+
+/* ✅ FIXED: Mobile Icon Sizes */
+.mobile-icon i {
+  font-size: 1.25rem !important;
+}
+
+/* ✅ FIXED: Cart Badge Positioning */
+.cart-badge {
+  position: absolute !important;
+  top: -2px !important;
+  right: -2px !important;
+  background: #ef4444 !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 16px !important;
+  height: 16px !important;
+  font-size: 0.7rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+/* ✅ FIXED: Header Content Alignment */
+.header-content {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+/* ✅ FIXED: Logo Container */
+.logo-container {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 1 !important;
+  min-width: 0 !important;
+}
+
+/* ✅ FIXED: Icons Container */
+.icons-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ✅ FIXED: Mobile-specific fixes */
+@media (max-width: 768px) {
+  /* Hide desktop elements */
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Show mobile elements */
+  .mobile-only {
+    display: flex !important;
+  }
+  
+  /* Compact header padding */
+  header.bg-brushstroke {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  
+  /* Logo text truncation */
+  .logo-text {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 150px !important;
+  }
+}
+
+/* ✅ FIXED: Desktop-specific styles */
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+  
+  .desktop-only {
+    display: flex !important;
+  }
+}
+
+/* ✅ FIXED: Search Input Responsive */
+.search-input-container {
+  position: relative !important;
+}
+
+@media (max-width: 768px) {
+  .search-input-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ✅ FIXED: Prevent Layout Shift */
+.header-fixed {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 50 !important;
+  background: var(--lipstick-light) !important;
+}
+
+/* ✅ FIXED: Body padding for fixed header */
+body {
+  padding-top: 56px !important;
+}
+
+/* ✅ FIXED: Mobile menu button specific styling */
+.mobile-menu-button {
+  background: transparent !important;
+  border: none !important;
+  padding: 4px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* ✅ FIXED: Notification icon sizing */
+.notification-icon {
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ✅ FIXED: Cart icon container */
+.cart-icon-container {
+  position: relative !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ✅ FIXED: Search icon container */
+.search-icon-container {
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
