@@ -194,21 +194,22 @@ const Header = () => {
                     <SearchInput />
                 </div>
 
-                {/* ✅ FIXED: মোবাইলে শুধু ৪টি বাটন */}
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center">
+                    {/* ✅ FIXED: মোবাইলে শুধু ৪টি বাটন এবং মেনু বাটন ডানদিকে */}
+                    
                     {/* ১. সার্চ আইকন */}
-                    <div className="md:hidden cursor-pointer">
+                    <div className="md:hidden cursor-pointer mr-3">
                         <i className="fas fa-search text-xl text-gray-800" onClick={handleFocusMobileSearch}></i>
                     </div>
 
                     {/* ২. নোটিফিকেশন আইকন */}
-                    <div className="md:hidden">
+                    <div className="md:hidden mr-3">
                         <NotificationIcon />
                     </div>
 
                     {/* ৩. কার্ড আইকন */}
                     <button 
-                        className="text-gray-800 w-8 h-8 rounded-full flex items-center justify-center relative bg-transparent border-none md:hidden" 
+                        className="text-gray-800 w-8 h-8 rounded-full flex items-center justify-center relative bg-transparent border-none md:hidden mr-3" 
                         onClick={openCartSidebar}
                     >
                         <i className="fas fa-shopping-bag text-xl"></i>
@@ -217,14 +218,6 @@ const Header = () => {
                                 {totalItems}
                             </span>
                         )}
-                    </button>
-
-                    {/* ৪. মেনু বাটন */}
-                    <button 
-                        className="text-gray-800 w-8 h-8 rounded flex items-center justify-center bg-transparent border-none md:hidden" 
-                        onClick={openSidebar}
-                    >
-                        <i className="fas fa-bars text-xl"></i>
                     </button>
 
                     {/* ✅ FIXED: ডেস্কটপ মেনু - লগইন বাটন সহ */}
@@ -272,6 +265,14 @@ const Header = () => {
                             অর্ডার ট্র্যাক
                         </Link>
                     </nav>
+
+                    {/* ✅ FIXED: ৪. মেনু বাটন - একেবারে ডানদিকে */}
+                    <button 
+                        className="text-gray-800 w-8 h-8 rounded flex items-center justify-center bg-transparent border-none md:hidden" 
+                        onClick={openSidebar}
+                    >
+                        <i className="fas fa-bars text-xl"></i>
+                    </button>
                 </div>
             </header>
 
@@ -373,7 +374,7 @@ const Header = () => {
                     </div>
 
                     <nav className="space-y-2">
-                            {/* ✅ লগইন অপশন মোবাইল সাইডবারে */}
+                          {/* ✅ লগইন অপশন মোবাইল সাইডবারে */}
                         {currentUser ? (
                             <div className="flex items-center space-x-3 py-2 px-4 border-b pb-4">
                                 {currentUser?.image && !imgError ? (
