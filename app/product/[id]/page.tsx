@@ -18,7 +18,11 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const { addToCart, buyNow, cart } = useCart();
+    const { addToCart, buyNow, cart, removeFromCart, updateCartQuantity } = useCart();
+
+    // কার্টে প্রোডাক্টের কোয়ান্টিটি পাওয়ার জন্য
+    const cartItem = cart.find(item => item.id === product?.id);
+    const cartItemQuantity = cartItem ? cartItem.quantity : 0;
 
     // ✅ FIXED: Multiple images handling - UPDATED VERSION
     const getAllImages = (productData: Product): string[] => {
@@ -27,7 +31,7 @@ const ProductDetail = () => {
         // Case 1: If image field exists as comma-separated string (YOUR MAIN CASE)
         if (productData.image && typeof productData.image === 'string' && productData.image.trim() !== '') {
             const imageString = productData.image.trim();
-            
+
             // Check if it's comma separated multiple images
             if (imageString.includes(',')) {
                 images = imageString
@@ -122,6 +126,23 @@ const ProductDetail = () => {
     const handleModalClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
             closeModal();
+        }
+    };
+
+    // কোয়ান্টিটি হ্যান্ডলার ফাংশন
+    const handleIncrement = () => {
+        if (product) {
+            updateCartQuantity(product.id, cartItemQuantity + 1);
+        }
+    };
+
+    const handleDecrement = () => {
+        if (product) {
+            if (cartItemQuantity > 1) {
+                updateCartQuantity(product.id, cartItemQuantity - 1);
+            } else {
+                removeFromCart(product.id);
+            }
         }
     };
 
@@ -234,7 +255,7 @@ const ProductDetail = () => {
                         )}
                     </div>
 
-                    {/* Product Details Section */}
+                          {/* Product Details Section */}
                     <div>
                         <h1 className="text-2xl lg:text-3xl font-bold mb-4 text-gray-800">{product.name}</h1>
                         <p className="text-lipstick text-xl lg:text-2xl font-bold mb-4">{product.price} ৳</p>
@@ -255,26 +276,41 @@ const ProductDetail = () => {
                             </div>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex flex-col space-y-3 mb-6">
-                            <button 
-                                onClick={handleAddToCart}
-                                className="bg-lipstick text-white py-3 px-6 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                disabled={product.stockStatus !== 'in_stock'}
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                                Add to Cart
-                            </button>
-                            <button 
+                        {/* Action Buttons - Homepage Style */}
+                        <div className="space-y-3 mb-6">
+                            {/* Add to Cart Button */}
+                            {cartItemQuantity > 0 ? (
+                                <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center justify-between h-12 px-4">
+                                    <button
+                                        onClick={handleDecrement}
+                                        className="w-8 h-8 flex items-center justify-center bg-gray-300 rounded-full text-lg hover:bg-gray-400 transition-colors"
+                                    >
+                                        -
+                                    </button>
+                                    <span className="text-lg font-bold">{cartItemQuantity}</span>
+                                    <button
+                                        onClick={handleIncrement}
+                                        className="w-8 h-8 flex items-center justify-center bg-gray-300 rounded-full text-lg hover:bg-gray-400 transition-colors"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={handleAddToCart}
+                                    disabled={product.stockStatus !== 'in_stock'}
+                                    className="w-full bg-lipstick text-white rounded-lg font-semibold flex items-center h-12 justify-center text-base hover:bg-lipstick-dark border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Add To Cart
+                                </button>
+                            )}
+
+                            {/* Buy Now Button */}
+                            <button
                                 onClick={handleBuyNow}
-                                className="bg-gray-800 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 disabled={product.stockStatus !== 'in_stock'}
+                                className="w-full bg-gray-800 text-white py-3 rounded-lg font-semibold text-base hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
                                 Buy Now
                             </button>
                         </div>
@@ -305,6 +341,33 @@ const ProductDetail = () => {
                             {relatedProducts.slice(0, 4).map((relatedProduct) => {
                                 const productTags = processTags(relatedProduct.tags);
                                 const relatedImages = getAllImages(relatedProduct);
+                                const relatedCartItem = cart.find(item => item.id === relatedProduct.id);
+                                const relatedCartQuantity = relatedCartItem ? relatedCartItem.quantity : 0;
+
+                                const handleRelatedAddToCart = (e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    addToCart(relatedProduct);
+                                };
+
+                                const handleRelatedBuyNow = (e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    buyNow(relatedProduct);
+                                    router.push('/order-form');
+                                };
+
+                                const handleRelatedIncrement = (e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    updateCartQuantity(relatedProduct.id, relatedCartQuantity + 1);
+                                };
+
+                                const handleRelatedDecrement = (e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    if (relatedCartQuantity > 1) {
+                                        updateCartQuantity(relatedProduct.id, relatedCartQuantity - 1);
+                                    } else {
+                                        removeFromCart(relatedProduct.id);
+                                    }
+                                };
 
                                 return (
                                     <div 
@@ -333,6 +396,7 @@ const ProductDetail = () => {
                                                 </div>
                                             )}
                                         </div>
+                                        
                                         <div className="p-4">
                                             <h3 className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2">
                                                 {relatedProduct.name}
@@ -340,7 +404,8 @@ const ProductDetail = () => {
                                             <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                                                 {relatedProduct.description || 'Product description'}
                                             </p>
-                                            <div className="flex justify-between items-center">
+                                            
+                                            <div className="flex justify-between items-center mb-3">
                                                 <span className="text-lipstick font-bold text-xl">
                                                     ৳{relatedProduct.price}
                                                 </span>
@@ -350,8 +415,46 @@ const ProductDetail = () => {
                                                     </span>
                                                 )}
                                             </div>
+
+                                            {/* Homepage Style Buttons for Related Products */}
+                                            <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
+                                                {relatedCartQuantity > 0 ? (
+                                                    <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center justify-between h-10 px-3">
+                                                        <button
+                                                            onClick={handleRelatedDecrement}
+                                                            className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="text-lg font-medium">{relatedCartQuantity}</span>
+                                                        <button
+                                                            onClick={handleRelatedIncrement}
+                                                            className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={handleRelatedAddToCart}
+                                                        disabled={relatedProduct.stockStatus !== 'in_stock'}
+                                                        className="w-full bg-lipstick text-white rounded-lg font-semibold flex items-center h-10 justify-center text-sm hover:bg-lipstick-dark border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    >
+                                                        Add To Cart
+                                                    </button>
+                                                )}
+
+                                                <button
+                                                    onClick={handleRelatedBuyNow}
+                                                    disabled={relatedProduct.stockStatus !== 'in_stock'}
+                                                    className="w-full bg-gray-800 text-white py-2 rounded-lg font-semibold text-sm hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    Buy Now
+                                                </button>
+                                            </div>
+
                                             {productTags.length > 0 && (
-                                                <div className="mt-2 flex flex-wrap gap-1">
+                                                <div className="mt-3 flex flex-wrap gap-1">
                                                     {productTags.slice(0, 2).map((tag, index) => (
                                                         <span 
                                                             key={index}
@@ -371,7 +474,7 @@ const ProductDetail = () => {
                 )}
             </main>
 
-               {/* Fixed Order Bar */}
+            {/* Fixed Order Bar */}
             {totalItems > 0 && (
                 <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                     <div className="flex justify-between items-center max-w-4xl mx-auto">
