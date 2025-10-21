@@ -9,6 +9,9 @@ export const authConfig: NextAuthConfig = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     })
   ],
+  session: {
+    strategy: "jwt", // এটি যোগ করুন
+  },
   callbacks: {
     async session({ session, token }: any) {
       if (session?.user) {
