@@ -40,6 +40,7 @@ body {
 body {
   color: #1f2937;
   background: var(--background);
+  padding-top: 56px !important;
 }
 
 a {
@@ -99,7 +100,7 @@ a {
 }
 
 .cart-sidebar.open {
-  transform: translateX(0%) !important; /* ✅ FIXED: 0% instead of 0 */
+  transform: translateX(0%) !important;
 }
 
 .cart-sidebar-overlay {
@@ -127,7 +128,7 @@ a {
 }
 
 .mobile-sidebar.open {
-  transform: translateX(0%) !important; /* ✅ FIXED: 0% instead of 0 */
+  transform: translateX(0%) !important;
 }
 
 .mobile-sidebar-overlay {
@@ -176,6 +177,36 @@ body.sidebar-open {
   left: 0;
   width: 100%;
   z-index: 50;
+}
+
+.header-fixed {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 50 !important;
+  background: var(--lipstick-light) !important;
+}
+
+.header-content {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.logo-container {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 1 !important;
+  min-width: 0 !important;
+}
+
+.icons-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-shrink: 0 !important;
 }
 
 /* Loading Screen Styles */
@@ -1029,6 +1060,7 @@ textarea:focus-visible {
   display: none;
   flex-grow: 1;
 }
+
 /* ✅ FIXED: Desktop Menu Visibility - IMPORTANT */
 .desktop-menu {
   display: flex !important;
@@ -1076,6 +1108,7 @@ nav.hidden.md\:flex {
     display: none !important;
   }
 }
+
 /* ✅ NEW: Fixed Sidebar Transition Classes */
 .translate-x-full {
   transform: translateX(100%) !important;
@@ -1092,6 +1125,7 @@ nav.hidden.md\:flex {
 .transition-transform {
   transition: transform 0.3s ease-in-out !important;
 }
+
 /* ✅ FIXED: Cart Sidebar Overlay Active State */
 .cart-sidebar-overlay {
   position: fixed !important;
@@ -1110,6 +1144,7 @@ nav.hidden.md\:flex {
   opacity: 1 !important;
   visibility: visible !important;
 }
+
 /* ✅ FIXED: Mobile Header Layout - IMPORTANT */
 @media (max-width: 768px) {
   .header-container {
@@ -1149,13 +1184,20 @@ nav.hidden.md\:flex {
   .mobile-menu-btn {
     margin-left: auto !important;
   }
-}
 
-/* ✅ FIXED: Header Layout for All Screens */
-header.bg-brushstroke {
-  min-height: 56px !important;
-  display: flex !important;
-  align-items: center !important;
+  /* Compact header padding */
+  header.bg-brushstroke {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  
+  /* Logo text truncation */
+  .logo-text {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 150px !important;
+  }
 }
 
 /* ✅ FIXED: Mobile Search Bar Positioning */
@@ -1203,30 +1245,6 @@ header.bg-brushstroke {
   line-height: 1 !important;
 }
 
-/* ✅ FIXED: Header Content Alignment */
-.header-content {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  width: 100% !important;
-}
-
-/* ✅ FIXED: Logo Container */
-.logo-container {
-  display: flex !important;
-  align-items: center !important;
-  flex-shrink: 1 !important;
-  min-width: 0 !important;
-}
-
-/* ✅ FIXED: Icons Container */
-.icons-container {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  flex-shrink: 0 !important;
-}
-
 /* ✅ FIXED: Mobile-specific fixes */
 @media (max-width: 768px) {
   /* Hide desktop elements */
@@ -1237,20 +1255,6 @@ header.bg-brushstroke {
   /* Show mobile elements */
   .mobile-only {
     display: flex !important;
-  }
-  
-  /* Compact header padding */
-  header.bg-brushstroke {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-  
-  /* Logo text truncation */
-  .logo-text {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 150px !important;
   }
 }
 
@@ -1275,21 +1279,6 @@ header.bg-brushstroke {
     width: 100% !important;
     max-width: 100% !important;
   }
-}
-
-/* ✅ FIXED: Prevent Layout Shift */
-.header-fixed {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 50 !important;
-  background: var(--lipstick-light) !important;
-}
-
-/* ✅ FIXED: Body padding for fixed header */
-body {
-  padding-top: 56px !important;
 }
 
 /* ✅ FIXED: Mobile menu button specific styling */
@@ -1333,4 +1322,11 @@ body {
   align-items: center !important;
   justify-content: center !important;
   cursor: pointer !important;
+}
+
+/* ✅ FIXED: Header min height */
+header.bg-brushstroke {
+  min-height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
 }
