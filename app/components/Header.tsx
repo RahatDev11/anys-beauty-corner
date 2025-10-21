@@ -5,7 +5,7 @@ import { useCartSidebar } from '../hooks/useCartSidebar';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { useSession, signOut, signIn } from 'next-auth/react'; // ✅ NextAuth imports
+import { useSession, signOut, signIn } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -39,7 +39,7 @@ const Header = () => {
     const router = useRouter();
     const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
-    
+
     // ✅ NextAuth Session
     const { data: session, status } = useSession();
 
@@ -95,6 +95,25 @@ const Header = () => {
                        (currentUser?.email ? currentUser.email.split('@')[0] : 'User');
     const photoURL = currentUser?.image || currentUser?.photoURL;
 
+    // ✅ FIXED: Multiple images handling function
+    const getCartItemImage = (imageString: string | undefined) => {
+        if (!imageString) return "https://via.placeholder.com/50?text=No+Image";
+        
+        // Handle comma separated multiple images
+        if (typeof imageString === 'string' && imageString.includes(',')) {
+            const urls = imageString.split(',').map(url => url.trim());
+            const firstValidUrl = urls.find(url => url.startsWith('http'));
+            return firstValidUrl || "https://via.placeholder.com/50?text=Invalid+URL";
+        }
+        
+        // Handle single image
+        if (typeof imageString === 'string' && imageString.startsWith('http')) {
+            return imageString;
+        }
+        
+        return "https://via.placeholder.com/50?text=Invalid+URL";
+    };
+
     const renderLoginButton = (isMobile: boolean) => {
         if (currentUser) {
             return (
@@ -133,7 +152,7 @@ const Header = () => {
             return (
                 <button 
                     className={`flex items-center ${isMobile ? 'w-full' : ''} hover:text-gray-600`} 
-                    onClick={handleGoogleLogin} // ✅ NextAuth login ব্যবহার করুন
+                    onClick={handleGoogleLogin}
                 >
                     <i className="fas fa-user-circle mr-2"></i>
                     <span className="text-black">লগইন</span>
@@ -230,7 +249,7 @@ const Header = () => {
                 </div>
             </header>
 
-            {/* কার্ট সাইডবার */}
+            {/* ✅ FIXED: কার্ট সাইডবার - Multiple Images Support */}
             <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-4">
@@ -249,22 +268,46 @@ const Header = () => {
                                 <p>আপনার কার্ট খালি</p>
                             </div>
                         ) : (
-                            cart.map(item => (
-                                <div key={item.id} className="flex items-center justify-between py-2 border-b">
-                                    <div className="flex items-center">
-                                        <Image src={item.image || ''} alt={item.name} width={50} height={50} className="rounded" />
-                                        <div className="ml-4">
-                                            <p className="font-semibold">{item.name}</p>
-                                            <p className="text-gray-600">{item.price} টাকা</p>
+                            cart.map(item => {
+                                const cartItemImage = getCartItemImage(item.image);
+
+                                return (
+                                    <div key={item.id} className="flex items-center justify-between py-2 border-b">
+                                        <div className="flex items-center">
+                                            <Image 
+                                                src={cartItemImage} 
+                                                alt={item.name} 
+                                                width={50} 
+                                                height={50} 
+                                                className="rounded object-cover"
+                                                onError={(e) => {
+                                                    e.currentTarget.src = "https://via.placeholder.com/50?text=Error";
+                                                }}
+                                            />
+                                            <div className="ml-4">
+                                                <p className="font-semibold text-sm">{item.name}</p>
+                                                <p className="text-gray-600 text-sm">{item.price} টাকা</p>
+                                                <p className="text-xs text-gray-500">পরিমাণ: {item.quantity}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <button 
+                                                onClick={() => updateQuantity(item.id, -1)} 
+                                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
+                                            >
+                                                -
+                                            </button>
+                                            <span className="font-semibold w-6 text-center">{item.quantity}</span>
+                                            <button 
+                                                onClick={() => updateQuantity(item.id, 1)} 
+                                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
+                                            >
+                                                +
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="flex items-center">
-                                        <button onClick={() => updateQuantity(item.id, -1)} className="px-2 text-lg font-bold">-</button>
-                                        <span>{item.quantity}</span>
-                                        <button onClick={() => updateQuantity(item.id, 1)} className="px-2 text-lg font-bold">+</button>
-                                    </div>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                     </div>
                     <div className="border-t pt-4">
@@ -282,7 +325,7 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* কার্ট সাইডবার Overlay */}
+            {/* ✅ FIXED: কার্ট সাইডবার Overlay */}
             {isCartSidebarOpen && (
                 <div 
                     className="cart-sidebar-overlay"
@@ -354,7 +397,7 @@ const Header = () => {
                 />
             )}
 
-            {/* মোবাইল সার্চ বার */}
+                  {/* মোবাইল সার্চ বার */}
             <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
                 <div className="relative">
                     <input 
