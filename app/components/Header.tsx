@@ -98,19 +98,19 @@ const Header = () => {
     // ✅ FIXED: Multiple images handling function
     const getCartItemImage = (imageString: string | undefined) => {
         if (!imageString) return "https://via.placeholder.com/50?text=No+Image";
-        
+
         // Handle comma separated multiple images
         if (typeof imageString === 'string' && imageString.includes(',')) {
             const urls = imageString.split(',').map(url => url.trim());
             const firstValidUrl = urls.find(url => url.startsWith('http'));
             return firstValidUrl || "https://via.placeholder.com/50?text=Invalid+URL";
         }
-        
+
         // Handle single image
         if (typeof imageString === 'string' && imageString.startsWith('http')) {
             return imageString;
         }
-        
+
         return "https://via.placeholder.com/50?text=Invalid+URL";
     };
 
@@ -210,25 +210,27 @@ const Header = () => {
 
                     {/* মোবাইল মেনু বাটন */}
                     <button 
-                        className="text-gray-800 w-10 h-10 rounded md:hidden flex items-center justify-center bg-transparent border-none" 
+                        className="mobile-menu-button text-gray-800 w-10 h-10 rounded md:hidden flex items-center justify-center bg-transparent border-none" 
                         onClick={openSidebar}
                     >
                         <i className="fas fa-bars text-2xl"></i>
                     </button>
 
-                    {/* ডেস্কটপ মেনু */}
-                    <nav className="hidden md:flex space-x-6 items-center text-white">
+                    {/* ✅ FIXED: ডেস্কটপ মেনু - সরাসরি দেখা যাবে */}
+                    <nav className="desktop-menu hidden md:flex space-x-6 items-center">
                         <div className="desktop-login-button">
                             {renderLoginButton(false)}
                         </div>
-                        <Link className="text-black hover:text-gray-600 transition-colors" href="/">
+                        
+                        <Link className="desktop-menu-item" href="/">
                             হোম
                         </Link>
+                        
                         {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
                             <Link
                                 key={category}
                                 href={`/?filter=${category}`}
-                                className="text-black hover:text-gray-600 transition-colors"
+                                className="desktop-menu-item"
                             >
                                 {category === 'all' && 'সকল প্রোডাক্ট'}
                                 {category === 'health' && 'স্বাস্থ্য'}
@@ -239,10 +241,7 @@ const Header = () => {
                             </Link>
                         ))}
 
-                        <Link
-                            className="text-black hover:text-gray-600 transition-colors"
-                            href="/order-track"
-                        >
+                        <Link className="desktop-menu-item" href="/order-track">
                             অর্ডার ট্র্যাক
                         </Link>
                     </nav>
@@ -397,7 +396,7 @@ const Header = () => {
                 />
             )}
 
-                  {/* মোবাইল সার্চ বার */}
+            {/* মোবাইল সার্চ বার */}
             <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
                 <div className="relative">
                     <input 
