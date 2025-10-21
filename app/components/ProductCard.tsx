@@ -7,7 +7,9 @@ import { Product } from '@/app/types/product';
 interface ProductCardProps {
     product: Product;
     addToCart: (product: Product) => void;
-    buyNow: (product: Product) => void;
+    removeFromCart: (productId: string) => void;
+    updateCartQuantity: (productId: string, quantity: number) => void;
+    buyNow: (product: Product, quantity?: number) => void;
     cartItemQuantity?: number;
     showProductDetail?: (id: string) => void;
 }
@@ -15,6 +17,8 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({
     product,
     addToCart,
+    removeFromCart,
+    updateCartQuantity,
     buyNow,
     cartItemQuantity = 0,
     showProductDetail,
@@ -23,35 +27,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     // ✅ COMPREHENSIVE NULL CHECK
     const getImageUrl = () => {
-        // Product null check
         if (!product) {
             console.warn('❌ Product is undefined/null');
             return "https://via.placeholder.com/150?text=No+Product";
         }
 
-        // Product.image null check
         if (!product.image) {
             console.log(`❌ No image for product: ${product.name || 'Unknown'}`);
             return "https://via.placeholder.com/150?text=No+Image";
         }
 
-        // Multiple URLs handling
         if (typeof product.image === 'string' && product.image.includes(',')) {
             const urls = product.image.split(',').map(url => url.trim());
             const firstUrl = urls[0];
-            
-            // First URL validation
+
             if (firstUrl && firstUrl.startsWith('http')) {
                 return firstUrl;
             }
         }
 
-        // Single URL validation
         if (typeof product.image === 'string' && product.image.startsWith('http')) {
             return product.image;
         }
 
-        // Fallback for invalid URLs
         return "https://via.placeholder.com/150?text=Invalid+URL";
     };
 
@@ -64,6 +62,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
             showProductDetail(id);
         } else {
             router.push(`/product/${id}`);
+        }
+    };
+
+    const handleIncrement = () => {
+        if (product) {
+            updateCartQuantity(productId, cartItemQuantity + 1);
+        }
+    };
+
+    const handleDecrement = () => {
+        if (product && cartItemQuantity > 1) {
+            updateCartQuantity(productId, cartItemQuantity - 1);
+        } else if (product && cartItemQuantity === 1) {
+            removeFromCart(productId);
+        }
+    };
+
+    const handleBuyNow = () => {
+        if (product) {
+            // যদি কার্টে আইটেম থাকে, তাহলে সেই কোয়ান্টিটি নিয়ে যাবে
+            // যদি না থাকে, তাহলে ১টি প্রোডাক্ট নিয়ে যাবে
+            const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
+            buyNow(product, quantity);
         }
     };
 
@@ -82,7 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         target.src = "https://via.placeholder.com/150?text=Error+Loading";
                     }}
                 />
-                
+
                 {/* ✅ Safe debug badge */}
                 <div className={`absolute top-2 right-2 text-white text-xs px-2 py-1 rounded ${
                     product?.image 
@@ -98,7 +119,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         : 'NONE'}
                 </div>
             </div>
-            
+
             <div className="p-3 flex flex-col flex-grow bg-white">
                 <div className="flex-grow">
                     <h3
@@ -108,16 +129,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         {productName}
                     </h3>
                 </div>
-                
+
                 <div>
                     <p className="text-xl font-bold mt-3 text-black">
                         {product?.price ? `${product.price} টাকা` : 'Price N/A'}
                     </p>
-                    
+
                     <div className="mt-4 space-y-2">
                         {cartItemQuantity > 0 ? (
-                            <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center h-10 justify-around">
+                            <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center justify-between h-10 px-3">
+                                <button
+                                    onClick={handleDecrement}
+                                    className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                >
+                                    -
+                                </button>
                                 <span className="text-lg">{cartItemQuantity} in cart</span>
+                                <button
+                                    onClick={handleIncrement}
+                                    className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                >
+                                    +
+                                </button>
                             </div>
                         ) : (
                             <button
@@ -128,9 +161,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 Add To Cart
                             </button>
                         )}
-                        
+
                         <button
-                            onClick={() => product && buyNow(product)}
+                            onClick={handleBuyNow}
                             disabled={!product || product.stockStatus !== 'in_stock'}
                             className="w-full bg-gray-800 text-white py-2 rounded-lg font-semibold text-sm hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
                         >
