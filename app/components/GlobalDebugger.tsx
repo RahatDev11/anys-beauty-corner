@@ -1,4 +1,4 @@
-// components/GlobalDebugger.tsx
+// components/GlobalDebugger.tsx - UPDATED VERSION
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -15,42 +15,18 @@ interface DebugData {
   performance: any;
   localStorageData: any;
   sessionStorageData: any;
+  contextStatus: {
+    cartContext: boolean;
+    authContext: boolean;
+    cartData: boolean;
+    userData: boolean;
+  };
 }
 
 const GlobalDebugger: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [debugData, setDebugData] = useState<DebugData | null>(null);
   const [copyStatus, setCopyStatus] = useState<string>('');
-
-  // Global error handler
-  useEffect(() => {
-    const originalConsoleError = console.error;
-    const errors: string[] = [];
-
-    console.error = (...args: any[]) => {
-      errors.push(args.join(' '));
-      originalConsoleError.apply(console, args);
-    };
-
-    // Global error listener
-    const handleGlobalError = (event: ErrorEvent) => {
-      errors.push(`Global Error: ${event.message} at ${event.filename}:${event.lineno}`);
-    };
-
-    // Promise rejection listener
-    const handlePromiseRejection = (event: PromiseRejectionEvent) => {
-      errors.push(`Promise Rejection: ${event.reason}`);
-    };
-
-    window.addEventListener('error', handleGlobalError);
-    window.addEventListener('unhandledrejection', handlePromiseRejection);
-
-    return () => {
-      console.error = originalConsoleError;
-      window.removeEventListener('error', handleGlobalError);
-      window.removeEventListener('unhandledrejection', handlePromiseRejection);
-    };
-  }, []);
 
   const gatherDebugInfo = (): DebugData => {
     // Performance data
@@ -68,18 +44,74 @@ const GlobalDebugger: React.FC = () => {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key) {
-          localStorageData[key] = localStorage.getItem(key);
+          try {
+            localStorageData[key] = JSON.parse(localStorage.getItem(key) || '');
+          } catch {
+            localStorageData[key] = localStorage.getItem(key);
+          }
         }
       }
       
       for (let i = 0; i < sessionStorage.length; i++) {
         const key = sessionStorage.key(i);
         if (key) {
-          sessionStorageData[key] = sessionStorage.getItem(key);
+          try {
+            sessionStorageData[key] = JSON.parse(sessionStorage.getItem(key) || '');
+          } catch {
+            sessionStorageData[key] = sessionStorage.getItem(key);
+          }
         }
       }
     } catch (e) {
       console.log('Storage access blocked');
+    }
+
+    // Context availability check
+    const contextStatus = {
+      cartContext: !!(window as any).cartContext,
+      authContext: !!(window as any).authContext,
+      cartData: !!(window as any).cartData,
+      userData: !!(window as any).userData
+    };
+
+    // Get cart data from multiple sources
+    let cartInfo = 'Not available';
+    if ((window as any).cartContext) {
+      cartInfo = (window as any).cartContext;
+    } else if ((window as any).cartData) {
+      cartInfo = (window as any).cartData;
+    } else if (localStorageData.anyBeautyCart) {
+      cartInfo = {
+        source: 'localStorage',
+        data: localStorageData.anyBeautyCart,
+        totalItems: Array.isArray(localStorageData.anyBeautyCart) 
+          ? localStorageData.anyBeautyCart.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0)
+          : 0,
+        totalPrice: Array.isArray(localStorageData.anyBeautyCart)
+          ? localStorageData.anyBeautyCart.reduce((sum: number, item: any) => sum + ((item.price || 0) * (item.quantity || 0)), 0)
+          : 0
+      };
+    }
+
+    // Get user data from multiple sources
+    let userInfo = 'Not available';
+    if ((window as any).authContext) {
+      userInfo = (window as any).authContext;
+    } else if ((window as any).userData) {
+      userInfo = (window as any).userData;
+    } else if (localStorageData['nextauth.message']) {
+      try {
+        const nextAuthData = JSON.parse(localStorageData['nextauth.message']);
+        userInfo = {
+          source: 'nextauth',
+          data: nextAuthData
+        };
+      } catch (e) {
+        userInfo = {
+          source: 'nextauth',
+          raw: localStorageData['nextauth.message']
+        };
+      }
     }
 
     return {
@@ -102,12 +134,13 @@ const GlobalDebugger: React.FC = () => {
         cookies: navigator.cookieEnabled,
         online: navigator.onLine,
       },
-      cartInfo: (window as any).cartContext || (window as any).cartData || 'Not available',
-      userInfo: (window as any).authContext || (window as any).userData || 'Not available',
-      errors: [], // Will be populated by error handlers
+      cartInfo,
+      userInfo,
+      errors: [],
       performance: performanceInfo,
       localStorageData,
-      sessionStorageData
+      sessionStorageData,
+      contextStatus
     };
   };
 
@@ -162,40 +195,6 @@ const GlobalDebugger: React.FC = () => {
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isPanelOpen]);
-
-  // Auto-detect common issues
-  useEffect(() => {
-    const checkForIssues = () => {
-      const issues = [];
-      
-      // Check if cart context is available
-      if (!(window as any).cartContext && !(window as any).cartData) {
-        issues.push('Cart context not found');
-      }
-      
-      // Check if auth context is available
-      if (!(window as any).authContext && !(window as any).userData) {
-        issues.push('Auth context not found');
-      }
-      
-      // Check for console errors
-      if (typeof console._errorCount !== 'undefined' && console._errorCount > 0) {
-        issues.push(`Console errors: ${console._errorCount}`);
-      }
-      
-      return issues;
-    };
-
-    // Periodically check for issues (optional)
-    const interval = setInterval(() => {
-      const issues = checkForIssues();
-      if (issues.length > 0 && !isPanelOpen) {
-        console.log('⚠️ Potential issues detected:', issues);
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
   }, [isPanelOpen]);
 
   return (
@@ -254,6 +253,29 @@ const GlobalDebugger: React.FC = () => {
               {debugData && (
                 <div className="space-y-6">
                   
+                  {/* Context Status */}
+                  <div className="bg-white p-4 rounded-lg border border-gray-200">
+                    <h3 className="font-semibold text-gray-800 mb-3">🔧 Context Status</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className={`p-3 rounded text-center ${debugData.contextStatus.cartContext ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        <div className="font-bold">Cart Context</div>
+                        <div>{debugData.contextStatus.cartContext ? '✅ Available' : '❌ Missing'}</div>
+                      </div>
+                      <div className={`p-3 rounded text-center ${debugData.contextStatus.authContext ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        <div className="font-bold">Auth Context</div>
+                        <div>{debugData.contextStatus.authContext ? '✅ Available' : '❌ Missing'}</div>
+                      </div>
+                      <div className={`p-3 rounded text-center ${debugData.contextStatus.cartData ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        <div className="font-bold">Cart Data</div>
+                        <div>{debugData.contextStatus.cartData ? '✅ Available' : '⚠️ Fallback'}</div>
+                      </div>
+                      <div className={`p-3 rounded text-center ${debugData.contextStatus.userData ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        <div className="font-bold">User Data</div>
+                        <div>{debugData.contextStatus.userData ? '✅ Available' : '⚠️ Fallback'}</div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Quick Stats */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
@@ -266,15 +288,17 @@ const GlobalDebugger: React.FC = () => {
                     </div>
                     <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
                       <div className="text-2xl font-bold text-purple-600">
-                        {debugData.cartInfo && debugData.cartInfo.totalItems ? debugData.cartInfo.totalItems : 0}
+                        {debugData.cartInfo && debugData.cartInfo !== 'Not available' 
+                          ? (debugData.cartInfo.totalItems || debugData.cartInfo.data?.length || 0)
+                          : 0}
                       </div>
                       <div className="text-sm text-gray-600">Cart Items</div>
                     </div>
                     <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
                       <div className="text-2xl font-bold text-orange-600">
-                        {debugData.userInfo && debugData.userInfo.user ? 'Yes' : 'No'}
+                        {debugData.userInfo && debugData.userInfo !== 'Not available' ? 'Yes' : 'No'}
                       </div>
-                      <div className="text-sm text-gray-600">Logged In</div>
+                      <div className="text-sm text-gray-600">User Data</div>
                     </div>
                   </div>
 
@@ -305,6 +329,25 @@ const GlobalDebugger: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Cart Info */}
+                      <div className="bg-white p-4 rounded-lg border border-gray-200">
+                        <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
+                          🛒 Cart Information
+                          <button
+                            onClick={() => copyToClipboard(JSON.stringify(debugData.cartInfo, null, 2))}
+                            className="ml-2 text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            📋
+                          </button>
+                        </h3>
+                        <pre className="text-xs bg-gray-50 p-3 rounded border max-h-40 overflow-y-auto">
+                          {JSON.stringify(debugData.cartInfo, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="space-y-6">
                       {/* Device Info */}
                       <div className="bg-white p-4 rounded-lg border border-gray-200">
                         <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
@@ -320,50 +363,8 @@ const GlobalDebugger: React.FC = () => {
                           <p><span className="font-medium">Viewport:</span> {debugData.states.viewport}</p>
                           <p><span className="font-medium">Language:</span> {debugData.states.language}</p>
                           <p><span className="font-medium">Online:</span> {debugData.states.online ? 'Yes' : 'No'}</p>
-                          <p><span className="font-medium">Cookies:</span> {debugData.states.cookies ? 'Enabled' : 'Disabled'}</p>
+                          <p><span className="font-medium">User Agent:</span> {debugData.states.userAgent}</p>
                         </div>
-                      </div>
-
-                      {/* Components */}
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
-                          🧩 Components ({debugData.components.length})
-                          <button
-                            onClick={() => copyToClipboard(JSON.stringify(debugData.components, null, 2))}
-                            className="ml-2 text-blue-600 hover:text-blue-800 text-sm"
-                          >
-                            📋
-                          </button>
-                        </h3>
-                        <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
-                          {debugData.components.map((component, index) => (
-                            <span 
-                              key={index}
-                              className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs"
-                            >
-                              {component}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="space-y-6">
-                      {/* Cart Info */}
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
-                          🛒 Cart Information
-                          <button
-                            onClick={() => copyToClipboard(JSON.stringify(debugData.cartInfo, null, 2))}
-                            className="ml-2 text-blue-600 hover:text-blue-800 text-sm"
-                          >
-                            📋
-                          </button>
-                        </h3>
-                        <pre className="text-xs bg-gray-50 p-3 rounded border max-h-32 overflow-y-auto">
-                          {JSON.stringify(debugData.cartInfo, null, 2)}
-                        </pre>
                       </div>
 
                       {/* User Info */}
@@ -381,31 +382,65 @@ const GlobalDebugger: React.FC = () => {
                           {JSON.stringify(debugData.userInfo, null, 2)}
                         </pre>
                       </div>
+                    </div>
+                  </div>
 
-                      {/* Storage Info */}
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <h3 className="font-semibold text-gray-800 mb-3">
-                          💾 Storage Information
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <h4 className="font-medium mb-1">Local Storage</h4>
-                            <pre className="text-xs bg-gray-50 p-2 rounded border max-h-20 overflow-y-auto">
-                              {Object.keys(debugData.localStorageData).length} items
-                            </pre>
+                  {/* Additional Sections */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Components */}
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
+                        🧩 Components ({debugData.components.length})
+                        <button
+                          onClick={() => copyToClipboard(JSON.stringify(debugData.components, null, 2))}
+                          className="ml-2 text-blue-600 hover:text-blue-800 text-sm"
+                        >
+                          📋
+                        </button>
+                      </h3>
+                      <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+                        {debugData.components.map((component, index) => (
+                          <span 
+                            key={index}
+                            className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs"
+                          >
+                            {component}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Storage Info */}
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <h3 className="font-semibold text-gray-800 mb-3">
+                        💾 Storage Information
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <h4 className="font-medium mb-1">Local Storage</h4>
+                          <div className="text-xs bg-gray-50 p-2 rounded border max-h-20 overflow-y-auto">
+                            {Object.keys(debugData.localStorageData).length} items
+                            {Object.keys(debugData.localStorageData).map(key => (
+                              <div key={key} className="truncate" title={key}>
+                                • {key}
+                              </div>
+                            ))}
                           </div>
-                          <div>
-                            <h4 className="font-medium mb-1">Session Storage</h4>
-                            <pre className="text-xs bg-gray-50 p-2 rounded border max-h-20 overflow-y-auto">
-                              {Object.keys(debugData.sessionStorageData).length} items
-                            </pre>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-1">Session Storage</h4>
+                          <div className="text-xs bg-gray-50 p-2 rounded border max-h-20 overflow-y-auto">
+                            {Object.keys(debugData.sessionStorageData).length} items
+                            {Object.keys(debugData.sessionStorageData).length === 0 && (
+                              <div className="text-gray-500">Empty</div>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Raw Data */}
+                   {/* Raw Data */}
                   <div className="bg-white p-4 rounded-lg border border-gray-200">
                     <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
                       📊 Complete Raw Data
