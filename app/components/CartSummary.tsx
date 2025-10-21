@@ -1,22 +1,52 @@
-// components/CartSummary.tsx - FINAL VERSION
+// components/CartSummary.tsx - FIXED VERSION
 'use client';
 
 import React from 'react';
 import { useCart } from '@/app/context/CartContext';
 import { useRouter } from 'next/navigation';
-import { useCartSidebar } from '@/app/hooks/useCartSidebar'; // ✅ সঠিক hook import
+import { useCartSidebar } from '@/app/hooks/useCartSidebar';
 
 const CartSummary: React.FC = () => {
     const { totalItems, totalPrice } = useCart();
     const router = useRouter();
-    const { openCartSidebar } = useCartSidebar(); // ✅ hook use করুন
+    const { openCartSidebar } = useCartSidebar();
 
     if (totalItems === 0) {
         return null;
     }
 
     const handleViewCart = () => {
-        openCartSidebar(); // ✅ এই ফাংশন কার্ট সাইডবার ওপেন করবে
+        console.log('🔄 CartSummary: কার্ড দেখুন বাটনে ক্লিক হয়েছে');
+        
+        // ✅ Error handling সহ
+        if (openCartSidebar && typeof openCartSidebar === 'function') {
+            console.log('✅ openCartSidebar ফাংশন call করা হচ্ছে...');
+            openCartSidebar();
+            
+            // ✅ Fallback: যদি hook কাজ না করে তাহলে direct DOM manipulation
+            setTimeout(() => {
+                const cartSidebar = document.querySelector('.cart-sidebar');
+                const overlay = document.querySelector('.cart-sidebar-overlay');
+                
+                if (cartSidebar && !cartSidebar.classList.contains('open')) {
+                    console.log('🔄 Fallback: Direct DOM manipulation...');
+                    cartSidebar.classList.add('open');
+                }
+                if (overlay && !overlay.classList.contains('active')) {
+                    overlay.classList.add('active');
+                }
+                document.body.classList.add('overflow-hidden');
+            }, 100);
+        } else {
+            console.error('❌ openCartSidebar ফাংশন available নেই');
+            // ✅ Emergency fallback
+            const cartSidebar = document.querySelector('.cart-sidebar');
+            const overlay = document.querySelector('.cart-sidebar-overlay');
+            
+            if (cartSidebar) cartSidebar.classList.add('open');
+            if (overlay) overlay.classList.add('active');
+            document.body.classList.add('overflow-hidden');
+        }
     };
 
     const handleCheckout = () => {
@@ -27,7 +57,6 @@ const CartSummary: React.FC = () => {
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-50">
             <div className="container mx-auto px-4 py-2.5">
                 <div className="flex items-center justify-between">
-                    {/* Left side - সংখ্যা এবং price */}
                     <div className="flex items-center space-x-3">
                         <div className="bg-lipstick text-white rounded-full w-10 h-10 flex items-center justify-center">
                             <span className="font-bold text-lg">{totalItems}</span>
@@ -37,7 +66,6 @@ const CartSummary: React.FC = () => {
                         </span>
                     </div>
 
-                    {/* Right side - Buttons */}
                     <div className="flex items-center space-x-2">
                         <button
                             onClick={handleViewCart}
