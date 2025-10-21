@@ -41,7 +41,7 @@ function HomePageContent() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { cart, addToCart, buyNow } = useCart();
+    const { cart, addToCart, removeFromCart, updateCartQuantity, buyNow } = useCart();
     const { isAdmin } = useAuth();
 
     const searchParams = useSearchParams();
@@ -176,6 +176,8 @@ function HomePageContent() {
                             products={filteredProducts}
                             cartItems={cart}
                             addToCart={addToCart}
+                            removeFromCart={removeFromCart}
+                            updateCartQuantity={updateCartQuantity}
                             buyNow={buyNow}
                         />
                     ) : (
