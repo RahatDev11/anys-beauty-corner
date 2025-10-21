@@ -6,7 +6,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import ProductList from './components/ProductList';
 import ProductSlider from './components/ProductSlider';
 import EventSlider from './components/EventSlider';
-import CartSummary from './components/CartSummary'; // ✅ নতুন import
+import CartSummary from './components/CartSummary';
 import { database, ref, onValue } from '@/lib/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from './context/CartContext';
@@ -132,7 +132,7 @@ function HomePageContent() {
     }
 
     return (
-        <main className="pt-24 pb-20"> {/* ✅ নিচে space রাখুন CartSummary এর জন্য */}
+        <main className="pt-24 pb-12"> {/* কম padding */}
             <div className="container mx-auto">
                 {isAdmin && (
                     <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
@@ -146,7 +146,7 @@ function HomePageContent() {
                 {/* Featured Products Section - FIRST */}
                 {sliderProducts.length > 0 && (
                     <section className="mb-12">
-                        <div className="px-4 lg:px-8"> {/* Left-right spacing */}
+                        <div className="px-4 lg:px-8">
                             <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
                             <ProductSlider 
                                 products={sliderProducts} 
@@ -159,7 +159,7 @@ function HomePageContent() {
                 {/* Events Section - SECOND */}
                 {events?.filter(event => event.isActive).length > 0 && (
                     <section className="mb-12">
-                        <div className="px-4 lg:px-8"> {/* Left-right spacing */}
+                        <div className="px-4 lg:px-8">
                             <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
                             <EventSlider events={events.filter(event => event.isActive)} />
                         </div>
@@ -167,7 +167,7 @@ function HomePageContent() {
                 )}
 
                 {/* All Products Section */}
-                <section className="px-4 lg:px-8"> {/* Left-right spacing */}
+                <section className="px-4 lg:px-8">
                     <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
                         {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
                     </h2>
@@ -191,7 +191,7 @@ function HomePageContent() {
                 </section>
             </div>
 
-            {/* ✅ Fixed Cart Summary Component */}
+            {/* ✅ Compact Cart Summary */}
             <CartSummary />
         </main>
     );
