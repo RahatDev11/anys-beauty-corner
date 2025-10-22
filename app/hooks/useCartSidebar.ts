@@ -1,4 +1,4 @@
-// hooks/useCartSidebar.ts - COMPLETELY NEW VERSION
+// hooks/useCartSidebar.ts - WORKING VERSION
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
@@ -7,13 +7,15 @@ export const useCartSidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const openCartSidebar = useCallback(() => {
-        console.log('🛒 Opening cart sidebar');
+        console.log('🎯 useCartSidebar: openCartSidebar called');
         setIsOpen(true);
+        document.body.style.overflow = 'hidden';
     }, []);
 
     const closeCartSidebar = useCallback(() => {
-        console.log('🛒 Closing cart sidebar');
+        console.log('🎯 useCartSidebar: closeCartSidebar called');
         setIsOpen(false);
+        document.body.style.overflow = 'unset';
     }, []);
 
     // ESC key handler
@@ -24,8 +26,13 @@ export const useCartSidebar = () => {
             }
         };
 
-        document.addEventListener('keydown', handleEscape);
-        return () => document.removeEventListener('keydown', handleEscape);
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscape);
+        }
+
+        return () => {
+            document.removeEventListener('keydown', handleEscape);
+        };
     }, [isOpen, closeCartSidebar]);
 
     return {
