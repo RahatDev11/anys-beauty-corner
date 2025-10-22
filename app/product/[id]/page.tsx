@@ -7,7 +7,7 @@ import { database, ref, onValue } from '@/lib/firebase';
 import { useCart } from '@/app/context/CartContext';
 import Image from 'next/image';
 import { Product } from '@/types/product';
-import ProductCard from '../../components/ProductCard'; // ✅ FIXED IMPORT
+import ProductCard from '../../components/ProductCard';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -26,39 +26,33 @@ const ProductDetail = () => {
     const cartItem = cart.find(item => item.id === product?.id);
     const cartItemQuantity = cartItem ? cartItem.quantity : 0;
 
-    // ✅ FIXED: Multiple images handling - UPDATED VERSION
+    // ✅ FIXED: Multiple images handling
     const getAllImages = (productData: Product): string[] => {
         let images: string[] = [];
 
-        // Case 1: If image field exists as comma-separated string (YOUR MAIN CASE)
         if (productData.image && typeof productData.image === 'string' && productData.image.trim() !== '') {
             const imageString = productData.image.trim();
 
-            // Check if it's comma separated multiple images
             if (imageString.includes(',')) {
                 images = imageString
                     .split(',')
                     .map(img => img.trim())
                     .filter(img => img !== '' && (img.startsWith('http') || img.startsWith('https')));
             } 
-            // Single image
             else if (imageString.startsWith('http') || imageString.startsWith('https')) {
                 images = [imageString];
             }
         }
-        // Case 2: If images field exists as comma-separated string (backup)
         else if (productData.images && typeof productData.images === 'string' && productData.images.trim() !== '') {
             images = productData.images
                 .split(',')
                 .map(img => img.trim())
                 .filter(img => img !== '' && (img.startsWith('http') || img.startsWith('https')));
         }
-        // Case 3: No images found
         else {
             images = ['https://via.placeholder.com/400x300/ffffff/cccccc?text=No+Image+Available'];
         }
 
-        console.log('🖼️ Extracted images:', images); // Debug log
         return images;
     };
 
@@ -71,17 +65,12 @@ const ProductDetail = () => {
                 const productData = { id: snapshot.key, ...snapshot.val() } as Product;
                 setProduct(productData);
 
-                // ✅ Get all images - FIXED
                 const allImages = getAllImages(productData);
                 setProductImages(allImages);
 
-                // Set main image
                 if (allImages.length > 0) {
                     setMainImage(allImages[0]);
                 }
-
-                console.log('📦 Product data:', productData); // Debug log
-                console.log('🖼️ All images:', allImages); // Debug log
             } else {
                 setProduct(null);
             }
@@ -121,14 +110,16 @@ const ProductDetail = () => {
         }
     };
 
-    // কোয়ান্টিটি হ্যান্ডলার ফাংশন
-    const handleIncrement = () => {
+    // ✅ FIXED: Quantity handler functions with proper event handling
+    const handleIncrement = (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (product) {
             updateCartQuantity(product.id, cartItemQuantity + 1);
         }
     };
 
-    const handleDecrement = () => {
+    const handleDecrement = (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (product) {
             if (cartItemQuantity > 1) {
                 updateCartQuantity(product.id, cartItemQuantity - 1);
@@ -138,15 +129,18 @@ const ProductDetail = () => {
         }
     };
 
-    const handleAddToCart = () => {
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (product) {
             addToCart(product);
         }
     };
 
-    const handleBuyNow = () => {
+    const handleBuyNow = (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (product) {
-            buyNow(product);
+            const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
+            buyNow(product, quantity);
             router.push('/order-form');
         }
     };
@@ -156,7 +150,7 @@ const ProductDetail = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center pt-20">
+            <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick mx-auto"></div>
                     <p className="mt-4 text-lg text-gray-600">Loading product details...</p>
@@ -167,7 +161,7 @@ const ProductDetail = () => {
 
     if (!product) {
         return (
-            <div className="min-h-screen flex items-center justify-center pt-20">
+            <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-800">Product not found</h1>
                     <p className="text-gray-600 mt-2">The product you&apos;re looking for doesn&apos;t exist.</p>
@@ -192,9 +186,10 @@ const ProductDetail = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
+            {/* ✅ FIXED: Reduced padding-top */}
+            <main className="p-4 pt-4 md:pt-6 max-w-4xl mx-auto pb-24">
                 {/* Main Product */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12">
                     {/* Image Gallery */}
                     <div className="space-y-4">
                         {/* Main Image */}
@@ -237,7 +232,8 @@ const ProductDetail = () => {
                                             style={{ objectFit: 'cover' }}
                                             className="rounded-lg"
                                             onError={(e) => {
-                                                console.log('❌ Thumbnail image failed to load:', image);
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
                                             }}
                                             unoptimized={true}
                                         />
@@ -248,11 +244,11 @@ const ProductDetail = () => {
                     </div>
 
                     {/* Product Details Section */}
-                    <div>
-                        <h1 className="text-2xl lg:text-3xl font-bold mb-4 text-gray-800">{product.name}</h1>
-                        <p className="text-lipstick text-xl lg:text-2xl font-bold mb-4">{product.price} ৳</p>
+                    <div className="space-y-4">
+                        <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">{product.name}</h1>
+                        <p className="text-lipstick text-xl lg:text-2xl font-bold">{product.price} ৳</p>
 
-                        <div className="mb-6 space-y-2">
+                        <div className="space-y-2">
                             <div>
                                 <span className="text-gray-600">Category: </span>
                                 <span className="font-semibold capitalize">{product.category}</span>
@@ -268,9 +264,8 @@ const ProductDetail = () => {
                             </div>
                         </div>
 
-                        {/* Action Buttons - Homepage Style */}
-                        <div className="space-y-3 mb-6">
-                            {/* Add to Cart Button */}
+                        {/* ✅ FIXED: Action Buttons with proper event handling */}
+                        <div className="space-y-3">
                             {cartItemQuantity > 0 ? (
                                 <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center justify-between h-12 px-4">
                                     <button
@@ -297,7 +292,6 @@ const ProductDetail = () => {
                                 </button>
                             )}
 
-                            {/* Buy Now Button */}
                             <button
                                 onClick={handleBuyNow}
                                 disabled={product.stockStatus !== 'in_stock'}
@@ -325,11 +319,11 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products - NOW USING ProductCard COMPONENT */}
+                {/* ✅ FIXED: Related Products with proper spacing */}
                 {relatedProducts.length > 0 && (
-                    <section className="mt-16">
-                        <h2 className="text-3xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    <section className="mt-12">
+                        <h2 className="text-2xl font-bold text-center mb-6 text-lipstick-dark">Related Products</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {relatedProducts.slice(0, 4).map((relatedProduct) => {
                                 const relatedCartItem = cart.find(item => item.id === relatedProduct.id);
                                 const relatedCartQuantity = relatedCartItem ? relatedCartItem.quantity : 0;
@@ -352,7 +346,7 @@ const ProductDetail = () => {
                 )}
             </main>
 
-            {/* Fixed Order Bar */}
+            {/* ✅ FIXED: Fixed Order Bar */}
             {totalItems > 0 && (
                 <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                     <div className="flex justify-between items-center max-w-4xl mx-auto">
@@ -374,7 +368,7 @@ const ProductDetail = () => {
                 </div>
             )}
 
-            {/* Modal */}
+            {/* ✅ FIXED: Modal */}
             {showModal && mainImage && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
