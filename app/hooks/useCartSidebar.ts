@@ -1,212 +1,80 @@
-// app/hooks/useCartSidebar.ts - COMPLETE VERSION
+// app/hooks/useCartSidebar.ts - SIMPLIFIED WORKING VERSION
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 
 export const useCartSidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
-    const overlayRef = useRef<HTMLDivElement>(null);
 
-    // ✅ Open cart sidebar with animation
     const openCartSidebar = useCallback(() => {
-        console.log('🎯 useCartSidebar: Opening cart sidebar');
-        
-        setIsAnimating(true);
+        console.log('🔄 Opening cart sidebar');
         setIsOpen(true);
-        
-        // Body scroll lock
         document.body.style.overflow = 'hidden';
-        document.body.style.paddingRight = 'calc(100vw - 100%)'; // Prevent layout shift
-        
-        // Add backdrop filter to main content
-        const mainContent = document.querySelector('main');
-        if (mainContent) {
-            mainContent.classList.add('sidebar-open');
-        }
-
-        // Animation complete
-        setTimeout(() => {
-            setIsAnimating(false);
-            console.log('✅ Cart sidebar animation complete');
-        }, 300);
     }, []);
 
-    // ✅ Close cart sidebar with animation
     const closeCartSidebar = useCallback(() => {
-        console.log('🎯 useCartSidebar: Closing cart sidebar');
-        
-        setIsAnimating(true);
-        
-        // Remove backdrop filter from main content
-        const mainContent = document.querySelector('main');
-        if (mainContent) {
-            mainContent.classList.remove('sidebar-open');
-        }
-
-        // Animation complete
-        setTimeout(() => {
-            setIsOpen(false);
-            setIsAnimating(false);
-            
-            // Restore body scroll
-            document.body.style.overflow = '';
-            document.body.style.paddingRight = '';
-            
-            console.log('✅ Cart sidebar closed completely');
-        }, 250);
+        console.log('🔄 Closing cart sidebar');
+        setIsOpen(false);
+        document.body.style.overflow = 'unset';
     }, []);
 
-    // ✅ Toggle cart sidebar
-    const toggleCartSidebar = useCallback(() => {
-        if (isOpen) {
-            closeCartSidebar();
-        } else {
-            openCartSidebar();
-        }
-    }, [isOpen, openCartSidebar, closeCartSidebar]);
-
-    // ✅ Handle click outside
+    // ✅ বাইরে ক্লিক করলে বন্ধ হওয়ার ফাংশন
     const handleClickOutside = useCallback((event: MouseEvent) => {
-        const sidebar = sidebarRef.current;
-        const overlay = overlayRef.current;
+        const sidebar = document.getElementById('cartSidebar');
+        const overlay = document.getElementById('cartOverlay');
         
-        if (!sidebar || !overlay) return;
+        console.log('🖱️ Click detected:', {
+            target: event.target,
+            sidebar: sidebar,
+            overlay: overlay,
+            isOverlayClick: overlay?.contains(event.target as Node),
+            isSidebarClick: sidebar?.contains(event.target as Node)
+        });
 
-        // Check if click is on overlay (not sidebar)
-        const isOverlayClick = overlay.contains(event.target as Node);
-        const isSidebarClick = sidebar.contains(event.target as Node);
-        
-        if (isOverlayClick && !isSidebarClick && !isAnimating) {
-            console.log('🖱️ Click outside detected, closing sidebar');
+        // শুধু overlay এ ক্লিক করলে ক্লোজ করুন
+        if (overlay && overlay.contains(event.target as Node)) {
+            console.log('✅ Overlay clicked, closing sidebar');
             closeCartSidebar();
         }
-    }, [closeCartSidebar, isAnimating]);
+    }, [closeCartSidebar]);
 
-    // ✅ Handle escape key
+    // ✅ ESC key প্রেস করলে বন্ধ হওয়ার ফাংশন
     const handleEscapeKey = useCallback((event: KeyboardEvent) => {
-        if (event.key === 'Escape' && isOpen && !isAnimating) {
+        if (event.key === 'Escape' && isOpen) {
             console.log('⌨️ Escape key pressed, closing sidebar');
             closeCartSidebar();
         }
-    }, [isOpen, isAnimating, closeCartSidebar]);
-
-    // ✅ Handle swipe to close on mobile
-    const handleTouchStart = useCallback((event: TouchEvent) => {
-        if (!isOpen) return;
-        
-        const touchStartX = event.touches[0].clientX;
-        const sidebar = sidebarRef.current;
-        
-        if (!sidebar) return;
-
-        const handleTouchMove = (moveEvent: TouchEvent) => {
-            const touchCurrentX = moveEvent.touches[0].clientX;
-            const diffX = touchCurrentX - touchStartX;
-            
-            // Swipe right to close
-            if (diffX > 50) {
-                closeCartSidebar();
-                document.removeEventListener('touchmove', handleTouchMove);
-            }
-        };
-
-        document.addEventListener('touchmove', handleTouchMove);
-        
-        const handleTouchEnd = () => {
-            document.removeEventListener('touchmove', handleTouchMove);
-            document.removeEventListener('touchend', handleTouchEnd);
-        };
-        
-        document.addEventListener('touchend', handleTouchEnd);
     }, [isOpen, closeCartSidebar]);
 
-    // ✅ Event listeners setup
+    // ✅ Event listeners যোগ করুন
     useEffect(() => {
         if (isOpen) {
-            console.log('🔔 Adding event listeners for cart sidebar');
-            
+            console.log('🎯 Adding event listeners');
             document.addEventListener('mousedown', handleClickOutside);
             document.addEventListener('keydown', handleEscapeKey);
-            document.addEventListener('touchstart', handleTouchStart);
-            
-            // Focus trap for accessibility
-            const sidebar = sidebarRef.current;
-            if (sidebar) {
-                const focusableElements = sidebar.querySelectorAll(
-                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-                );
-                
-                if (focusableElements.length > 0) {
-                    (focusableElements[0] as HTMLElement).focus();
-                }
-            }
+        } else {
+            console.log('🎯 Removing event listeners');
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleEscapeKey);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleEscapeKey);
-            document.removeEventListener('touchstart', handleTouchStart);
         };
-    }, [isOpen, handleClickOutside, handleEscapeKey, handleTouchStart]);
+    }, [isOpen, handleClickOutside, handleEscapeKey]);
 
     // ✅ Cleanup on unmount
     useEffect(() => {
         return () => {
-            console.log('🧹 Cleaning up cart sidebar');
-            
-            // Restore body styles
-            document.body.style.overflow = '';
-            document.body.style.paddingRight = '';
-            
-            // Remove main content classes
-            const mainContent = document.querySelector('main');
-            if (mainContent) {
-                mainContent.classList.remove('sidebar-open');
-            }
-            
-            // Remove all event listeners
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleEscapeKey);
-            document.removeEventListener('touchstart', handleTouchStart);
+            document.body.style.overflow = 'unset';
         };
-    }, [handleClickOutside, handleEscapeKey, handleTouchStart]);
-
-    // ✅ Responsive height management
-    useEffect(() => {
-        const updateHeights = () => {
-            const sidebar = sidebarRef.current;
-            const overlay = overlayRef.current;
-            
-            if (sidebar && overlay) {
-                const viewportHeight = window.innerHeight;
-                sidebar.style.height = `${viewportHeight}px`;
-                overlay.style.height = `${viewportHeight}px`;
-            }
-        };
-
-        if (isOpen) {
-            updateHeights();
-            window.addEventListener('resize', updateHeights);
-            
-            // Update on orientation change
-            window.addEventListener('orientationchange', updateHeights);
-        }
-
-        return () => {
-            window.removeEventListener('resize', updateHeights);
-            window.removeEventListener('orientationchange', updateHeights);
-        };
-    }, [isOpen]);
+    }, []);
 
     return { 
-        isOpen,
-        isAnimating,
-        sidebarRef,
-        overlayRef,
+        isOpen, 
         openCartSidebar, 
-        closeCartSidebar,
-        toggleCartSidebar 
+        closeCartSidebar 
     };
 };
