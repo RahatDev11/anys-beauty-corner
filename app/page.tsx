@@ -118,7 +118,7 @@ function HomePageContent() {
 
     if (loading) {
         return (
-            <main className="p-4 pt-24">
+            <main className="p-4 pt-4">
                 <div className="container mx-auto">
                     <div className="flex justify-center items-center min-h-64">
                         <div className="text-center">
@@ -132,10 +132,10 @@ function HomePageContent() {
     }
 
     return (
-        <main className="pt-0 pb-12"> {/* কম padding */}
+        <main className="pt-0 pb-8"> {/* আরো কম padding */}
             <div className="container mx-auto">
                 {isAdmin && (
-                    <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
+                    <section className="mb-6 p-4 bg-white rounded-lg shadow-lg space-y-4">
                         <h2 className="text-2xl font-bold text-center text-lipstick-dark">Admin Panel</h2>
                         <ProductManagement />
                         <SliderManagement />
@@ -143,11 +143,10 @@ function HomePageContent() {
                     </section>
                 )}
 
-                {/* Featured Products Section - FIRST */}
+                {/* Featured Products Section - WITHOUT HEADING */}
                 {sliderProducts.length > 0 && (
-                    <section className="mb-12">
+                    <section className="mb-8"> {/* কম margin */}
                         <div className="px-4 lg:px-8">
-                            <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
                             <ProductSlider 
                                 products={sliderProducts} 
                                 showProductDetail={showProductDetail} 
@@ -156,11 +155,10 @@ function HomePageContent() {
                     </section>
                 )}
 
-                {/* Events Section - SECOND */}
+                {/* Events Section - WITHOUT HEADING */}
                 {events?.filter(event => event.isActive).length > 0 && (
-                    <section className="mb-12">
+                    <section className="mb-8"> {/* কম margin */}
                         <div className="px-4 lg:px-8">
-                            <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
                             <EventSlider events={events.filter(event => event.isActive)} />
                         </div>
                     </section>
@@ -168,7 +166,7 @@ function HomePageContent() {
 
                 {/* All Products Section */}
                 <section className="px-4 lg:px-8">
-                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
+                    <h2 className="text-2xl font-bold text-lipstick-dark text-center mb-6"> {/* কম margin */}
                         {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
                     </h2>
 
@@ -182,8 +180,8 @@ function HomePageContent() {
                             buyNow={buyNow}
                         />
                     ) : (
-                        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-                            <div className="text-6xl text-gray-300 mb-4">📦</div>
+                        <div className="text-center py-8 bg-white rounded-lg shadow-sm"> {/* কম padding */}
+                            <div className="text-6xl text-gray-300 mb-3">📦</div>
                             <h3 className="text-xl font-semibold text-gray-600 mb-2">No Products Found</h3>
                             <p className="text-gray-500">Check back later for new products!</p>
                         </div>
