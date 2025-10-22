@@ -42,7 +42,7 @@ function HomePageContent() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { cart, addToCart, removeFromCart, updateCartQuantity, buyNow } = useCart();
+    const { cart, addToCart, removeFromCart, updateCartQuantity, buyNow, buyNowSingle } = useCart(); // ✅ buyNowSingle যোগ করুন
     const { isAdmin } = useAuth();
 
     const searchParams = useSearchParams();
@@ -132,7 +132,7 @@ function HomePageContent() {
     }
 
     return (
-        <main className="pt-0 pb-8"> {/* আরো কম padding */}
+        <main className="pt-0 pb-8">
             <div className="container mx-auto">
                 {isAdmin && (
                     <section className="mb-6 p-4 bg-white rounded-lg shadow-lg space-y-4">
@@ -145,7 +145,7 @@ function HomePageContent() {
 
                 {/* Featured Products Section - WITHOUT HEADING */}
                 {sliderProducts.length > 0 && (
-                    <section className="mb-8"> {/* কম margin */}
+                    <section className="mb-8">
                         <div className="px-4 lg:px-8">
                             <ProductSlider 
                                 products={sliderProducts} 
@@ -157,7 +157,7 @@ function HomePageContent() {
 
                 {/* Events Section - WITHOUT HEADING */}
                 {events?.filter(event => event.isActive).length > 0 && (
-                    <section className="mb-8"> {/* কম margin */}
+                    <section className="mb-8">
                         <div className="px-4 lg:px-8">
                             <EventSlider events={events.filter(event => event.isActive)} />
                         </div>
@@ -166,7 +166,7 @@ function HomePageContent() {
 
                 {/* All Products Section */}
                 <section className="px-4 lg:px-8">
-                    <h2 className="text-2xl font-bold text-lipstick-dark text-center mb-6"> {/* কম margin */}
+                    <h2 className="text-2xl font-bold text-lipstick-dark text-center mb-6">
                         {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
                     </h2>
 
@@ -178,9 +178,10 @@ function HomePageContent() {
                             removeFromCart={removeFromCart}
                             updateCartQuantity={updateCartQuantity}
                             buyNow={buyNow}
+                            buyNowSingle={buyNowSingle} // ✅ buyNowSingle prop পাস করুন
                         />
                     ) : (
-                        <div className="text-center py-8 bg-white rounded-lg shadow-sm"> {/* কম padding */}
+                        <div className="text-center py-8 bg-white rounded-lg shadow-sm">
                             <div className="text-6xl text-gray-300 mb-3">📦</div>
                             <h3 className="text-xl font-semibold text-gray-600 mb-2">No Products Found</h3>
                             <p className="text-gray-500">Check back later for new products!</p>
