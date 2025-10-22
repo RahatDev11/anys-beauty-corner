@@ -21,60 +21,99 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
     const [query, setQuery] = useState('');
     const [products, setProducts] = useState<Product[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const searchRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        console.log("Firebase connection started...");
-        const productsRef = ref(database, "products/");
-        const unsubscribe = onValue(productsRef, (snapshot) => {
-            console.log("Firebase snapshot received:", snapshot.exists());
-            if (snapshot.exists()) {
-                const productsData = Object.keys(snapshot.val()).map(key => ({ 
-                    id: key, 
-                    ...snapshot.val()[key] 
-                }));
-                console.log("Products loaded:", productsData.length);
-                console.log("Sample product:", productsData[0]);
-                setProducts(productsData);
-            } else {
-                console.log("No data found in Firebase");
-            }
-            setIsLoading(false);
-        }, (error) => {
-            console.error("Firebase error:", error);
-            setIsLoading(false);
-        });
+    // Temporary mock data - Firebase কাজ না করলে এটি ব্যবহার করুন
+    const mockProducts: Product[] = [
+        {
+            id: "1742836416596",
+            name: "ন্যাচারাল ফুড বাদাম শেক",
+            price: 999,
+            image: "https://res.cloudinary.com/dnvm88wfi/image/upload/v1742836366/FB_IMG_1742836332893_yerctd.jpg",
+            tags: "বাদাম শেক ন্যাচারাল ফুড"
+        },
+        {
+            id: "1742835626731", 
+            name: "চকলেট শেক",
+            price: 1350,
+            image: "https://res.cloudinary.com/dnvm88wfi/image/upload/v1742835562/FB_IMG_1742835455428_ooukwc.jpg",
+            tags: "চকলেট শেক"
+        },
+        {
+            id: "1742837058123",
+            name: "স্ট্রবেরি শেক",
+            price: 1200,
+            image: "https://res.cloudinary.com/dnvm88wfi/image/upload/v1742837058/FB_IMG_1742837029592_sljyp0.jpg",
+            tags: "স্ট্রবেরি শেক"
+        }
+    ];
 
-        return () => unsubscribe();
+    useEffect(() => {
+        console.log("🔥 Firebase থেকে প্রোডাক্ট লোড করার চেষ্টা করছি...");
+        setIsLoading(true);
+        
+        try {
+            const productsRef = ref(database, "products");
+            const unsubscribe = onValue(productsRef, (snapshot) => {
+                console.log("📦 Firebase স্ন্যাপশট:", snapshot.exists());
+                
+                if (snapshot.exists()) {
+                    const productsData = Object.keys(snapshot.val()).map(key => ({ 
+                        id: key, 
+                        ...snapshot.val()[key] 
+                    }));
+                    console.log("✅ প্রোডাক্ট লোড হয়েছে:", productsData.length);
+                    console.log("📝 প্রথম প্রোডাক্ট:", productsData[0]);
+                    setProducts(productsData);
+                } else {
+                    console.log("❌ Firebase এ কোনো ডেটা নেই, mock ডেটা ব্যবহার করছি");
+                    // Firebase এ ডেটা না থাকলে mock ডেটা ব্যবহার করুন
+                    setProducts(mockProducts);
+                }
+                setIsLoading(false);
+            }, (error) => {
+                console.error("🔥 Firebase error:", error);
+                console.log("🔄 Mock ডেটা ব্যবহার করছি...");
+                // Error হলে mock ডেটা ব্যবহার করুন
+                setProducts(mockProducts);
+                setIsLoading(false);
+            });
+
+            return () => unsubscribe();
+        } catch (error) {
+            console.error("🔥 Firebase connection failed:", error);
+            console.log("🔄 Mock ডেটা ব্যবহার করছি...");
+            setProducts(mockProducts);
+            setIsLoading(false);
+        }
     }, []);
 
     useEffect(() => {
-        console.log("Search query:", query);
-        console.log("Total products:", products.length);
+        console.log("🔍 সার্চ কুয়েরি:", query);
+        console.log("📊 মোট প্রোডাক্ট:", products.length);
         
         if (query.trim().length > 0) {
             const searchTerm = query.toLowerCase().trim();
-            console.log("Searching for:", searchTerm);
+            console.log("🎯 সার্চ টার্ম:", searchTerm);
             
             const filtered = products.filter(p => {
                 const nameMatch = p.name && p.name.toLowerCase().includes(searchTerm);
                 const tagsMatch = p.tags && p.tags.toLowerCase().includes(searchTerm);
-                const banglaMatch = p.name && p.name.includes(query);
+                const banglaNameMatch = p.name && p.name.includes(query);
                 const banglaTagsMatch = p.tags && p.tags.includes(query);
                 
-                console.log(`Product: ${p.name}`, {
-                    nameMatch,
-                    tagsMatch,
-                    banglaMatch,
-                    banglaTagsMatch
-                });
+                const matches = nameMatch || tagsMatch || banglaNameMatch || banglaTagsMatch;
                 
-                return nameMatch || tagsMatch || banglaMatch || banglaTagsMatch;
+                if (matches) {
+                    console.log("✅ মিলেছে:", p.name);
+                }
+                
+                return matches;
             });
             
-            console.log("Filtered products:", filtered);
+            console.log("📋 ফিল্টার্ড প্রোডাক্ট:", filtered.length, filtered);
             setFilteredProducts(filtered.slice(0, 5));
         } else {
             setFilteredProducts([]);
@@ -90,6 +129,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
     };
 
     const handleProductClick = (productId: string) => {
+        console.log("🔄 প্রোডাক্ট এ ক্লিক:", productId);
         router.push(`/product-detail/${productId}`);
         setQuery('');
         if (onSearchFocusChange) {
@@ -128,15 +168,15 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
                 <i className="fas fa-search text-2xl absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800"></i>
             </div>
 
-            {/* Debug info - remove in production */}
+            {/* Development debug info */}
             {process.env.NODE_ENV === 'development' && (
-                <div className="text-xs text-gray-500 mt-1">
-                    Products: {products.length} | Filtered: {filteredProducts.length} | Query: "{query}"
+                <div className="text-xs text-gray-500 mt-1 bg-yellow-100 p-1 rounded">
+                    🔍 ডিবাগ: {products.length} প্রোডাক্ট | {filteredProducts.length} ফলাফল | "{query}"
                 </div>
             )}
 
             {isLoading && query.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 p-3 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 p-3 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg z-50 border border-gray-200">
                     <p className="text-center text-gray-500">লোড হচ্ছে...</p>
                 </div>
             )}
@@ -151,7 +191,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
                         >
                             <div className="flex-shrink-0 w-10 h-10 bg-gray-100 rounded-lg overflow-hidden">
                                 <Image 
-                                    src={product.image ? product.image.split(',')[0].trim() : '/images/placeholder.jpg'} 
+                                    src={product.image || '/images/placeholder.jpg'} 
                                     className="w-full h-full object-cover" 
                                     alt={product.name} 
                                     width={40} 
@@ -167,7 +207,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
                                 </p>
                                 {product.tags && (
                                     <p className="text-xs text-gray-500 truncate">
-                                        {product.tags}
+                                        ট্যাগ: {product.tags}
                                     </p>
                                 )}
                             </div>
@@ -185,6 +225,9 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
                 <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg z-50 border border-gray-200">
                     <p className="text-center text-gray-500 text-sm">
                         " {query} " এর সাথে মিলে এমন কোনো প্রোডাক্ট পাওয়া যায়নি
+                    </p>
+                    <p className="text-center text-xs text-gray-400 mt-1">
+                        ট্রাই করুন: "বাদাম", "চকলেট", "শেক"
                     </p>
                 </div>
             )}
