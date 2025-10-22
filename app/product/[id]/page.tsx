@@ -1,3 +1,4 @@
+// app/product/[id]/page.tsx - FIXED VERSION
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -6,7 +7,7 @@ import { database, ref, onValue } from '@/lib/firebase';
 import { useCart } from '@/app/context/CartContext';
 import Image from 'next/image';
 import { Product } from '@/types/product';
-import ProductCard from '@/components/ProductCard'; // ✅ ProductCard import করুন
+import ProductCard from '../../components/ProductCard'; // ✅ FIXED IMPORT
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -100,16 +101,6 @@ const ProductDetail = () => {
             }
         });
     }, [id]);
-
-    // Function to process tags
-    const processTags = (tags: any): string[] => {
-        if (Array.isArray(tags)) {
-            return tags;
-        } else if (typeof tags === 'string') {
-            return tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-        }
-        return [];
-    };
 
     const handleThumbnailClick = (image: string) => {
         setMainImage(image);
