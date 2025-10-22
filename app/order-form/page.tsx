@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
 import { database, ref, push, set } from '@/lib/firebase';
-import Image from 'next/image';
+import { SlimProductCard } from '../components/ProductCard'; // নতুন SlimProductCard ইম্পোর্ট
 
 const OrderForm = () => {
-    const { cart, buyNowItems, clearCart, updateCartQuantity, removeFromCart } = useCart();
+    const { cart, buyNowItems, clearCart, updateCartQuantity, removeFromCart, addToCart, buyNow, buyNowSingle } = useCart();
     const router = useRouter();
 
     const [customerName, setCustomerName] = useState('');
@@ -25,7 +25,7 @@ const OrderForm = () => {
     const orderItems = buyNowItems.length > 0 ? buyNowItems : cart;
     const totalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
+
     const deliveryFee = deliveryLocation === 'insideDhaka' ? 70 : 160;
     const totalAmount = totalPrice + deliveryFee;
 
@@ -62,23 +62,13 @@ const OrderForm = () => {
         }
     };
 
-    // ✅ প্রোডাক্ট ডিটেইল পেজে নেওয়ার ফাংশন
-    const handleProductClick = (productId: string) => {
-        router.push(`/product/${productId}`);
-    };
-
-    // ✅ কোয়ান্টিটি বাড়ানোর ফাংশন
-    const handleIncrement = (productId: string, currentQuantity: number) => {
-        updateCartQuantity(productId, currentQuantity + 1);
-    };
-
-    // ✅ কোয়ান্টিটি কমানোর ফাংশন
-    const handleDecrement = (productId: string, currentQuantity: number) => {
-        if (currentQuantity > 1) {
-            updateCartQuantity(productId, currentQuantity - 1);
-        } else {
-            removeFromCart(productId);
-        }
+    // SlimProductCard এর জন্য প্রয়োজনীয় props
+    const productCardProps = {
+        addToCart: addToCart,
+        removeFromCart: removeFromCart,
+        updateCartQuantity: updateCartQuantity,
+        buyNow: buyNow,
+        buyNowSingle: buyNowSingle,
     };
 
     // Validation function
@@ -164,7 +154,7 @@ const OrderForm = () => {
 
             // ✅ Clear appropriate items
             clearCart();
-            
+
             router.push('/');
 
         } catch (error: any) {
@@ -442,62 +432,14 @@ const OrderForm = () => {
                         <div className="bg-white p-6 rounded-lg shadow-md h-fit">
                             <h2 className="text-2xl font-bold mb-6 text-lipstick">Order Summary</h2>
 
-                            <div className="space-y-4 mb-6">
+                            <div className="space-y-3 mb-6">
                                 {orderItems.map((item) => (
-                                    <div key={item.id} className="border-b pb-4">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div 
-                                                className="flex items-center space-x-3 flex-1 cursor-pointer"
-                                                onClick={() => handleProductClick(item.id)}
-                                            >
-                                                <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                    {item.image ? (
-                                                        <Image 
-                                                            src={item.image.split(',')[0].trim()} 
-                                                            alt={item.name}
-                                                            width={40}
-                                                            height={40}
-                                                            className="w-10 h-10 object-cover rounded"
-                                                        />
-                                                    ) : (
-                                                        <span className="text-gray-400 text-xs">No Image</span>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p 
-                                                        className="font-medium text-sm hover:text-lipstick transition-colors cursor-pointer line-clamp-2"
-                                                        onClick={() => handleProductClick(item.id)}
-                                                    >
-                                                        {item.name}
-                                                    </p>
-                                                    <p className="text-gray-600 text-sm">৳{item.price}</p>
-                                                </div>
-                                            </div>
-                                            <p className="font-semibold">৳{(item.price * item.quantity).toFixed(2)}</p>
-                                        </div>
-                                        
-                                        {/* ✅ কোয়ান্টিটি কন্ট্রোল */}
-                                        <div className="flex items-center justify-between mt-2">
-                                            <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleDecrement(item.id, item.quantity)}
-                                                    className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
-                                                >
-                                                    -
-                                                </button>
-                                                <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
-                                                <button
-                                                    onClick={() => handleIncrement(item.id, item.quantity)}
-                                                    className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
-                                                >
-                                                    +
-                                                </button>
-                                            </div>
-                                            <span className="text-sm text-gray-600">
-                                                {item.quantity} x ৳{item.price}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <SlimProductCard 
+                                        key={item.id}
+                                        product={item}
+                                        cartItemQuantity={item.quantity}
+                                        {...productCardProps}
+                                    />
                                 ))}
                             </div>
 
