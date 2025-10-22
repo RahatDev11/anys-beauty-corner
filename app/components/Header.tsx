@@ -1,9 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useSidebar } from '../hooks/useSidebar';
-import { useCartSidebar } from '../hooks/useCartSidebar';
 import { useRouter } from 'next/navigation';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../context/CartContext'; // ✅ CartContext থেকে ফাংশন নিন
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -29,17 +28,28 @@ const NotificationIcon = () => (
 
 const Header = () => {
     const { isOpen: isSidebarOpen, openSidebar, closeSidebar } = useSidebar();
-    const { isOpen: isCartSidebarOpen, openCartSidebar, closeCartSidebar } = useCartSidebar();
+    // ✅ CartContext থেকে কার্ট সাইডবার ফাংশনগুলো নিন
+    const { 
+        cart, 
+        totalItems, 
+        totalPrice, 
+        updateQuantity, 
+        removeFromCart, 
+        checkout,
+        isCartSidebarOpen, 
+        openCartSidebar, 
+        closeCartSidebar 
+    } = useCart();
+    
     const [isMobileSubMenuOpen, setIsMobileSubMenuOpen] = useState(false);
     const [isMobileSearchBarOpen, setIsMobileSearchBarOpen] = useState(false);
     const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
     const [imgError, setImgError] = useState(false);
 
     const router = useRouter();
-    const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
 
-    // ✅ Body scroll management
+    // ✅ Body scroll management - CartContext এর state ব্যবহার করুন
     useEffect(() => {
         if (isCartSidebarOpen) {
             document.body.style.overflow = 'hidden';
@@ -106,14 +116,13 @@ const Header = () => {
 
     // ✅ Handle checkout with sidebar close
     const handleCheckout = () => {
-        checkout();
-        closeCartSidebar();
+        checkout(); // ✅ CartContext এর checkout ফাংশন ব্যবহার করুন
     };
 
     // ✅ Handle overlay click
     const handleOverlayClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
-            closeCartSidebar();
+            closeCartSidebar(); // ✅ CartContext এর closeCartSidebar ব্যবহার করুন
         }
     };
 
@@ -203,7 +212,7 @@ const Header = () => {
                     {/* শপিং ব্যাগ আইকন */}
                     <button 
                         className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative bg-transparent border-none" 
-                        onClick={openCartSidebar}
+                        onClick={openCartSidebar} // ✅ CartContext এর openCartSidebar ব্যবহার করুন
                     >
                         <i className="fas fa-shopping-bag text-2xl"></i>
                         {totalItems > 0 && (
@@ -254,7 +263,7 @@ const Header = () => {
                 </div>
             </header>
 
-            {/* ✅ FIXED: কার্ট সাইডবার - CSS Conflict Solved */}
+            {/* ✅ FIXED: কার্ট সাইডবার - CartContext ব্যবহার করে */}
             {isCartSidebarOpen && (
                 <>
                     {/* Overlay with proper blur */}
@@ -262,14 +271,14 @@ const Header = () => {
                         className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"
                         onClick={handleOverlayClick}
                     />
-                    
+
                     {/* Cart Sidebar */}
                     <div className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-xl z-50 flex flex-col">
                         {/* Header */}
                         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
                             <h2 className="text-xl font-bold text-gray-900">আপনার কার্ট ({cart.length})</h2>
                             <button 
-                                onClick={closeCartSidebar}
+                                onClick={closeCartSidebar} // ✅ CartContext এর closeCartSidebar ব্যবহার করুন
                                 className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors"
                             >
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -290,7 +299,7 @@ const Header = () => {
                                     <h3 className="text-lg font-semibold text-gray-700 mb-2">কার্ট খালি</h3>
                                     <p className="text-gray-500 mb-6">আপনার কার্টে কোনো প্রোডাক্ট নেই</p>
                                     <button 
-                                        onClick={closeCartSidebar}
+                                        onClick={closeCartSidebar} // ✅ CartContext এর closeCartSidebar ব্যবহার করুন
                                         className="bg-lipstick text-white px-6 py-3 rounded-lg hover:bg-lipstick-dark transition-colors"
                                     >
                                         শপিং চালিয়ে যান
@@ -369,7 +378,7 @@ const Header = () => {
                 </>
             )}
 
-                {/* মোবাইল সাইডবার */}
+            {/* মোবাইল সাইডবার */}
             {isSidebarOpen && (
                 <>
                     <div 
