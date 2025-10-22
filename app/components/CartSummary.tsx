@@ -1,4 +1,4 @@
-// components/CartSummary.tsx - FIXED VERSION
+// components/CartSummary.tsx - UPDATED VERSION
 'use client';
 
 import React from 'react';
@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useCartSidebar } from '@/app/hooks/useCartSidebar';
 
 const CartSummary: React.FC = () => {
-    const { totalItems, totalPrice } = useCart();
+    const { totalItems, totalPrice, buyNow } = useCart(); // ✅ buyNow ফাংশন যোগ করুন
     const router = useRouter();
     const { openCartSidebar } = useCartSidebar();
 
@@ -17,17 +17,17 @@ const CartSummary: React.FC = () => {
 
     const handleViewCart = () => {
         console.log('🔄 CartSummary: কার্ড দেখুন বাটনে ক্লিক হয়েছে');
-        
+
         // ✅ Error handling সহ
         if (openCartSidebar && typeof openCartSidebar === 'function') {
             console.log('✅ openCartSidebar ফাংশন call করা হচ্ছে...');
             openCartSidebar();
-            
+
             // ✅ Fallback: যদি hook কাজ না করে তাহলে direct DOM manipulation
             setTimeout(() => {
                 const cartSidebar = document.querySelector('.cart-sidebar');
                 const overlay = document.querySelector('.cart-sidebar-overlay');
-                
+
                 if (cartSidebar && !cartSidebar.classList.contains('open')) {
                     console.log('🔄 Fallback: Direct DOM manipulation...');
                     cartSidebar.classList.add('open');
@@ -42,7 +42,7 @@ const CartSummary: React.FC = () => {
             // ✅ Emergency fallback
             const cartSidebar = document.querySelector('.cart-sidebar');
             const overlay = document.querySelector('.cart-sidebar-overlay');
-            
+
             if (cartSidebar) cartSidebar.classList.add('open');
             if (overlay) overlay.classList.add('active');
             document.body.classList.add('overflow-hidden');
@@ -50,7 +50,9 @@ const CartSummary: React.FC = () => {
     };
 
     const handleCheckout = () => {
-        router.push('/order-form');
+        // ✅ buyNow ফাংশন ব্যবহার করুন (কোনো প্যারামিটার ছাড়াই)
+        // এটি কার্টের সব আইটেম নিয়ে অর্ডার ফর্মে যাবে
+        buyNow();
     };
 
     return (
@@ -62,7 +64,7 @@ const CartSummary: React.FC = () => {
                             <span className="font-bold text-lg">{totalItems}</span>
                         </div>
                         <span className="text-md font-semibold text-gray-800">
-                            {totalPrice} টাকা
+                            {totalPrice.toFixed(2)} টাকা {/* ✅ .toFixed(2) যোগ করুন */}
                         </span>
                     </div>
 
@@ -77,7 +79,7 @@ const CartSummary: React.FC = () => {
                             onClick={handleCheckout}
                             className="px-4 py-2 bg-lipstick text-white rounded font-semibold hover:bg-lipstick-dark transition-colors text-sm"
                         >
-                            অর্ডার করুন
+                            অর্ডার করুন ({totalItems})
                         </button>
                     </div>
                 </div>
