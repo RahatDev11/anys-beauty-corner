@@ -72,8 +72,8 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
                 })}
             </Swiper>
 
-            {/* Custom pagination container - center aligned with proper dots */}
-            <div className="swiper-pagination"></div>
+            {/* Custom pagination container - FIXED: center aligned */}
+            <div className="swiper-pagination !bottom-4 !left-1/2 !transform !-translate-x-1/2 !w-auto"></div>
 
             {/* Custom CSS for pagination */}
             <style jsx global>{`
@@ -82,9 +82,6 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
                 }
                 .swiper-pagination {
                     position: absolute;
-                    bottom: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -106,6 +103,14 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
                 }
                 .new-product-slider {
                     width: 100%;
+                }
+                
+                /* Fix for pagination positioning */
+                .swiper-pagination-horizontal {
+                    bottom: 16px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: auto !important;
                 }
             `}</style>
         </div>
