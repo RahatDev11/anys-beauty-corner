@@ -15,6 +15,7 @@ interface ProductListProps {
     removeFromCart: (productId: string) => void;
     updateCartQuantity: (productId: string, quantity: number) => void;
     buyNow: (product: Product, quantity?: number) => void;
+    buyNowSingle?: (product: Product, quantity?: number) => void; // ✅ নতুন prop যোগ করুন
 }
 
 const ProductList: React.FC<ProductListProps> = ({
@@ -24,6 +25,7 @@ const ProductList: React.FC<ProductListProps> = ({
     removeFromCart,
     updateCartQuantity,
     buyNow,
+    buyNowSingle, // ✅ নতুন prop গ্রহণ করুন
 }) => {
     const router = useRouter();
 
@@ -44,6 +46,7 @@ const ProductList: React.FC<ProductListProps> = ({
                         removeFromCart={removeFromCart}
                         updateCartQuantity={updateCartQuantity}
                         buyNow={(productItem) => buyNow(productItem)}
+                        buyNowSingle={buyNowSingle} // ✅ buyNowSingle prop পাস করুন
                         cartItemQuantity={cartItemQuantity}
                         showProductDetail={showProductDetail}
                     />
