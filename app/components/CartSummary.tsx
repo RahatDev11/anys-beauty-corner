@@ -1,38 +1,32 @@
-// components/CartSummary.tsx - SIMPLE WORKING VERSION
+// components/CartSummary.tsx - FIXED VERSION
 'use client';
 
 import React from 'react';
 import { useCart } from '@/app/context/CartContext';
-import { useCartSidebar } from '@/app/hooks/useCartSidebar';
 
 const CartSummary: React.FC = () => {
-    const { totalItems, totalPrice, buyNow } = useCart();
-    const { openCartSidebar } = useCartSidebar();
+    const { totalItems, totalPrice, buyNow, openCartSidebar } = useCart();
 
-    // Debug log
+    // Debug
     React.useEffect(() => {
-        console.log('🔍 CartSummary: Component mounted');
-        console.log('🔍 openCartSidebar function:', openCartSidebar);
+        console.log('🔍 CartSummary: openCartSidebar available?', !!openCartSidebar);
     }, [openCartSidebar]);
 
     if (totalItems === 0) {
         return null;
     }
 
-    const handleViewCart = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
+    const handleViewCart = () => {
         console.log('🔄 CartSummary: কার্ড দেখুন বাটনে ক্লিক হয়েছে');
-        console.log('🔍 openCartSidebar:', openCartSidebar);
+        console.log('🔍 openCartSidebar function:', openCartSidebar);
         
         if (openCartSidebar && typeof openCartSidebar === 'function') {
-            console.log('✅ openCartSidebar ফাংশন call করা হচ্ছে...');
             openCartSidebar();
         } else {
-            console.error('❌ openCartSidebar ফাংশন available নেই বা undefined');
-            // Emergency fallback - direct URL navigation
-            window.dispatchEvent(new CustomEvent('openCartSidebar'));
+            console.error('❌ openCartSidebar unavailable, using direct method');
+            // Direct fallback
+            const event = new CustomEvent('openCartSidebar');
+            window.dispatchEvent(event);
         }
     };
 
