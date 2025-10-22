@@ -1,4 +1,4 @@
-// components/ProductCard.tsx - FINAL VERSION
+// components/ProductCard.tsx - COMPACT VERSION
 'use client';
 
 import React from 'react';
@@ -82,20 +82,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
     };
 
     return (
-        <div className="bg-white rounded-xl shadow overflow-hidden flex flex-col">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col border border-gray-200">
             <div className="relative">
                 <img
                     src={imageUrl}
                     alt={productName}
-                    className="w-full h-36 object-cover cursor-pointer"
+                    className="w-full h-28 object-cover cursor-pointer"
                     onClick={() => handleShowProductDetail(productId)}
                 />
             </div>
 
-            <div className="p-3 flex flex-col flex-grow bg-white">
+            <div className="p-2 flex flex-col flex-grow bg-white">
                 <div className="flex-grow">
                     <h3
-                        className="font-semibold text-lg mb-1 cursor-pointer"
+                        className="font-medium text-sm mb-1 cursor-pointer line-clamp-2"
                         onClick={() => handleShowProductDetail(productId)}
                     >
                         {productName}
@@ -103,23 +103,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 </div>
 
                 <div>
-                    <p className="text-xl font-bold mt-3 text-black">
+                    <p className="text-lg font-bold mt-2 text-black">
                         {product?.price ? `${product.price} টাকা` : 'Price N/A'}
                     </p>
 
-                    <div className="mt-4 space-y-2">
+                    <div className="mt-3 space-y-2">
                         {cartItemQuantity > 0 ? (
-                            <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center justify-between h-10 px-3">
+                            <div className="w-full bg-gray-100 text-black rounded-md font-semibold flex items-center justify-between h-8 px-2">
                                 <button
                                     onClick={handleDecrement}
-                                    className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                    className="w-5 h-5 flex items-center justify-center bg-gray-300 rounded-full text-xs hover:bg-gray-400 transition-colors"
                                 >
                                     -
                                 </button>
-                                <span className="text-lg">{cartItemQuantity}</span>
+                                <span className="text-sm">{cartItemQuantity}</span>
                                 <button
                                     onClick={handleIncrement}
-                                    className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                    className="w-5 h-5 flex items-center justify-center bg-gray-300 rounded-full text-xs hover:bg-gray-400 transition-colors"
                                 >
                                     +
                                 </button>
@@ -128,7 +128,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             <button
                                 onClick={() => product && addToCart(product)}
                                 disabled={!product || product.stockStatus !== 'in_stock'}
-                                className="w-full bg-lipstick text-white rounded-lg font-semibold flex items-center h-10 justify-center text-sm hover:bg-lipstick-dark border-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full bg-lipstick text-white rounded-md font-semibold flex items-center h-8 justify-center text-xs hover:bg-lipstick-dark border-none disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Add To Cart
                             </button>
@@ -137,7 +137,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         <button
                             onClick={handleBuyNow}
                             disabled={!product || product.stockStatus !== 'in_stock'}
-                            className="w-full bg-gray-800 text-white py-2 rounded-lg font-semibold text-sm hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-gray-800 text-white py-1 rounded-md font-semibold text-xs hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Buy Now
                         </button>
