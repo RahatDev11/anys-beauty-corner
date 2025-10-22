@@ -26,19 +26,22 @@ interface CartContextType {
     cart: CartItem[];
     addToCart: (product: Product, quantity?: number) => void;
     updateQuantity: (productId: string, change: number) => void;
-    updateCartQuantity: (productId: string, quantity: number) => void; // নতুন ফাংশন
+    updateCartQuantity: (productId: string, quantity: number) => void;
     removeFromCart: (productId: string) => void;
     checkout: () => void;
     buyNow: (product: Product, quantity?: number) => void;
+    buyNowSingle: (product: Product, quantity?: number) => void; // নতুন ফাংশন
     totalItems: number;
     totalPrice: number;
     clearCart: () => void;
+    buyNowItems: CartItem[]; // নতুন state
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [cart, setCart] = useState<CartItem[]>([]);
+    const [buyNowItems, setBuyNowItems] = useState<CartItem[]>([]); // নতুন state
     const [products, setProducts] = useState<Product[]>([]); // Global products list
     const { showToast } = useToast();
     const router = useRouter();
@@ -151,21 +154,36 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [cart, router, showToast]);
 
-    const buyNow = useCallback((product: Product, quantity: number = 1) => {
-        // যদি কার্টে ইতিমধ্যে আইটেম থাকে, সবগুলো নিয়ে যাবে
-        // যদি কার্ট খালি থাকে, শুধু বর্তমান প্রোডাক্ট নিয়ে যাবে
-        if (cart.length > 0) {
-            // কার্টের সব আইটেম নিয়ে অর্ডার ফর্মে যাবে
-            const cartData = encodeURIComponent(JSON.stringify(cart));
-            router.push(`/order-form?cart=${cartData}`);
+    // ✅ নতুন ফাংশন: শুধু একটি প্রোডাক্টের জন্য Buy Now
+    const buyNowSingle = useCallback((product: Product, quantity: number = 1) => {
+        const singleItem: CartItem = { 
+            id: product.id, 
+            name: product.name, 
+            price: product.price, 
+            image: product.image, 
+            quantity: quantity 
+        };
+        setBuyNowItems([singleItem]);
+        router.push('/order-form');
+    }, [router]);
+
+    // ✅ বিদ্যমান buyNow ফাংশন: কার্টের সব আইটেমের জন্য
+    const buyNow = useCallback((product?: Product, quantity?: number) => {
+        if (product && quantity) {
+            // যদি প্রোডাক্ট এবং কোয়ান্টিটি দেওয়া থাকে, শুধু সেই প্রোডাক্ট নিয়ে যাবে
+            const singleItem: CartItem = { 
+                id: product.id, 
+                name: product.name, 
+                price: product.price, 
+                image: product.image, 
+                quantity: quantity 
+            };
+            setBuyNowItems([singleItem]);
         } else {
-            // শুধু বর্তমান প্রোডাক্ট নিয়ে যাবে
-            const tempCart = [
-                { id: product.id, name: product.name, price: product.price, image: product.image, quantity: quantity },
-            ];
-            const cartData = encodeURIComponent(JSON.stringify(tempCart));
-            router.push(`/order-form?cart=${cartData}`);
+            // যদি কিছু না দেওয়া থাকে, কার্টের সব আইটেম নিয়ে যাবে
+            setBuyNowItems([...cart]);
         }
+        router.push('/order-form');
     }, [router, cart]);
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -173,6 +191,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const clearCart = useCallback(() => {
         setCart([]);
+        setBuyNowItems([]); // buyNowItems ও ক্লিয়ার করুন
         saveCart([]);
         showToast("কার্ট খালি করা হয়েছে!", "info");
     }, [saveCart, showToast]);
@@ -182,13 +201,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             cart,
             addToCart,
             updateQuantity,
-            updateCartQuantity, // নতুন ফাংশন যোগ করা হয়েছে
+            updateCartQuantity,
             removeFromCart,
             checkout,
             buyNow,
+            buyNowSingle, // নতুন ফাংশন যোগ করা হয়েছে
             clearCart,
             totalItems,
             totalPrice,
+            buyNowItems, // নতুন state যোগ করা হয়েছে
         }}>
             {children}
         </CartContext.Provider>
