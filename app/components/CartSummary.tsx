@@ -1,28 +1,38 @@
-// components/CartSummary.tsx - UPDATED VERSION
+// components/CartSummary.tsx - SIMPLE WORKING VERSION
 'use client';
 
 import React from 'react';
 import { useCart } from '@/app/context/CartContext';
-import { useRouter } from 'next/navigation';
 import { useCartSidebar } from '@/app/hooks/useCartSidebar';
 
 const CartSummary: React.FC = () => {
     const { totalItems, totalPrice, buyNow } = useCart();
-    const router = useRouter();
     const { openCartSidebar } = useCartSidebar();
+
+    // Debug log
+    React.useEffect(() => {
+        console.log('🔍 CartSummary: Component mounted');
+        console.log('🔍 openCartSidebar function:', openCartSidebar);
+    }, [openCartSidebar]);
 
     if (totalItems === 0) {
         return null;
     }
 
-    const handleViewCart = () => {
+    const handleViewCart = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
         console.log('🔄 CartSummary: কার্ড দেখুন বাটনে ক্লিক হয়েছে');
-
+        console.log('🔍 openCartSidebar:', openCartSidebar);
+        
         if (openCartSidebar && typeof openCartSidebar === 'function') {
             console.log('✅ openCartSidebar ফাংশন call করা হচ্ছে...');
             openCartSidebar();
         } else {
-            console.error('❌ openCartSidebar ফাংশন available নেই');
+            console.error('❌ openCartSidebar ফাংশন available নেই বা undefined');
+            // Emergency fallback - direct URL navigation
+            window.dispatchEvent(new CustomEvent('openCartSidebar'));
         }
     };
 
@@ -31,8 +41,7 @@ const CartSummary: React.FC = () => {
     };
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-30"> 
-            {/* ✅ z-30 ব্যবহার করুন (কার্ট সাইডবার z-50, মোবাইল সাইডবার z-50) */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-30">
             <div className="container mx-auto px-4 py-2.5">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
