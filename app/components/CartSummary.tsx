@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useCartSidebar } from '@/app/hooks/useCartSidebar';
 
 const CartSummary: React.FC = () => {
-    const { totalItems, totalPrice, buyNow } = useCart(); // ✅ buyNow ফাংশন যোগ করুন
+    const { totalItems, totalPrice, buyNow } = useCart();
     const router = useRouter();
     const { openCartSidebar } = useCartSidebar();
 
@@ -18,45 +18,21 @@ const CartSummary: React.FC = () => {
     const handleViewCart = () => {
         console.log('🔄 CartSummary: কার্ড দেখুন বাটনে ক্লিক হয়েছে');
 
-        // ✅ Error handling সহ
         if (openCartSidebar && typeof openCartSidebar === 'function') {
             console.log('✅ openCartSidebar ফাংশন call করা হচ্ছে...');
             openCartSidebar();
-
-            // ✅ Fallback: যদি hook কাজ না করে তাহলে direct DOM manipulation
-            setTimeout(() => {
-                const cartSidebar = document.querySelector('.cart-sidebar');
-                const overlay = document.querySelector('.cart-sidebar-overlay');
-
-                if (cartSidebar && !cartSidebar.classList.contains('open')) {
-                    console.log('🔄 Fallback: Direct DOM manipulation...');
-                    cartSidebar.classList.add('open');
-                }
-                if (overlay && !overlay.classList.contains('active')) {
-                    overlay.classList.add('active');
-                }
-                document.body.classList.add('overflow-hidden');
-            }, 100);
         } else {
             console.error('❌ openCartSidebar ফাংশন available নেই');
-            // ✅ Emergency fallback
-            const cartSidebar = document.querySelector('.cart-sidebar');
-            const overlay = document.querySelector('.cart-sidebar-overlay');
-
-            if (cartSidebar) cartSidebar.classList.add('open');
-            if (overlay) overlay.classList.add('active');
-            document.body.classList.add('overflow-hidden');
         }
     };
 
     const handleCheckout = () => {
-        // ✅ buyNow ফাংশন ব্যবহার করুন (কোনো প্যারামিটার ছাড়াই)
-        // এটি কার্টের সব আইটেম নিয়ে অর্ডার ফর্মে যাবে
         buyNow();
     };
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-30"> 
+            {/* ✅ z-30 ব্যবহার করুন (কার্ট সাইডবার z-50, মোবাইল সাইডবার z-50) */}
             <div className="container mx-auto px-4 py-2.5">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -64,7 +40,7 @@ const CartSummary: React.FC = () => {
                             <span className="font-bold text-lg">{totalItems}</span>
                         </div>
                         <span className="text-md font-semibold text-gray-800">
-                            {totalPrice.toFixed(2)} টাকা {/* ✅ .toFixed(2) যোগ করুন */}
+                            {totalPrice.toFixed(2)} টাকা
                         </span>
                     </div>
 
