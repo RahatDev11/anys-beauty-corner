@@ -1,4 +1,4 @@
-// components/ProductCard.tsx - COMPACT VERSION
+// components/ProductCard.tsx - UPDATED VERSION
 'use client';
 
 import React from 'react';
@@ -11,6 +11,7 @@ interface ProductCardProps {
     removeFromCart: (productId: string) => void;
     updateCartQuantity: (productId: string, quantity: number) => void;
     buyNow: (product: Product, quantity?: number) => void;
+    buyNowSingle: (product: Product, quantity?: number) => void; // নতুন prop
     cartItemQuantity?: number;
     showProductDetail?: (id: string) => void;
 }
@@ -21,6 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     removeFromCart,
     updateCartQuantity,
     buyNow,
+    buyNowSingle, // নতুন prop
     cartItemQuantity = 0,
     showProductDetail,
 }) => {
@@ -77,7 +79,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const handleBuyNow = () => {
         if (product) {
             const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
-            buyNow(product, quantity);
+            
+            if (buyNowSingle) {
+                // ✅ নতুন ফাংশন ব্যবহার করুন - শুধু এই প্রোডাক্টটি যাবে
+                buyNowSingle(product, quantity);
+            } else {
+                // ✅ পুরানো ফাংশন (fallback)
+                buyNow(product, quantity);
+            }
         }
     };
 
@@ -139,7 +148,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             disabled={!product || product.stockStatus !== 'in_stock'}
                             className="w-full bg-gray-800 text-white py-1 rounded-md font-semibold text-xs hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Buy Now
+                            Buy Now {cartItemQuantity > 0 ? `(${cartItemQuantity})` : ''}
                         </button>
                     </div>
                 </div>
