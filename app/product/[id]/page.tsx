@@ -1,4 +1,4 @@
-// app/product/[id]/page.tsx - FIXED VERSION
+// app/product/[id]/page.tsx - UPDATED VERSION
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -20,7 +20,7 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const { addToCart, buyNow, cart, removeFromCart, updateCartQuantity } = useCart();
+    const { addToCart, buyNow, buyNowSingle, cart, removeFromCart, updateCartQuantity } = useCart(); // ✅ buyNowSingle যোগ করুন
 
     // কার্টে প্রোডাক্টের কোয়ান্টিটি পাওয়ার জন্য
     const cartItem = cart.find(item => item.id === product?.id);
@@ -140,8 +140,14 @@ const ProductDetail = () => {
         e.stopPropagation();
         if (product) {
             const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
-            buyNow(product, quantity);
-            router.push('/order-form');
+            
+            if (buyNowSingle) {
+                // ✅ buyNowSingle ব্যবহার করুন - শুধু এই প্রোডাক্টটি যাবে
+                buyNowSingle(product, quantity);
+            } else {
+                // ✅ পুরানো ফাংশন (fallback)
+                buyNow(product, quantity);
+            }
         }
     };
 
@@ -297,7 +303,7 @@ const ProductDetail = () => {
                                 disabled={product.stockStatus !== 'in_stock'}
                                 className="w-full bg-gray-800 text-white py-3 rounded-lg font-semibold text-base hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Buy Now
+                                Buy Now {cartItemQuantity > 0 ? `(${cartItemQuantity})` : ''}
                             </button>
                         </div>
 
@@ -336,6 +342,7 @@ const ProductDetail = () => {
                                         removeFromCart={removeFromCart}
                                         updateCartQuantity={updateCartQuantity}
                                         buyNow={buyNow}
+                                        buyNowSingle={buyNowSingle} // ✅ buyNowSingle prop পাস করুন
                                         cartItemQuantity={relatedCartQuantity}
                                         showProductDetail={(productId) => router.push(`/product/${productId}`)}
                                     />
