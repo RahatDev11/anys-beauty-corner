@@ -21,34 +21,60 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
     const [query, setQuery] = useState('');
     const [products, setProducts] = useState<Product[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
     const searchRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        console.log("Firebase connection started...");
         const productsRef = ref(database, "products/");
         const unsubscribe = onValue(productsRef, (snapshot) => {
+            console.log("Firebase snapshot received:", snapshot.exists());
             if (snapshot.exists()) {
                 const productsData = Object.keys(snapshot.val()).map(key => ({ 
                     id: key, 
                     ...snapshot.val()[key] 
                 }));
+                console.log("Products loaded:", productsData.length);
+                console.log("Sample product:", productsData[0]);
                 setProducts(productsData);
+            } else {
+                console.log("No data found in Firebase");
             }
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Firebase error:", error);
+            setIsLoading(false);
         });
 
         return () => unsubscribe();
     }, []);
 
     useEffect(() => {
+        console.log("Search query:", query);
+        console.log("Total products:", products.length);
+        
         if (query.trim().length > 0) {
             const searchTerm = query.toLowerCase().trim();
-            const filtered = products.filter(p =>
-                p.name.toLowerCase().includes(searchTerm) ||
-                (p.tags && p.tags.toLowerCase().includes(searchTerm)) ||
-                // বাংলা সার্চ সাপোর্ট - যদি নামে বা ট্যাগে মিলে
-                p.name.includes(query) ||
-                (p.tags && p.tags.includes(query))
-            );
+            console.log("Searching for:", searchTerm);
+            
+            const filtered = products.filter(p => {
+                const nameMatch = p.name && p.name.toLowerCase().includes(searchTerm);
+                const tagsMatch = p.tags && p.tags.toLowerCase().includes(searchTerm);
+                const banglaMatch = p.name && p.name.includes(query);
+                const banglaTagsMatch = p.tags && p.tags.includes(query);
+                
+                console.log(`Product: ${p.name}`, {
+                    nameMatch,
+                    tagsMatch,
+                    banglaMatch,
+                    banglaTagsMatch
+                });
+                
+                return nameMatch || tagsMatch || banglaMatch || banglaTagsMatch;
+            });
+            
+            console.log("Filtered products:", filtered);
             setFilteredProducts(filtered.slice(0, 5));
         } else {
             setFilteredProducts([]);
@@ -65,7 +91,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
 
     const handleProductClick = (productId: string) => {
         router.push(`/product-detail/${productId}`);
-        setQuery(''); // Clear search query after selection
+        setQuery('');
         if (onSearchFocusChange) {
             onSearchFocusChange(false);
         }
@@ -102,7 +128,20 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
                 <i className="fas fa-search text-2xl absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800"></i>
             </div>
 
-            {filteredProducts.length > 0 && query.length > 0 && (
+            {/* Debug info - remove in production */}
+            {process.env.NODE_ENV === 'development' && (
+                <div className="text-xs text-gray-500 mt-1">
+                    Products: {products.length} | Filtered: {filteredProducts.length} | Query: "{query}"
+                </div>
+            )}
+
+            {isLoading && query.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 p-3 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg z-50">
+                    <p className="text-center text-gray-500">লোড হচ্ছে...</p>
+                </div>
+            )}
+
+            {!isLoading && filteredProducts.length > 0 && query.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 max-h-60 overflow-y-auto bg-white/95 backdrop-blur-sm shadow-lg rounded-lg z-50 border border-gray-200">
                     {filteredProducts.map((product) => (
                         <div
@@ -142,8 +181,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
                 </div>
             )}
 
-            {/* No results found message */}
-            {filteredProducts.length === 0 && query.trim().length > 0 && (
+            {!isLoading && filteredProducts.length === 0 && query.trim().length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg z-50 border border-gray-200">
                     <p className="text-center text-gray-500 text-sm">
                         " {query} " এর সাথে মিলে এমন কোনো প্রোডাক্ট পাওয়া যায়নি
