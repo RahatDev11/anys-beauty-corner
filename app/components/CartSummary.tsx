@@ -1,4 +1,4 @@
-// components/CartSummary.tsx - FIXED VERSION
+// components/CartSummary.tsx - SIMPLIFIED VERSION
 'use client';
 
 import React from 'react';
@@ -7,31 +7,17 @@ import { useCart } from '@/app/context/CartContext';
 const CartSummary: React.FC = () => {
     const { totalItems, totalPrice, buyNow, openCartSidebar } = useCart();
 
-    // Debug
-    React.useEffect(() => {
-        console.log('🔍 CartSummary: openCartSidebar available?', !!openCartSidebar);
-    }, [openCartSidebar]);
-
     if (totalItems === 0) {
         return null;
     }
 
     const handleViewCart = () => {
         console.log('🔄 CartSummary: কার্ড দেখুন বাটনে ক্লিক হয়েছে');
-        console.log('🔍 openCartSidebar function:', openCartSidebar);
-        
-        if (openCartSidebar && typeof openCartSidebar === 'function') {
-            openCartSidebar();
-        } else {
-            console.error('❌ openCartSidebar unavailable, using direct method');
-            // Direct fallback
-            const event = new CustomEvent('openCartSidebar');
-            window.dispatchEvent(event);
-        }
+        openCartSidebar(); // ✅ সরাসরি CartContext থেকে
     };
 
     const handleCheckout = () => {
-        buyNow();
+        buyNow(); // ✅ কার্টের সব আইটেম নিয়ে অর্ডার ফর্মে যাবে
     };
 
     return (
