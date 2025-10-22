@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
 import { database, ref, push, set } from '@/lib/firebase';
+import Image from 'next/image';
 
 const OrderForm = () => {
-    const { cart, buyNowItems, clearCart } = useCart();
+    const { cart, buyNowItems, clearCart, updateCartQuantity, removeFromCart } = useCart();
     const router = useRouter();
 
     const [customerName, setCustomerName] = useState('');
@@ -58,6 +59,25 @@ const OrderForm = () => {
         } catch (error) {
             console.error('❌ Error saving order to Firebase:', error);
             throw new Error('Failed to save order to database');
+        }
+    };
+
+    // ✅ প্রোডাক্ট ডিটেইল পেজে নেওয়ার ফাংশন
+    const handleProductClick = (productId: string) => {
+        router.push(`/product/${productId}`);
+    };
+
+    // ✅ কোয়ান্টিটি বাড়ানোর ফাংশন
+    const handleIncrement = (productId: string, currentQuantity: number) => {
+        updateCartQuantity(productId, currentQuantity + 1);
+    };
+
+    // ✅ কোয়ান্টিটি কমানোর ফাংশন
+    const handleDecrement = (productId: string, currentQuantity: number) => {
+        if (currentQuantity > 1) {
+            updateCartQuantity(productId, currentQuantity - 1);
+        } else {
+            removeFromCart(productId);
         }
     };
 
@@ -135,7 +155,7 @@ const OrderForm = () => {
                 },
                 status: 'pending',
                 orderNumber: `ORD-${Date.now()}`,
-                orderType: buyNowItems.length > 0 ? 'buy_now_single' : 'cart' // Track order type
+                orderType: buyNowItems.length > 0 ? 'buy_now_single' : 'cart'
             };
 
             const orderId = await saveOrderToFirebase(orderData);
@@ -246,82 +266,27 @@ const OrderForm = () => {
                                             required 
                                             pattern="01[3-9][0-9]{8}" 
                                             placeholder="01XXXXXXXXX" 
-                                            value={phoneNumber} 
-                                            onChange={(e) => setPhoneNumber(e.target.value)} 
-                                        />
-                                        {errors.phoneNumber && (
-                                            <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
-                                        )}
-                                    </div>
-                                </div>
+                                                    value={paymentNumber} 
+                                                    onChange={(e) => setPaymentNumber(e.target.value)} 
+                                                    required={deliveryLocation === 'outsideDhaka'}
+                                                />
+                                            </div>
 
-                                <div className="mb-4">
-                                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Full Address <span className="text-red-500">*</span>
-                                    </label>
-                                    <textarea 
-                                        id="address" 
-                                        rows={3} 
-                                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick ${
-                                            errors.address ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                        required 
-                                        placeholder="House No, Road No, Area, City" 
-                                        value={address} 
-                                        onChange={(e) => setAddress(e.target.value)}
-                                    ></textarea>
-                                    {errors.address && (
-                                        <p className="text-red-500 text-sm mt-1">{errors.address}</p>
-                                    )}
-                                </div>
-
-                                <div className="mb-4">
-                                    <label htmlFor="deliveryNote" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Delivery Note (Optional)
-                                    </label>
-                                    <textarea 
-                                        id="deliveryNote" 
-                                        rows={2} 
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
-                                        placeholder="Any special delivery instructions..." 
-                                        value={deliveryNote} 
-                                        onChange={(e) => setDeliveryNote(e.target.value)}
-                                    ></textarea>
-                                </div>
-
-                                <div className="mb-6">
-                                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                                        Delivery Location <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="flex gap-4">
-                                        <label className="flex items-center">
-                                            <input 
-                                                type="radio" 
-                                                name="deliveryLocation" 
-                                                value="insideDhaka" 
-                                                checked={deliveryLocation === 'insideDhaka'} 
-                                                onChange={(e) => setDeliveryLocation(e.target.value)} 
-                                                className="mr-2"
-                                            />
-                                            <span className="radio-custom">Inside Dhaka (৳70)</span>
-                                        </label>
-                                        <label className="flex items-center">
-                                            <input 
-                                                type="radio" 
-                                                name="deliveryLocation" 
-                                                value="outsideDhaka" 
-                                                checked={deliveryLocation === 'outsideDhaka'} 
-                                                onChange={(e) => setDeliveryLocation(e.target.value)} 
-                                                className="mr-2"
-                                            />
-                                            <span className="radio-custom">Outside Dhaka (৳160)</span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                {deliveryLocation === 'outsideDhaka' && (
-                                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                                        {/* ... outside Dhaka content remains the same ... */}
+                                            <div>
+                                                <label htmlFor="transactionId" className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Transaction ID <span className="text-red-500">*</span>
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    id="transactionId" 
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
+                                                    placeholder="Enter transaction ID" 
+                                                    value={transactionId} 
+                                                    onChange={(e) => setTransactionId(e.target.value)} 
+                                                    required={deliveryLocation === 'outsideDhaka'}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
 
@@ -348,25 +313,59 @@ const OrderForm = () => {
 
                             <div className="space-y-4 mb-6">
                                 {orderItems.map((item) => (
-                                    <div key={item.id} className="flex items-center justify-between border-b pb-3">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                                                {item.image ? (
-                                                    <img 
-                                                        src={item.image.split(',')[0].trim()} 
-                                                        alt={item.name}
-                                                        className="w-10 h-10 object-cover rounded"
-                                                    />
-                                                ) : (
-                                                    <span className="text-gray-400 text-xs">No Image</span>
-                                                )}
+                                    <div key={item.id} className="border-b pb-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div 
+                                                className="flex items-center space-x-3 flex-1 cursor-pointer"
+                                                onClick={() => handleProductClick(item.id)}
+                                            >
+                                                <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                    {item.image ? (
+                                                        <Image 
+                                                            src={item.image.split(',')[0].trim()} 
+                                                            alt={item.name}
+                                                            width={40}
+                                                            height={40}
+                                                            className="w-10 h-10 object-cover rounded"
+                                                        />
+                                                    ) : (
+                                                        <span className="text-gray-400 text-xs">No Image</span>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p 
+                                                        className="font-medium text-sm hover:text-lipstick transition-colors cursor-pointer line-clamp-2"
+                                                        onClick={() => handleProductClick(item.id)}
+                                                    >
+                                                        {item.name}
+                                                    </p>
+                                                    <p className="text-gray-600 text-sm">৳{item.price}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-medium text-sm">{item.name}</p>
-                                                <p className="text-gray-600 text-sm">৳{item.price} x {item.quantity}</p>
-                                            </div>
+                                            <p className="font-semibold">৳{(item.price * item.quantity).toFixed(2)}</p>
                                         </div>
-                                        <p className="font-semibold">৳{(item.price * item.quantity).toFixed(2)}</p>
+                                        
+                                        {/* ✅ কোয়ান্টিটি কন্ট্রোল */}
+                                        <div className="flex items-center justify-between mt-2">
+                                            <div className="flex items-center space-x-2">
+                                                <button
+                                                    onClick={() => handleDecrement(item.id, item.quantity)}
+                                                    className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                                >
+                                                    -
+                                                </button>
+                                                <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
+                                                <button
+                                                    onClick={() => handleIncrement(item.id, item.quantity)}
+                                                    className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                            <span className="text-sm text-gray-600">
+                                                {item.quantity} x ৳{item.price}
+                                            </span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
