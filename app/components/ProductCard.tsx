@@ -14,10 +14,9 @@ interface ProductCardProps {
     buyNowSingle: (product: Product, quantity?: number) => void;
     cartItemQuantity?: number;
     showProductDetail?: (id: string) => void;
-    variant?: 'normal' | 'slim'; // নতুন prop: দুইটি ভ্যারিয়েন্ট
+    variant?: 'normal' | 'slim';
 }
 
-// নরমাল প্রোডাক্ট কার্ড কম্পোনেন্ট
 const ProductCard: React.FC<ProductCardProps> = ({
     product,
     addToCart,
@@ -27,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     buyNowSingle,
     cartItemQuantity = 0,
     showProductDetail,
-    variant = 'normal', // ডিফল্ট নরমাল
+    variant = 'normal',
 }) => {
     const router = useRouter();
 
@@ -63,13 +62,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
         }
     };
 
-    const handleIncrement = () => {
+    // ✅ ইভেন্ট প্রপাগেশন বন্ধ করে দিচ্ছি
+    const handleIncrement = (e: React.MouseEvent) => {
+        e.stopPropagation(); // ফর্ম সাবমিট হওয়া বন্ধ করবে
+        e.preventDefault(); // ডিফল্ট বিহেভিয়ার বন্ধ করবে
+        
         if (product && updateCartQuantity) {
             updateCartQuantity(productId, cartItemQuantity + 1);
         }
     };
 
-    const handleDecrement = () => {
+    // ✅ ইভেন্ট প্রপাগেশন বন্ধ করে দিচ্ছি
+    const handleDecrement = (e: React.MouseEvent) => {
+        e.stopPropagation(); // ফর্ম সাবমিট হওয়া বন্ধ করবে
+        e.preventDefault(); // ডিফল্ট বিহেভিয়ার বন্ধ করবে
+        
         if (product && updateCartQuantity) {
             if (cartItemQuantity > 1) {
                 updateCartQuantity(productId, cartItemQuantity - 1);
@@ -79,7 +86,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
         }
     };
 
-    const handleBuyNow = () => {
+    // ✅ ইভেন্ট প্রপাগেশন বন্ধ করে দিচ্ছি
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.stopPropagation(); // ফর্ম সাবমিট হওয়া বন্ধ করবে
+        e.preventDefault(); // ডিফল্ট বিহেভিয়ার বন্ধ করবে
+        
+        if (product && addToCart) {
+            addToCart(product);
+        }
+    };
+
+    const handleBuyNow = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        
         if (product) {
             const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
             if (buyNowSingle) {
@@ -137,7 +157,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 </button>
                             </div>
                             <button
-                                onClick={() => product && addToCart(product)}
+                                onClick={handleAddToCart}
                                 className="text-lipstick hover:text-lipstick-dark text-sm font-medium"
                             >
                                 Add
@@ -145,7 +165,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         </div>
                     ) : (
                         <button
-                            onClick={() => product && addToCart(product)}
+                            onClick={handleAddToCart}
                             disabled={!product || product.stockStatus !== 'in_stock'}
                             className="bg-lipstick text-white px-3 py-1 rounded text-xs font-medium hover:bg-lipstick-dark border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
@@ -203,7 +223,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             </div>
                         ) : (
                             <button
-                                onClick={() => product && addToCart(product)}
+                                onClick={handleAddToCart}
                                 disabled={!product || product.stockStatus !== 'in_stock'}
                                 className="w-full bg-lipstick text-white rounded-md font-semibold flex items-center h-8 justify-center text-xs hover:bg-lipstick-dark border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
@@ -225,7 +245,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     );
 };
 
-// স্লিম কার্ডের জন্য আলাদা কম্পোনেন্ট (ঐচ্ছিক)
 export const SlimProductCard: React.FC<ProductCardProps> = (props) => {
     return <ProductCard {...props} variant="slim" />;
 };
