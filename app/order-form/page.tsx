@@ -23,29 +23,26 @@ const OrderForm = () => {
     const deliveryFee = deliveryLocation === 'insideDhaka' ? 70 : 160;
     const totalAmount = totalPrice + deliveryFee;
 
-    // Firebase-এ অর্ডার সAVE করার ফাংশন - Enhanced Version
+    // Firebase-এ অর্ডার সAVE করার ফাংশন
     const saveOrderToFirebase = async (orderData: any) => {
         try {
             console.log('🚀 Saving order to Firebase...', orderData);
 
-            // orders নোডে নতুন অর্ডার যোগ করুন
             const ordersRef = ref(database, 'orders');
             const newOrderRef = push(ordersRef);
-            
             const orderId = newOrderRef.key;
-            
-            // অর্ডার ডেটা সAVE করুন
+
             await set(newOrderRef, {
                 ...orderData,
-                id: orderId, // Firebase generated ID
-                status: 'pending', // অর্ডার স্ট্যাটাস
-                createdAt: new Date().toISOString(), // অর্ডার তারিখ
+                id: orderId,
+                status: 'pending',
+                createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             });
 
             console.log('✅ Order saved successfully with ID:', orderId);
             return orderId;
-            
+
         } catch (error) {
             console.error('❌ Error saving order to Firebase:', error);
             throw new Error('Failed to save order to database');
@@ -63,7 +60,7 @@ const OrderForm = () => {
         }
 
         if (!phoneNumber.trim() || !/^01[3-9][0-9]{8}$/.test(phoneNumber)) {
-            throw new Error('Please enter a valid phone number');
+            throw new Error('Please enter a valid phone number (01XXXXXXXXX)');
         }
 
         if (!address.trim()) {
@@ -85,15 +82,12 @@ const OrderForm = () => {
 
     const handleCheckout = async (e: React.FormEvent) => {
         e.preventDefault();
-        
         setIsSubmitting(true);
         setSubmitError('');
 
         try {
-            // Form validation
             validateForm();
 
-            // অর্ডার ডেটা প্রস্তুত করুন
             const orderData = {
                 customerInfo: {
                     name: customerName.trim(),
@@ -119,7 +113,7 @@ const OrderForm = () => {
                     price: item.price,
                     quantity: item.quantity,
                     total: item.price * item.quantity,
-                    image: item.image || '' // যদি image থাকে
+                    image: item.image || ''
                 })),
                 pricing: {
                     subtotal: totalPrice,
@@ -128,23 +122,18 @@ const OrderForm = () => {
                     totalItems: totalItems
                 },
                 status: 'pending',
-                orderNumber: `ORD-${Date.now()}` // Unique order number
+                orderNumber: `ORD-${Date.now()}`
             };
 
-            // Firebase-এ অর্ডার সAVE করুন
             const orderId = await saveOrderToFirebase(orderData);
-            
-            // Success notification
+
             alert(`✅ Order placed successfully!\nOrder ID: ${orderId}\nWe will contact you soon at ${phoneNumber}`);
-            
-            // Clear cart and redirect
             clearCart();
-            router.push('/order-success'); // আপনি একটি success page তৈরি করতে পারেন
-            
+            router.push('/');
+
         } catch (error: any) {
             console.error('Order submission error:', error);
             setSubmitError(error.message);
-            alert(`❌ ${error.message}`);
         } finally {
             setIsSubmitting(false);
         }
@@ -162,108 +151,307 @@ const OrderForm = () => {
 
     // Real-time validation
     useEffect(() => {
-        const newErrors = { ...errors };
-        
-        if (customerName && !customerName.trim()) {
-            newErrors.customerName = 'Name is required';
-        } else {
-            newErrors.customerName = '';
-        }
-
-        if (phoneNumber && !/^01[3-9][0-9]{8}$/.test(phoneNumber)) {
-            newErrors.phoneNumber = 'Invalid phone number';
-        } else {
-            newErrors.phoneNumber = '';
-        }
-
-        if (address && !address.trim()) {
-            newErrors.address = 'Address is required';
-        } else {
-            newErrors.address = '';
-        }
-
+        const newErrors = {
+            customerName: customerName && !customerName.trim() ? 'Name is required' : '',
+            phoneNumber: phoneNumber && !/^01[3-9][0-9]{8}$/.test(phoneNumber) ? 'Invalid phone number' : '',
+            address: address && !address.trim() ? 'Address is required' : '',
+            deliveryPaymentMethod: '',
+            paymentNumber: '',
+            transactionId: ''
+        };
         setErrors(newErrors);
     }, [customerName, phoneNumber, address]);
 
-    return (
-        <main className="container mx-auto pt-24 pb-12 px-4">
-            <form id="checkoutForm" onSubmit={handleCheckout}>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Customer Information */}
-                    <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                        <h2 className="text-2xl font-bold mb-6 text-lipstick">Billing Details</h2>
-
-                        {submitError && (
-                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                                {submitError}
-                            </div>
-                        )}
-
-                        <div className="form-group grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label htmlFor="customerName" className="form-label">Your Name <span className="required-star">*</span></label>
-                                <input 
-                                    type="text" 
-                                    id="customerName" 
-                                    className={`form-input ${errors.customerName ? 'border-red-500' : ''}`}
-                                    required 
-                                    placeholder="Enter your full name" 
-                                    value={customerName} 
-                                    onChange={(e) => setCustomerName(e.target.value)} 
-                                />
-                                {errors.customerName && <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>}
-                            </div>
-                            <div>
-                                <label htmlFor="phoneNumber" className="form-label">Phone Number <span className="required-star">*</span></label>
-                                <input 
-                                    type="tel" 
-                                    id="phoneNumber" 
-                                    className={`form-input ${errors.phoneNumber ? 'border-red-500' : ''}`}
-                                    required 
-                                    pattern="01[3-9][0-9]{8}" 
-                                    placeholder="01XXXXXXXXX" 
-                                    value={phoneNumber} 
-                                    onChange={(e) => setPhoneNumber(e.target.value)} 
-                                />
-                                {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="address" className="form-label">Full Address <span className="required-star">*</span></label>
-                            <textarea 
-                                id="address" 
-                                rows={3} 
-                                className={`form-input ${errors.address ? 'border-red-500' : ''}`}
-                                required 
-                                placeholder="House No, Road No, Area, City" 
-                                value={address} 
-                                onChange={(e) => setAddress(e.target.value)}
-                            ></textarea>
-                            {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-                        </div>
-
-                        {/* ... বাকি form fields একই থাকবে ... */}
-                        
-                        <button 
-                            type="submit" 
-                            id="submitButton" 
-                            className="submit-btn mt-6 w-full bg-lipstick text-white py-3 px-6 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={isSubmitting || cart.length === 0}
-                        >
-                            {isSubmitting ? 'Placing Order...' : `Place Order - ৳${totalAmount.toFixed(2)}`}
-                        </button>
-                    </div>
-
-                    {/* Order Summary - একই থাকবে */}
-                    <div className="bg-white p-6 rounded-lg shadow-md">
-                        <h2 className="text-2xl font-bold mb-6 text-lipstick">Your Order</h2>
-                        
-                        {/* ... order summary content ... */}
-                    </div>
+    if (cart.length === 0) {
+        return (
+            <div className="min-h-screen flex items-center justify-center pt-20">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-4">Your cart is empty</h1>
+                    <p className="text-gray-600 mb-6">Please add some products to your cart before placing an order.</p>
+                    <button 
+                        onClick={() => router.push('/')}
+                        className="bg-lipstick text-white px-6 py-3 rounded-lg hover:bg-lipstick-dark transition-colors"
+                    >
+                        Continue Shopping
+                    </button>
                 </div>
-            </form>
-        </main>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-50">
+            <main className="container mx-auto pt-4 pb-12 px-4 max-w-6xl">
+                <h1 className="text-3xl font-bold text-center mb-8 text-lipstick">Checkout</h1>
+                
+                <form id="checkoutForm" onSubmit={handleCheckout}>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Customer Information */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h2 className="text-2xl font-bold mb-6 text-lipstick">Billing Details</h2>
+
+                                {submitError && (
+                                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                        {submitError}
+                                    </div>
+                                )}
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
+                                            Your Name <span className="text-red-500">*</span>
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            id="customerName" 
+                                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick ${
+                                                errors.customerName ? 'border-red-500' : 'border-gray-300'
+                                            }`}
+                                            required 
+                                            placeholder="Enter your full name" 
+                                            value={customerName} 
+                                            onChange={(e) => setCustomerName(e.target.value)} 
+                                        />
+                                        {errors.customerName && (
+                                            <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                                            Phone Number <span className="text-red-500">*</span>
+                                        </label>
+                                        <input 
+                                            type="tel" 
+                                            id="phoneNumber" 
+                                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick ${
+                                                errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
+                                            }`}
+                                            required 
+                                            pattern="01[3-9][0-9]{8}" 
+                                            placeholder="01XXXXXXXXX" 
+                                            value={phoneNumber} 
+                                            onChange={(e) => setPhoneNumber(e.target.value)} 
+                                        />
+                                        {errors.phoneNumber && (
+                                            <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                                        Full Address <span className="text-red-500">*</span>
+                                    </label>
+                                    <textarea 
+                                        id="address" 
+                                        rows={3} 
+                                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick ${
+                                            errors.address ? 'border-red-500' : 'border-gray-300'
+                                        }`}
+                                        required 
+                                        placeholder="House No, Road No, Area, City" 
+                                        value={address} 
+                                        onChange={(e) => setAddress(e.target.value)}
+                                    ></textarea>
+                                    {errors.address && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.address}</p>
+                                    )}
+                                </div>
+
+                                <div className="mb-4">
+                                    <label htmlFor="deliveryNote" className="block text-sm font-medium text-gray-700 mb-1">
+                                        Delivery Note (Optional)
+                                    </label>
+                                    <textarea 
+                                        id="deliveryNote" 
+                                        rows={2} 
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
+                                        placeholder="Any special delivery instructions..." 
+                                        value={deliveryNote} 
+                                        onChange={(e) => setDeliveryNote(e.target.value)}
+                                    ></textarea>
+                                </div>
+
+                                <div className="mb-6">
+                                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        Delivery Location <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="flex gap-4">
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="radio" 
+                                                name="deliveryLocation" 
+                                                value="insideDhaka" 
+                                                checked={deliveryLocation === 'insideDhaka'} 
+                                                onChange={(e) => setDeliveryLocation(e.target.value)} 
+                                                className="mr-2"
+                                            />
+                                            <span className="radio-custom">Inside Dhaka (৳70)</span>
+                                        </label>
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="radio" 
+                                                name="deliveryLocation" 
+                                                value="outsideDhaka" 
+                                                checked={deliveryLocation === 'outsideDhaka'} 
+                                                onChange={(e) => setDeliveryLocation(e.target.value)} 
+                                                className="mr-2"
+                                            />
+                                            <span className="radio-custom">Outside Dhaka (৳160)</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {deliveryLocation === 'outsideDhaka' && (
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                                        <div className="flex items-start">
+                                            <div className="flex-shrink-0">
+                                                <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div className="ml-3">
+                                                <h3 className="text-sm font-medium text-yellow-800">
+                                                    Advance Payment Required
+                                                </h3>
+                                                <div className="mt-2 text-sm text-yellow-700">
+                                                    <p>For outside Dhaka delivery, you need to pay the delivery charge (৳160) in advance.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4 space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Payment Method <span className="text-red-500">*</span>
+                                                </label>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <label className="flex items-center">
+                                                        <input 
+                                                            type="radio" 
+                                                            name="paymentMethod" 
+                                                            value="bkash" 
+                                                            checked={deliveryPaymentMethod === 'bkash'} 
+                                                            onChange={(e) => setDeliveryPaymentMethod(e.target.value)} 
+                                                            className="mr-2"
+                                                        />
+                                                        <span className="radio-custom">bKash</span>
+                                                    </label>
+                                                    <label className="flex items-center">
+                                                        <input 
+                                                            type="radio" 
+                                                            name="paymentMethod" 
+                                                            value="nagad" 
+                                                            checked={deliveryPaymentMethod === 'nagad'} 
+                                                            onChange={(e) => setDeliveryPaymentMethod(e.target.value)} 
+                                                            className="mr-2"
+                                                        />
+                                                        <span className="radio-custom">Nagad</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label htmlFor="paymentNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Payment Number <span className="text-red-500">*</span>
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    id="paymentNumber" 
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
+                                                    placeholder="01XXXXXXXXX" 
+                                                    value={paymentNumber} 
+                                                    onChange={(e) => setPaymentNumber(e.target.value)} 
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label htmlFor="transactionId" className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Transaction ID <span className="text-red-500">*</span>
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    id="transactionId" 
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
+                                                    placeholder="Enter transaction ID" 
+                                                    value={transactionId} 
+                                                    onChange={(e) => setTransactionId(e.target.value)} 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <button 
+                                    type="submit" 
+                                    className="w-full bg-lipstick text-white py-3 px-6 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? (
+                                        <div className="flex items-center justify-center">
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                            Placing Order...
+                                        </div>
+                                    ) : (
+                                        `Place Order - ৳${totalAmount.toFixed(2)}`
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Order Summary */}
+                        <div className="bg-white p-6 rounded-lg shadow-md h-fit">
+                            <h2 className="text-2xl font-bold mb-6 text-lipstick">Order Summary</h2>
+                            
+                            <div className="space-y-4 mb-6">
+                                {cart.map((item) => (
+                                    <div key={item.id} className="flex items-center justify-between border-b pb-3">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                {item.image ? (
+                                                    <img 
+                                                        src={item.image.split(',')[0].trim()} 
+                                                        alt={item.name}
+                                                        className="w-10 h-10 object-cover rounded"
+                                                    />
+                                                ) : (
+                                                    <span className="text-gray-400 text-xs">No Image</span>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm">{item.name}</p>
+                                                <p className="text-gray-600 text-sm">৳{item.price} x {item.quantity}</p>
+                                            </div>
+                                        </div>
+                                        <p className="font-semibold">৳{(item.price * item.quantity).toFixed(2)}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="space-y-2 border-t pt-4">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Subtotal:</span>
+                                    <span className="font-semibold">৳{totalPrice.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Delivery Fee:</span>
+                                    <span className="font-semibold">৳{deliveryFee.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between text-lg font-bold border-t pt-2">
+                                    <span>Total:</span>
+                                    <span className="text-lipstick">৳{totalAmount.toFixed(2)}</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 text-sm text-gray-600">
+                                <p>Total Items: {totalItems}</p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </main>
+        </div>
     );
 };
 
