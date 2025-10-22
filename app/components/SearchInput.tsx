@@ -10,6 +10,7 @@ interface Product {
     price: number;
     image?: string;
     tags?: string;
+    category?: string;
 }
 
 interface SearchInputProps {
@@ -21,38 +22,13 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
     const [query, setQuery] = useState('');
     const [products, setProducts] = useState<Product[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
     const searchRef = useRef<HTMLDivElement>(null);
 
-    // Temporary mock data - Firebase কাজ না করলে এটি ব্যবহার করুন
-    const mockProducts: Product[] = [
-        {
-            id: "1742836416596",
-            name: "ন্যাচারাল ফুড বাদাম শেক",
-            price: 999,
-            image: "https://res.cloudinary.com/dnvm88wfi/image/upload/v1742836366/FB_IMG_1742836332893_yerctd.jpg",
-            tags: "বাদাম শেক ন্যাচারাল ফুড"
-        },
-        {
-            id: "1742835626731", 
-            name: "চকলেট শেক",
-            price: 1350,
-            image: "https://res.cloudinary.com/dnvm88wfi/image/upload/v1742835562/FB_IMG_1742835455428_ooukwc.jpg",
-            tags: "চকলেট শেক"
-        },
-        {
-            id: "1742837058123",
-            name: "স্ট্রবেরি শেক",
-            price: 1200,
-            image: "https://res.cloudinary.com/dnvm88wfi/image/upload/v1742837058/FB_IMG_1742837029592_sljyp0.jpg",
-            tags: "স্ট্রবেরি শেক"
-        }
-    ];
-
+    // Firebase থেকে প্রোডাক্ট লোড করা
     useEffect(() => {
         console.log("🔥 Firebase থেকে প্রোডাক্ট লোড করার চেষ্টা করছি...");
-        setIsLoading(true);
         
         try {
             const productsRef = ref(database, "products");
@@ -60,23 +36,41 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
                 console.log("📦 Firebase স্ন্যাপশট:", snapshot.exists());
                 
                 if (snapshot.exists()) {
-                    const productsData = Object.keys(snapshot.val()).map(key => ({ 
-                        id: key, 
-                        ...snapshot.val()[key] 
-                    }));
+                    const productsData: Product[] = [];
+                    const data = snapshot.val();
+                    
+                    // Firebase Realtime Database structure handle করা
+                    Object.keys(data).forEach(key => {
+                        const product = data[key];
+                        // যদি product directly object হয়
+                        if (product && typeof product === 'object' && product.name) {
+                            productsData.push({
+                                id: key,
+                                name: product.name || '',
+                                price: product.price || 0,
+                                image: product.image || '',
+                                tags: product.tags || '',
+                                category: product.category || ''
+                            });
+                        }
+                    });
+                    
                     console.log("✅ প্রোডাক্ট লোড হয়েছে:", productsData.length);
-                    console.log("📝 প্রথম প্রোডাক্ট:", productsData[0]);
+                    if (productsData.length > 0) {
+                        console.log("📝 প্রথম প্রোডাক্ট:", productsData[0]);
+                    }
                     setProducts(productsData);
                 } else {
-                    console.log("❌ Firebase এ কোনো ডেটা নেই, mock ডেটা ব্যবহার করছি");
-                    // Firebase এ ডেটা না থাকলে mock ডেটা ব্যবহার করুন
+                    console.log("❌ Firebase এ কোনো ডেটা নেই");
+                    // যদি Firebase এ ডেটা না থাকে, আপনার cart থেকে mock data বানান
+                    const mockProducts = getMockProductsFromCart();
                     setProducts(mockProducts);
                 }
                 setIsLoading(false);
             }, (error) => {
                 console.error("🔥 Firebase error:", error);
                 console.log("🔄 Mock ডেটা ব্যবহার করছি...");
-                // Error হলে mock ডেটা ব্যবহার করুন
+                const mockProducts = getMockProductsFromCart();
                 setProducts(mockProducts);
                 setIsLoading(false);
             });
@@ -84,12 +78,56 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
             return () => unsubscribe();
         } catch (error) {
             console.error("🔥 Firebase connection failed:", error);
-            console.log("🔄 Mock ডেটা ব্যবহার করছি...");
+            const mockProducts = getMockProductsFromCart();
             setProducts(mockProducts);
             setIsLoading(false);
         }
     }, []);
 
+    // Cart থেকে mock products বানানো (যদি Firebase কাজ না করে)
+    const getMockProductsFromCart = (): Product[] => {
+        // localStorage থেকে cart data নিন
+        if (typeof window !== 'undefined') {
+            try {
+                const cartData = localStorage.getItem('anyBeautyCart');
+                if (cartData) {
+                    const cartItems = JSON.parse(cartData);
+                    return cartItems.map((item: any, index: number) => ({
+                        id: item.id || `mock_${index}`,
+                        name: item.name || 'প্রোডাক্ট',
+                        price: item.price || 0,
+                        image: item.image || '',
+                        tags: item.name || '', // নামকে ট্যাগ হিসেবে ব্যবহার
+                        category: 'general'
+                    }));
+                }
+            } catch (error) {
+                console.error('Cart data parse error:', error);
+            }
+        }
+
+        // Default mock products
+        return [
+            {
+                id: "1",
+                name: "ন্যাচারাল ফুড বাদাম শেক",
+                price: 999,
+                image: "https://res.cloudinary.com/dnvm88wfi/image/upload/v1742836366/FB_IMG_1742836332893_yerctd.jpg",
+                tags: "বাদাম শেক ন্যাচারাল ফুড",
+                category: "health"
+            },
+            {
+                id: "2",
+                name: "চকলেট শেক",
+                price: 1350,
+                image: "https://res.cloudinary.com/dnvm88wfi/image/upload/v1742835562/FB_IMG_1742835455428_ooukwc.jpg",
+                tags: "চকলেট শেক",
+                category: "health"
+            }
+        ];
+    };
+
+    // সার্চ ফিল্টারিং
     useEffect(() => {
         console.log("🔍 সার্চ কুয়েরি:", query);
         console.log("📊 মোট প্রোডাক্ট:", products.length);
@@ -99,21 +137,23 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
             console.log("🎯 সার্চ টার্ম:", searchTerm);
             
             const filtered = products.filter(p => {
-                const nameMatch = p.name && p.name.toLowerCase().includes(searchTerm);
+                if (!p.name) return false;
+                
+                const nameMatch = p.name.toLowerCase().includes(searchTerm);
                 const tagsMatch = p.tags && p.tags.toLowerCase().includes(searchTerm);
-                const banglaNameMatch = p.name && p.name.includes(query);
+                const banglaNameMatch = p.name.includes(query);
                 const banglaTagsMatch = p.tags && p.tags.includes(query);
                 
                 const matches = nameMatch || tagsMatch || banglaNameMatch || banglaTagsMatch;
                 
-                if (matches) {
+                if (matches && process.env.NODE_ENV === 'development') {
                     console.log("✅ মিলেছে:", p.name);
                 }
                 
                 return matches;
             });
             
-            console.log("📋 ফিল্টার্ড প্রোডাক্ট:", filtered.length, filtered);
+            console.log("📋 ফিল্টার্ড প্রোডাক্ট:", filtered.length);
             setFilteredProducts(filtered.slice(0, 5));
         } else {
             setFilteredProducts([]);
@@ -137,7 +177,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
         }
     };
 
-    // Close search results when clicking outside
+    // Outside click handler
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -207,7 +247,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ isMobile = false, onSearchFoc
                                 </p>
                                 {product.tags && (
                                     <p className="text-xs text-gray-500 truncate">
-                                        ট্যাগ: {product.tags}
+                                        {product.tags}
                                     </p>
                                 )}
                             </div>
