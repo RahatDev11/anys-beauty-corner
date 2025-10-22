@@ -11,20 +11,23 @@ interface ProductCardProps {
     removeFromCart: (productId: string) => void;
     updateCartQuantity: (productId: string, quantity: number) => void;
     buyNow: (product: Product, quantity?: number) => void;
-    buyNowSingle: (product: Product, quantity?: number) => void; // নতুন prop
+    buyNowSingle: (product: Product, quantity?: number) => void;
     cartItemQuantity?: number;
     showProductDetail?: (id: string) => void;
+    variant?: 'normal' | 'slim'; // নতুন prop: দুইটি ভ্যারিয়েন্ট
 }
 
+// নরমাল প্রোডাক্ট কার্ড কম্পোনেন্ট
 const ProductCard: React.FC<ProductCardProps> = ({
     product,
     addToCart,
     removeFromCart,
     updateCartQuantity,
     buyNow,
-    buyNowSingle, // নতুন prop
+    buyNowSingle,
     cartItemQuantity = 0,
     showProductDetail,
+    variant = 'normal', // ডিফল্ট নরমাল
 }) => {
     const router = useRouter();
 
@@ -79,17 +82,82 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const handleBuyNow = () => {
         if (product) {
             const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
-            
             if (buyNowSingle) {
-                // ✅ নতুন ফাংশন ব্যবহার করুন - শুধু এই প্রোডাক্টটি যাবে
                 buyNowSingle(product, quantity);
             } else {
-                // ✅ পুরানো ফাংশন (fallback)
                 buyNow(product, quantity);
             }
         }
     };
 
+    // স্লিম ভ্যারিয়েন্ট রেন্ডার
+    if (variant === 'slim') {
+        return (
+            <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                {/* বাম পাশ: ইমেজ এবং প্রোডাক্ট তথ্য */}
+                <div className="flex items-center space-x-3 flex-1">
+                    <img
+                        src={imageUrl}
+                        alt={productName}
+                        className="w-12 h-12 object-cover rounded cursor-pointer"
+                        onClick={() => handleShowProductDetail(productId)}
+                    />
+                    <div className="flex-1 min-w-0">
+                        <h3
+                            className="font-medium text-sm text-gray-800 cursor-pointer truncate hover:text-lipstick transition-colors"
+                            onClick={() => handleShowProductDetail(productId)}
+                        >
+                            {productName}
+                        </h3>
+                        <p className="text-lg font-bold text-black mt-1">
+                            {product?.price ? `${product.price} টাকা` : 'Price N/A'}
+                        </p>
+                    </div>
+                </div>
+
+                {/* ডান পাশ: কোয়ান্টিটি কন্ট্রোল এবং অ্যাকশন বাটন */}
+                <div className="flex items-center space-x-2 ml-3">
+                    {cartItemQuantity > 0 ? (
+                        <div className="flex items-center space-x-2">
+                            <div className="bg-gray-100 rounded-md flex items-center px-2 py-1">
+                                <button
+                                    onClick={handleDecrement}
+                                    className="w-5 h-5 flex items-center justify-center bg-gray-300 rounded-full text-xs hover:bg-gray-400 transition-colors"
+                                >
+                                    -
+                                </button>
+                                <span className="mx-2 text-sm font-medium min-w-4 text-center">
+                                    {cartItemQuantity}
+                                </span>
+                                <button
+                                    onClick={handleIncrement}
+                                    className="w-5 h-5 flex items-center justify-center bg-gray-300 rounded-full text-xs hover:bg-gray-400 transition-colors"
+                                >
+                                    +
+                                </button>
+                            </div>
+                            <button
+                                onClick={() => product && addToCart(product)}
+                                className="text-lipstick hover:text-lipstick-dark text-sm font-medium"
+                            >
+                                Add
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => product && addToCart(product)}
+                            disabled={!product || product.stockStatus !== 'in_stock'}
+                            className="bg-lipstick text-white px-3 py-1 rounded text-xs font-medium hover:bg-lipstick-dark border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Add
+                        </button>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // নরমাল ভ্যারিয়েন্ট রেন্ডার (ডিফল্ট)
     return (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col border border-gray-200 hover:shadow-md transition-shadow duration-300 w-full">
             <div className="relative">
@@ -155,6 +223,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
         </div>
     );
+};
+
+// স্লিম কার্ডের জন্য আলাদা কম্পোনেন্ট (ঐচ্ছিক)
+export const SlimProductCard: React.FC<ProductCardProps> = (props) => {
+    return <ProductCard {...props} variant="slim" />;
 };
 
 export default ProductCard;
