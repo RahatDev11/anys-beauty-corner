@@ -1,4 +1,4 @@
-// app/context/CartContext.tsx - UPDATED VERSION
+// app/context/CartContext.tsx
 'use client';
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
 import { database, ref, onValue, set, auth, onAuthStateChanged } from '@/lib/firebase';
@@ -26,76 +26,24 @@ interface CartContextType {
     cart: CartItem[];
     addToCart: (product: Product, quantity?: number) => void;
     updateQuantity: (productId: string, change: number) => void;
-    updateCartQuantity: (productId: string, quantity: number) => void;
+    updateCartQuantity: (productId: string, quantity: number) => void; // নতুন ফাংশন
     removeFromCart: (productId: string) => void;
     checkout: () => void;
     buyNow: (product: Product, quantity?: number) => void;
-    buyNowSingle: (product: Product, quantity?: number) => void;
     totalItems: number;
     totalPrice: number;
     clearCart: () => void;
-    buyNowItems: CartItem[];
-    // ✅ কার্ট সাইডবার ফাংশনগুলো যোগ করুন
-    isCartSidebarOpen: boolean;
-    openCartSidebar: () => void;
-    closeCartSidebar: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [cart, setCart] = useState<CartItem[]>([]);
-    const [buyNowItems, setBuyNowItems] = useState<CartItem[]>([]);
-    const [products, setProducts] = useState<Product[]>([]);
-    const [isCartSidebarOpen, setIsCartSidebarOpen] = useState(false); // ✅ নতুন state
+    const [products, setProducts] = useState<Product[]>([]); // Global products list
     const { showToast } = useToast();
     const router = useRouter();
 
-    // ✅ কার্ট সাইডবার ফাংশনগুলো
-    const openCartSidebar = useCallback(() => {
-        console.log('🛒 CartContext: Opening cart sidebar');
-        setIsCartSidebarOpen(true);
-        document.body.style.overflow = 'hidden';
-    }, []);
-
-    const closeCartSidebar = useCallback(() => {
-        console.log('🛒 CartContext: Closing cart sidebar');
-        setIsCartSidebarOpen(false);
-        document.body.style.overflow = 'unset';
-    }, []);
-
-    // ✅ ESC key handler
-    useEffect(() => {
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && isCartSidebarOpen) {
-                closeCartSidebar();
-            }
-        };
-
-        if (isCartSidebarOpen) {
-            document.addEventListener('keydown', handleEscape);
-        }
-
-        return () => {
-            document.removeEventListener('keydown', handleEscape);
-        };
-    }, [isCartSidebarOpen, closeCartSidebar]);
-
-    // ✅ Custom event listener for opening cart from anywhere
-    useEffect(() => {
-        const handleOpenCartEvent = () => {
-            console.log('📢 Custom event received - opening cart sidebar');
-            openCartSidebar();
-        };
-
-        window.addEventListener('openCartSidebar', handleOpenCartEvent);
-        
-        return () => {
-            window.removeEventListener('openCartSidebar', handleOpenCartEvent);
-        };
-    }, [openCartSidebar]);
-
-    // Load products from Firebase
+    // Load products from Firebase (can be optimized later with a global product context)
     useEffect(() => {
         const productsRef = ref(database, "products/");
         onValue(productsRef, (snapshot) => {
@@ -197,53 +145,34 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const checkout = useCallback(() => {
         if (cart.length > 0) {
-            closeCartSidebar(); // ✅ কার্ট সাইডবার বন্ধ করুন
             router.push('/order-form');
         } else {
             showToast("আপনার কার্ট খালি!", "error");
         }
-    }, [cart, router, showToast, closeCartSidebar]);
+    }, [cart, router, showToast]);
 
-    // ✅ নতুন ফাংশন: শুধু একটি প্রোডাক্টের জন্য Buy Now
-    const buyNowSingle = useCallback((product: Product, quantity: number = 1) => {
-        const singleItem: CartItem = { 
-            id: product.id, 
-            name: product.name, 
-            price: product.price, 
-            image: product.image, 
-            quantity: quantity 
-        };
-        setBuyNowItems([singleItem]);
-        closeCartSidebar(); // ✅ কার্ট সাইডবার বন্ধ করুন
-        router.push('/order-form');
-    }, [router, closeCartSidebar]);
-
-    // ✅ বিদ্যমান buyNow ফাংশন: কার্টের সব আইটেমের জন্য
-    const buyNow = useCallback((product?: Product, quantity?: number) => {
-        if (product && quantity) {
-            // যদি প্রোডাক্ট এবং কোয়ান্টিটি দেওয়া থাকে, শুধু সেই প্রোডাক্ট নিয়ে যাবে
-            const singleItem: CartItem = { 
-                id: product.id, 
-                name: product.name, 
-                price: product.price, 
-                image: product.image, 
-                quantity: quantity 
-            };
-            setBuyNowItems([singleItem]);
+    const buyNow = useCallback((product: Product, quantity: number = 1) => {
+        // যদি কার্টে ইতিমধ্যে আইটেম থাকে, সবগুলো নিয়ে যাবে
+        // যদি কার্ট খালি থাকে, শুধু বর্তমান প্রোডাক্ট নিয়ে যাবে
+        if (cart.length > 0) {
+            // কার্টের সব আইটেম নিয়ে অর্ডার ফর্মে যাবে
+            const cartData = encodeURIComponent(JSON.stringify(cart));
+            router.push(`/order-form?cart=${cartData}`);
         } else {
-            // যদি কিছু না দেওয়া থাকে, কার্টের সব আইটেম নিয়ে যাবে
-            setBuyNowItems([...cart]);
+            // শুধু বর্তমান প্রোডাক্ট নিয়ে যাবে
+            const tempCart = [
+                { id: product.id, name: product.name, price: product.price, image: product.image, quantity: quantity },
+            ];
+            const cartData = encodeURIComponent(JSON.stringify(tempCart));
+            router.push(`/order-form?cart=${cartData}`);
         }
-        closeCartSidebar(); // ✅ কার্ট সাইডবার বন্ধ করুন
-        router.push('/order-form');
-    }, [router, cart, closeCartSidebar]);
+    }, [router, cart]);
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const clearCart = useCallback(() => {
         setCart([]);
-        setBuyNowItems([]); // buyNowItems ও ক্লিয়ার করুন
         saveCart([]);
         showToast("কার্ট খালি করা হয়েছে!", "info");
     }, [saveCart, showToast]);
@@ -253,19 +182,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             cart,
             addToCart,
             updateQuantity,
-            updateCartQuantity,
+            updateCartQuantity, // নতুন ফাংশন যোগ করা হয়েছে
             removeFromCart,
             checkout,
             buyNow,
-            buyNowSingle,
             clearCart,
             totalItems,
             totalPrice,
-            buyNowItems,
-            // ✅ কার্ট সাইডবার ফাংশনগুলো এক্সপোর্ট করুন
-            isCartSidebarOpen,
-            openCartSidebar,
-            closeCartSidebar,
         }}>
             {children}
         </CartContext.Provider>
