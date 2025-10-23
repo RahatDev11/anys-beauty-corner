@@ -32,6 +32,9 @@ body {
   overflow-x: hidden;
   font-family: 'SolaimanLipi', 'Helvetica Neue', Arial, sans-serif;
   background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 body {
@@ -80,41 +83,6 @@ a {
 
 .text-orange-600 { 
   color: #ea580c !important; 
-}
-
-/* ✅ FIXED: Remove extra spacing below header */
-main.min-h-screen.pt-16 {
-  padding-top: 1rem !important;
-  min-height: calc(100vh - 4rem) !important;
-}
-
-/* Remove any extra margin from the first element inside main */
-main > *:first-child {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Ensure sections start immediately after header */
-section:first-of-type {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Hero section should start immediately */
-.hero-section {
-  margin-top: 0 !important;
-  padding-top: 0.5rem !important;
-  min-height: auto !important;
-}
-
-/* Remove any extra space from containers */
-.container, .mx-auto {
-  margin-top: 0 !important;
-}
-
-/* Fix for specific pages that might have extra padding */
-[class*="pt-"]:not(.pt-16) {
-  padding-top: 0.5rem !important;
 }
 
 /* ✅ FIXED: Cart Sidebar Styles - IMPORTANT FIXES */
@@ -967,12 +935,6 @@ textarea:focus-visible {
   .form-section h2 {
     font-size: 1.25rem;
   }
-
-  /* Mobile spacing fixes */
-  main.min-h-screen.pt-16 {
-    padding-top: 0.5rem !important;
-    min-height: calc(100vh - 3.5rem) !important;
-  }
 }
 
 @media (max-width: 480px) {
@@ -1036,7 +998,6 @@ textarea:focus-visible {
     gap: 0.4rem;
   }
 }
-
 
 /* Additional Tailwind-like Utilities */
 .flex-1 { flex: 1 1 0%; }
@@ -1189,7 +1150,7 @@ nav.hidden.md\:flex {
   .header-container {
     padding: 0.25rem 0.5rem !important;
   }
-
+  
   /* Ensure mobile icons don't overflow */
   .mobile-header-icons {
     display: flex !important;
@@ -1197,7 +1158,7 @@ nav.hidden.md\:flex {
     gap: 12px !important;
     flex-shrink: 0 !important;
   }
-
+  
   /* Mobile icons spacing */
   .mobile-icon {
     width: 32px !important;
@@ -1207,18 +1168,18 @@ nav.hidden.md\:flex {
     justify-content: center !important;
     flex-shrink: 0 !important;
   }
-
+  
   /* Logo sizing for mobile */
   .mobile-logo {
     max-width: 120px !important;
     overflow: hidden !important;
   }
-
+  
   /* Prevent desktop menu from showing on mobile */
   .desktop-menu {
     display: none !important;
   }
-
+  
   /* Mobile menu button positioning */
   .mobile-menu-btn {
     margin-left: auto !important;
@@ -1229,7 +1190,7 @@ nav.hidden.md\:flex {
     padding-left: 12px !important;
     padding-right: 12px !important;
   }
-
+  
   /* Logo text truncation */
   .logo-text {
     white-space: nowrap !important;
@@ -1256,7 +1217,7 @@ nav.hidden.md\:flex {
     overflow-x: hidden !important;
     position: relative !important;
   }
-
+  
   html {
     overflow-x: hidden !important;
   }
@@ -1290,7 +1251,7 @@ nav.hidden.md\:flex {
   .desktop-only {
     display: none !important;
   }
-
+  
   /* Show mobile elements */
   .mobile-only {
     display: flex !important;
@@ -1302,7 +1263,7 @@ nav.hidden.md\:flex {
   .mobile-only {
     display: none !important;
   }
-
+  
   .desktop-only {
     display: flex !important;
   }
