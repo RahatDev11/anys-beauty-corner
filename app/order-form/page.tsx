@@ -7,7 +7,7 @@ import { database, ref, push, set } from '@/lib/firebase';
 import { SlimProductCard } from '../components/ProductCard';
 
 const OrderForm = () => {
-    const { cart, buyNowItems, clearCart, updateCartQuantity, removeFromCart, addToCart, buyNow, buyNowSingle } = useCart();
+    const { cart, buyNowItems, clearCart, updateQuantity, removeFromCart, addToCart } = useCart();
     const router = useRouter();
 
     const [customerName, setCustomerName] = useState('');
@@ -62,13 +62,13 @@ const OrderForm = () => {
         }
     };
 
-    // SlimProductCard এর জন্য প্রয়োজনীয় props
+    // ✅ CartSidebar এর মতো একই props - SlimProductCard এর জন্য
     const productCardProps = {
         addToCart: addToCart,
         removeFromCart: removeFromCart,
-        updateCartQuantity: updateCartQuantity,
-        buyNow: buyNow,
-        buyNowSingle: buyNowSingle,
+        updateCartQuantity: updateQuantity,
+        buyNow: () => {}, // CartSidebar এ যেমন আছে
+        buyNowSingle: () => {}, // CartSidebar এ যেমন আছে
     };
 
     // Validation function
@@ -453,7 +453,7 @@ const OrderForm = () => {
                             </div>
                         </div>
 
-                        {/* Order Summary - শুধু SlimProductCard ব্যবহার করা হচ্ছে */}
+                        {/* Order Summary - CartSidebar এর মতো একই SlimProductCard */}
                         <div className="bg-white p-6 rounded-lg shadow-md h-fit">
                             <h2 className="text-2xl font-bold mb-6 text-lipstick">Order Summary</h2>
 
