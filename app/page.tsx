@@ -1,337 +1,213 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useCart } from '../context/CartContext';
-import { useRouter } from 'next/navigation';
-import { database, ref, push, set } from '@/lib/firebase';
+export const dynamic = 'force-dynamic';
 
-const OrderForm = () => {
-    const { cart, totalItems, totalPrice, clearCart } = useCart();
+import React, { useState, useEffect, Suspense } from 'react';
+import ProductList from './components/ProductList';
+import ProductSlider from './components/ProductSlider';
+import EventSlider from './components/EventSlider';
+import CartSummary from './components/CartSummary';
+import { database, ref, onValue } from '@/lib/firebase';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCart } from './context/CartContext';
+import { useAuth } from './context/AuthContext';
+import ProductManagement from './components/admin/ProductManagement';
+import SliderManagement from './components/admin/SliderManagement';
+import EventManagement from './components/admin/EventManagement';
+
+interface Event {
+    id: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+    isActive: boolean;
+}
+
+interface Product {
+    id: string;
+    name: string;
+    price: number;
+    category: string;
+    stockStatus: string;
+    image: string;
+    tags: string[];
+    description: string;
+    isInSlider?: boolean;
+    sliderOrder?: number;
+    quantity?: number;
+}
+
+function HomePageContent() {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [events, setEvents] = useState<Event[]>([]);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
+    const { cart, addToCart, removeFromCart, updateCartQuantity, buyNow } = useCart();
+    const { isAdmin } = useAuth();
 
-    const [customerName, setCustomerName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [address, setAddress] = useState('');
-    const [deliveryNote, setDeliveryNote] = useState('');
-    const [deliveryLocation, setDeliveryLocation] = useState('insideDhaka');
-    const [deliveryPaymentMethod, setDeliveryPaymentMethod] = useState('');
-    const [paymentNumber, setPaymentNumber] = useState('');
-    const [transactionId, setTransactionId] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitError, setSubmitError] = useState('');
+    const searchParams = useSearchParams();
+    const categoryFilter = searchParams.get('filter');
 
-    const deliveryFee = deliveryLocation === 'insideDhaka' ? 70 : 160;
-    const totalAmount = totalPrice + deliveryFee;
-
-    // Firebase-এ অর্ডার সAVE করার ফাংশন
-    const saveOrderToFirebase = async (orderData: any) => {
-        try {
-            // orders নোডে নতুন অর্ডার যোগ করুন
-            const ordersRef = ref(database, 'orders');
-            const newOrderRef = push(ordersRef);
-            
-            // অর্ডার ডেটা সAVE করুন
-            await set(newOrderRef, {
-                ...orderData,
-                id: newOrderRef.key, // Firebase generated ID
-                status: 'pending', // অর্ডার স্ট্যাটাস
-                createdAt: new Date().toISOString(), // অর্ডার তারিখ
-                updatedAt: new Date().toISOString()
-            });
-            
-            return newOrderRef.key; // Return the order ID
-        } catch (error) {
-            console.error('Error saving order to Firebase:', error);
-            throw error;
-        }
-    };
-
-    const handleCheckout = async (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        if (cart.length === 0) {
-            alert('Your cart is empty!');
-            return;
-        }
-
-        setIsSubmitting(true);
-        setSubmitError('');
-
-        try {
-            // অর্ডার ডেটা প্রস্তুত করুন
-            const orderData = {
-                customerInfo: {
-                    name: customerName,
-                    phone: phoneNumber,
-                    address: address,
-                    deliveryNote: deliveryNote,
-                    deliveryLocation: deliveryLocation,
-                },
-                paymentInfo: deliveryLocation === 'outsideDhaka' ? {
-                    method: deliveryPaymentMethod,
-                    paymentNumber: paymentNumber,
-                    transactionId: transactionId,
-                    deliveryFeePaid: true
-                } : {
-                    method: 'cash_on_delivery',
-                    deliveryFeePaid: false
-                },
-                orderItems: cart.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    total: item.price * item.quantity
-                })),
-                pricing: {
-                    subtotal: totalPrice,
-                    deliveryFee: deliveryFee,
-                    totalAmount: totalAmount
-                },
-                status: 'pending',
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-
-            // Firebase-এ অর্ডার সAVE করুন
-            const orderId = await saveOrderToFirebase(orderData);
-            
-            console.log('Order saved successfully with ID:', orderId);
-            
-            // সাফল্য মেসেজ দেখান
-            alert(`Order placed successfully! Your order ID is: ${orderId}`);
-            
-            // কার্ট ক্লিয়ার করুন
-            clearCart();
-            
-            // হোম পেজে রিডাইরেক্ট করুন
-            router.push('/');
-            
-        } catch (error) {
-            console.error('Order submission error:', error);
-            setSubmitError('Failed to place order. Please try again.');
-            alert('Order failed! Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    // ঢাকার বাইরের অর্ডার হলে validation চেক করুন
     useEffect(() => {
-        if (deliveryLocation === 'outsideDhaka') {
-            if (!deliveryPaymentMethod || !paymentNumber || !transactionId) {
-                // Optional: Show validation message
-            }
+        console.log('🔄 Products state updated:', products?.length || 0, 'products');
+
+        if (products && products.length > 0) {
+            products.forEach((product, index) => {
+                console.log(`📦 Product ${index + 1}:`, {
+                    name: product?.name || 'Unknown',
+                    price: product?.price || 'N/A',
+                    hasImage: !!product?.image,
+                    imageUrl: product?.image || 'NO IMAGE',
+                    stockStatus: product?.stockStatus || 'unknown'
+                });
+            });
         }
-    }, [deliveryLocation, deliveryPaymentMethod, paymentNumber, transactionId]);
+    }, [products]);
 
-    return (
-        <main className="container mx-auto pt-24 pb-12 px-4">
-            <form id="checkoutForm" onSubmit={handleCheckout}>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Customer Information */}
-                    <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                        <h2 className="text-2xl font-bold mb-6 text-lipstick">Billing Details</h2>
+    const filteredProducts = products?.filter(product => {
+        if (!categoryFilter || categoryFilter === 'all') {
+            return true;
+        }
+        return product?.category === categoryFilter;
+    }) || [];
 
-                        {submitError && (
-                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                                {submitError}
-                            </div>
-                        )}
+    useEffect(() => {
+        console.log('🚀 Fetching products from Firebase...');
 
-                        <div className="form-group grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label htmlFor="customerName" className="form-label">Your Name <span className="required-star">*</span></label>
-                                <input 
-                                    type="text" 
-                                    id="customerName" 
-                                    className="form-input" 
-                                    required 
-                                    placeholder="Enter your full name" 
-                                    value={customerName} 
-                                    onChange={(e) => setCustomerName(e.target.value)} 
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="phoneNumber" className="form-label">Phone Number <span className="required-star">*</span></label>
-                                <input 
-                                    type="tel" 
-                                    id="phoneNumber" 
-                                    className="form-input" 
-                                    required 
-                                    pattern="01[3-9][0-9]{8}" 
-                                    placeholder="01XXXXXXXXX" 
-                                    value={phoneNumber} 
-                                    onChange={(e) => setPhoneNumber(e.target.value)} 
-                                />
-                            </div>
-                        </div>
+        const productsRef = ref(database, "products/");
+        const productsUnsubscribe = onValue(productsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const productsData = Object.keys(snapshot.val()).map(key => ({ 
+                    id: key, 
+                    ...snapshot.val()[key] 
+                }));
+                console.log('✅ Firebase products data received');
+                setProducts(productsData);
+            } else {
+                console.log('❌ No products found in Firebase');
+                setProducts([]);
+            }
+            setLoading(false);
+        });
 
-                        <div className="form-group">
-                            <label htmlFor="address" className="form-label">Full Address <span className="required-star">*</span></label>
-                            <textarea 
-                                id="address" 
-                                rows={3} 
-                                className="form-input" 
-                                required 
-                                placeholder="House No, Road No, Area, City" 
-                                value={address} 
-                                onChange={(e) => setAddress(e.target.value)}
-                            ></textarea>
-                        </div>
+        const eventsRef = ref(database, "events/");
+        const eventsUnsubscribe = onValue(eventsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const eventsData = Object.keys(snapshot.val()).map(key => ({ 
+                    id: key, 
+                    ...snapshot.val()[key] 
+                }));
+                setEvents(eventsData);
+            } else {
+                setEvents([]);
+            }
+        });
 
-                        <div className="form-group">
-                            <label htmlFor="deliveryNote" className="form-label">Additional Information (Optional)</label>
-                            <textarea 
-                                id="deliveryNote" 
-                                rows={2} 
-                                className="form-input" 
-                                placeholder="Special instructions for delivery (optional)" 
-                                value={deliveryNote} 
-                                onChange={(e) => setDeliveryNote(e.target.value)}
-                            ></textarea>
-                        </div>
+        return () => {
+            productsUnsubscribe();
+            eventsUnsubscribe();
+        };
+    }, []);
 
-                        <div className="form-group">
-                            <label className="form-label">Delivery Area <span className="required-star">*</span></label>
-                            <div className="radio-group justify-between">
-                                <label className="flex-1 text-center">
-                                    <input 
-                                        type="radio" 
-                                        name="deliveryLocation" 
-                                        value="insideDhaka" 
-                                        className="form-radio hidden" 
-                                        checked={deliveryLocation === 'insideDhaka'} 
-                                        onChange={(e) => setDeliveryLocation(e.target.value)} 
-                                    /> 
-                                    <span className="radio-custom bg-white border-2 border-lipstick text-lipstick py-3 px-6 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:bg-lipstick hover:text-white block">
-                                        Inside Dhaka
-                                    </span>
-                                </label>
-                                <label className="flex-1 text-center ml-4">
-                                    <input 
-                                        type="radio" 
-                                        name="deliveryLocation" 
-                                        value="outsideDhaka" 
-                                        className="form-radio hidden" 
-                                        checked={deliveryLocation === 'outsideDhaka'} 
-                                        onChange={(e) => setDeliveryLocation(e.target.value)} 
-                                    /> 
-                                    <span className="radio-custom bg-white border-2 border-lipstick text-lipstick py-3 px-6 rounded-lg font-semibold cursor-pointer transition-all duration-300 hover:bg-lipstick hover:text-white block">
-                                        Outside Dhaka
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
+    const showProductDetail = (id: string) => {
+        router.push(`/product/${id}`);
+    };
 
-                        {deliveryLocation === 'outsideDhaka' && (
-                            <div id="paymentNotice" className="payment-notice">
-                                <div className="flex items-start">
-                                    <i className="fas fa-exclamation-circle mt-1 mr-3"></i>
-                                    <div>
-                                        <strong className="block mb-2">Advance Payment Required</strong>
-                                        <p className="text-sm">For orders outside Dhaka, a delivery charge of <strong>160 Taka</strong> has to be paid in advance.</p>
-                                        <p className="text-sm mt-2">Please send money to <strong>01972580114</strong> and provide the information below.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+    const sliderProducts = products?.filter(p => p.isInSlider)
+        .sort((a, b) => (a.sliderOrder || 99) - (b.sliderOrder || 99)) || [];
 
-                        {deliveryLocation === 'outsideDhaka' && (
-                            <div id="deliveryPaymentGroup" className="space-y-4 mt-4">
-                                <div className="form-group">
-                                    <label htmlFor="deliveryPaymentMethod" className="form-label">Payment Method <span className="required-star">*</span></label>
-                                    <select 
-                                        id="deliveryPaymentMethod" 
-                                        className="form-input" 
-                                        value={deliveryPaymentMethod} 
-                                        onChange={(e) => setDeliveryPaymentMethod(e.target.value)}
-                                        required
-                                    >
-                                        <option value="">Select</option>
-                                        <option value="bkash">Bkash</option>
-                                        <option value="nagad">Nagad</option>
-                                        <option value="rocket">Rocket</option>
-                                    </select>
-                                </div>
-                                <div id="paymentNumberGroup" className="form-group">
-                                    <label htmlFor="paymentNumber" className="form-label">Your Payment Number <span className="required-star">*</span></label>
-                                    <input 
-                                        type="text" 
-                                        id="paymentNumber" 
-                                        className="form-input" 
-                                        placeholder="Your mobile number" 
-                                        value={paymentNumber} 
-                                        onChange={(e) => setPaymentNumber(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div id="transactionIdGroup" className="form-group">
-                                    <label htmlFor="transactionId" className="form-label">Transaction ID <span className="required-star">*</span></label>
-                                    <input 
-                                        type="text" 
-                                        id="transactionId" 
-                                        className="form-input" 
-                                        placeholder="Transaction ID" 
-                                        value={transactionId} 
-                                        onChange={(e) => setTransactionId(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Order Summary */}
-                    <div className="bg-white p-6 rounded-lg shadow-md">
-                        <h2 className="text-2xl font-bold mb-6 text-lipstick">Your Order</h2>
-
-                        <div className="checkout-items">
-                            <div id="checkoutItems" className="cart-scroll-container">
-                                {cart.map(item => (
-                                    <div key={item.id} className="flex justify-between items-center mb-4">
-                                        <div>
-                                            <p className="font-semibold">{item.name}</p>
-                                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                                        </div>
-                                        <p className="font-semibold">{(item.price * item.quantity).toFixed(2)} ৳</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="price-summary">
-                            <p>
-                                <span>Sub-total</span> 
-                                <span id="subTotalDisplay">{totalPrice.toFixed(2)} ৳</span>
-                            </p>
-                            <p>
-                                <span>Delivery Fee</span> 
-                                <span id="deliveryFeeDisplay">{deliveryFee.toFixed(2)} ৳</span>
-                            </p>
-                            <p className="total-row">
-                                <span>Total</span> 
-                                <span id="totalAmountDisplay">{totalAmount.toFixed(2)} ৳</span>
-                            </p>
-                        </div>
-
-                        <button 
-                            type="submit" 
-                            id="submitButton" 
-                            className="submit-btn mt-6 w-full bg-lipstick text-white py-3 px-6 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={isSubmitting || cart.length === 0}
-                        >
-                            {isSubmitting ? 'Placing Order...' : 'Place Order'}
-                        </button>
-
-                        <div className="mt-4 text-center text-sm text-gray-600">
-                            <p>By confirming the order, you agree to our <a href="/terms" className="text-lipstick underline">Terms and Conditions</a></p>
+    if (loading) {
+        return (
+            <main className="p-4 pt-24">
+                <div className="container mx-auto">
+                    <div className="flex justify-center items-center min-h-64">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick mx-auto mb-4"></div>
+                            <p className="text-gray-600">Loading products...</p>
                         </div>
                     </div>
                 </div>
-            </form>
+            </main>
+        );
+    }
+
+    return (
+        <main className="pt-0 pb-12"> {/* কম padding */}
+            <div className="container mx-auto">
+                {isAdmin && (
+                    <section className="mb-8 p-4 bg-white rounded-lg shadow-lg space-y-4">
+                        <h2 className="text-2xl font-bold text-center text-lipstick-dark">Admin Panel</h2>
+                        <ProductManagement />
+                        <SliderManagement />
+                        <EventManagement />
+                    </section>
+                )}
+
+                {/* Featured Products Section - FIRST */}
+                {sliderProducts.length > 0 && (
+                    <section className="mb-12">
+                        <div className="px-4 lg:px-8">
+                            <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Featured Products</h2>
+                            <ProductSlider 
+                                products={sliderProducts} 
+                                showProductDetail={showProductDetail} 
+                            />
+                        </div>
+                    </section>
+                )}
+
+                {/* Events Section - SECOND */}
+                {events?.filter(event => event.isActive).length > 0 && (
+                    <section className="mb-12">
+                        <div className="px-4 lg:px-8">
+                            <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">Our Events</h2>
+                            <EventSlider events={events.filter(event => event.isActive)} />
+                        </div>
+                    </section>
+                )}
+
+                {/* All Products Section */}
+                <section className="px-4 lg:px-8">
+                    <h2 className="text-3xl font-bold text-lipstick-dark text-center mb-8">
+                        {categoryFilter && categoryFilter !== 'all' ? `Products in ${categoryFilter}` : 'All Products'}
+                    </h2>
+
+                    {filteredProducts.length > 0 ? (
+                        <ProductList
+                            products={filteredProducts}
+                            cartItems={cart}
+                            addToCart={addToCart}
+                            removeFromCart={removeFromCart}
+                            updateCartQuantity={updateCartQuantity}
+                            buyNow={buyNow}
+                        />
+                    ) : (
+                        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                            <div className="text-6xl text-gray-300 mb-4">📦</div>
+                            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Products Found</h3>
+                            <p className="text-gray-500">Check back later for new products!</p>
+                        </div>
+                    )}
+                </section>
+            </div>
+
+            {/* ✅ Compact Cart Summary */}
+            <CartSummary />
         </main>
     );
-};
+}
 
-export default OrderForm;
+export default function HomePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center pt-0">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading page...</p>
+                </div>
+            </div>
+        }>
+            <HomePageContent />
+        </Suspense>
+    );
+}
