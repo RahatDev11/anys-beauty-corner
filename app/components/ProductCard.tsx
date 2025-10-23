@@ -111,7 +111,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         }
     };
 
-    // স্লিম ভ্যারিয়েন্ট রেন্ডার (সাইডবারের জন্য)
+    // স্লিম ভ্যারিয়েন্ট রেন্ডার (সাইডবার এবং অর্ডার ফরমের জন্য)
     if (variant === 'slim') {
         return (
             <div 
