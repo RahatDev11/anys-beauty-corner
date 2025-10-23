@@ -1,4 +1,4 @@
-// components/CartSummary.tsx - SIMPLIFIED VERSION
+// components/CartSummary.tsx - COMPACT VERSION
 'use client';
 
 import React from 'react';
@@ -13,22 +13,22 @@ const CartSummary: React.FC = () => {
 
     const handleViewCart = () => {
         console.log('🔄 CartSummary: কার্ড দেখুন বাটনে ক্লিক হয়েছে');
-        openCartSidebar(); // ✅ সরাসরি CartContext থেকে
+        openCartSidebar();
     };
 
     const handleCheckout = () => {
-        buyNow(); // ✅ কার্টের সব আইটেম নিয়ে অর্ডার ফর্মে যাবে
+        buyNow();
     };
 
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-30">
-            <div className="container mx-auto px-4 py-2.5">
+            <div className="container mx-auto px-3 py-2">
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-lipstick text-white rounded-full w-10 h-10 flex items-center justify-center">
-                            <span className="font-bold text-lg">{totalItems}</span>
+                    <div className="flex items-center space-x-2">
+                        <div className="bg-lipstick text-white rounded-full w-8 h-8 flex items-center justify-center">
+                            <span className="font-bold text-sm">{totalItems}</span>
                         </div>
-                        <span className="text-md font-semibold text-gray-800">
+                        <span className="text-sm font-semibold text-gray-800">
                             {totalPrice.toFixed(2)} টাকা
                         </span>
                     </div>
@@ -36,15 +36,15 @@ const CartSummary: React.FC = () => {
                     <div className="flex items-center space-x-2">
                         <button
                             onClick={handleViewCart}
-                            className="px-4 py-2 border border-lipstick text-lipstick rounded font-semibold hover:bg-lipstick hover:text-white transition-colors text-sm"
+                            className="px-3 py-1.5 border border-lipstick text-lipstick rounded font-semibold hover:bg-lipstick hover:text-white transition-colors text-xs"
                         >
                             কার্ড দেখুন
                         </button>
                         <button
                             onClick={handleCheckout}
-                            className="px-4 py-2 bg-lipstick text-white rounded font-semibold hover:bg-lipstick-dark transition-colors text-sm"
+                            className="px-3 py-1.5 bg-lipstick text-white rounded font-semibold hover:bg-lipstick-dark transition-colors text-xs"
                         >
-                            অর্ডার করুন ({totalItems})
+                            অর্ডার করুন
                         </button>
                     </div>
                 </div>
