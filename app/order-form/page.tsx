@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
 import { database, ref, push, set } from '@/lib/firebase';
-import { SlimProductCard } from '../components/ProductCard'; // নতুন SlimProductCard ইম্পোর্ট
+import { SlimProductCard } from '../components/ProductCard';
 
 const OrderForm = () => {
     const { cart, buyNowItems, clearCart, updateCartQuantity, removeFromCart, addToCart, buyNow, buyNowSingle } = useCart();
@@ -36,7 +36,7 @@ const OrderForm = () => {
         }
     }, [orderItems, router]);
 
-    // Firebase-এ অর্ডার সAVE করার ফাংশন
+    // Firebase-এ অর্ডার SAVE করার ফাংশন
     const saveOrderToFirebase = async (orderData: any) => {
         try {
             console.log('🚀 Saving order to Firebase...', orderData);
@@ -267,19 +267,19 @@ const OrderForm = () => {
 
                                 <div className="mb-4">
                                     <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Full Address <span className="text-red-500">*</span>
+                                        Delivery Address <span className="text-red-500">*</span>
                                     </label>
                                     <textarea 
                                         id="address" 
-                                        rows={3} 
                                         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick ${
                                             errors.address ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                         required 
-                                        placeholder="House No, Road No, Area, City" 
+                                        placeholder="Enter your complete delivery address" 
                                         value={address} 
-                                        onChange={(e) => setAddress(e.target.value)}
-                                    ></textarea>
+                                        onChange={(e) => setAddress(e.target.value)} 
+                                        rows={3}
+                                    />
                                     {errors.address && (
                                         <p className="text-red-500 text-sm mt-1">{errors.address}</p>
                                     )}
@@ -291,40 +291,44 @@ const OrderForm = () => {
                                     </label>
                                     <textarea 
                                         id="deliveryNote" 
-                                        rows={2} 
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
                                         placeholder="Any special delivery instructions..." 
                                         value={deliveryNote} 
-                                        onChange={(e) => setDeliveryNote(e.target.value)}
-                                    ></textarea>
+                                        onChange={(e) => setDeliveryNote(e.target.value)} 
+                                        rows={2}
+                                    />
                                 </div>
 
                                 <div className="mb-6">
                                     <label className="block text-sm font-medium text-gray-700 mb-3">
                                         Delivery Location <span className="text-red-500">*</span>
                                     </label>
-                                    <div className="flex gap-4">
-                                        <label className="flex items-center">
+                                    <div className="radio-group justify-between">
+                                        <label>
                                             <input 
                                                 type="radio" 
                                                 name="deliveryLocation" 
                                                 value="insideDhaka" 
                                                 checked={deliveryLocation === 'insideDhaka'} 
                                                 onChange={(e) => setDeliveryLocation(e.target.value)} 
-                                                className="mr-2"
+                                                className="hidden"
                                             />
-                                            <span className="radio-custom">Inside Dhaka (৳70)</span>
+                                            <span className="radio-custom">
+                                                ঢাকার ভিতরে (৳70)
+                                            </span>
                                         </label>
-                                        <label className="flex items-center">
+                                        <label>
                                             <input 
                                                 type="radio" 
                                                 name="deliveryLocation" 
                                                 value="outsideDhaka" 
                                                 checked={deliveryLocation === 'outsideDhaka'} 
                                                 onChange={(e) => setDeliveryLocation(e.target.value)} 
-                                                className="mr-2"
+                                                className="hidden"
                                             />
-                                            <span className="radio-custom">Outside Dhaka (৳160)</span>
+                                            <span className="radio-custom">
+                                                ঢাকার বাইরে (৳160)
+                                            </span>
                                         </label>
                                     </div>
                                 </div>
@@ -333,7 +337,7 @@ const OrderForm = () => {
                                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
                                         <div className="flex items-start">
                                             <div className="flex-shrink-0">
-                                                <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                                 </svg>
                                             </div>
@@ -342,7 +346,9 @@ const OrderForm = () => {
                                                     Advance Payment Required
                                                 </h3>
                                                 <div className="mt-2 text-sm text-yellow-700">
-                                                    <p>For outside Dhaka delivery, you need to pay the delivery charge (৳160) in advance.</p>
+                                                    <p>
+                                                        ঢাকার বাইরে অর্ডার করার জন্য ডেলিভারি ফি (৳160) অগ্রিম পে করতে হবে।
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -352,60 +358,79 @@ const OrderForm = () => {
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                                     Payment Method <span className="text-red-500">*</span>
                                                 </label>
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    <label className="flex items-center">
+                                                <div className="radio-group justify-between">
+                                                    <label>
                                                         <input 
                                                             type="radio" 
-                                                            name="paymentMethod" 
+                                                            name="deliveryPaymentMethod" 
                                                             value="bkash" 
                                                             checked={deliveryPaymentMethod === 'bkash'} 
                                                             onChange={(e) => setDeliveryPaymentMethod(e.target.value)} 
-                                                            className="mr-2"
+                                                            className="hidden"
                                                         />
-                                                        <span className="radio-custom">bKash</span>
+                                                        <span className="radio-custom">
+                                                            bKash
+                                                        </span>
                                                     </label>
-                                                    <label className="flex items-center">
+                                                    <label>
                                                         <input 
                                                             type="radio" 
-                                                            name="paymentMethod" 
+                                                            name="deliveryPaymentMethod" 
                                                             value="nagad" 
                                                             checked={deliveryPaymentMethod === 'nagad'} 
                                                             onChange={(e) => setDeliveryPaymentMethod(e.target.value)} 
-                                                            className="mr-2"
+                                                            className="hidden"
                                                         />
-                                                        <span className="radio-custom">Nagad</span>
+                                                        <span className="radio-custom">
+                                                            Nagad
+                                                        </span>
+                                                    </label>
+                                                    <label>
+                                                        <input 
+                                                            type="radio" 
+                                                            name="deliveryPaymentMethod" 
+                                                            value="rocket" 
+                                                            checked={deliveryPaymentMethod === 'rocket'} 
+                                                            onChange={(e) => setDeliveryPaymentMethod(e.target.value)} 
+                                                            className="hidden"
+                                                        />
+                                                        <span className="radio-custom">
+                                                            Rocket
+                                                        </span>
                                                     </label>
                                                 </div>
                                             </div>
 
-                                            <div>
-                                                <label htmlFor="paymentNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                                                    Payment Number <span className="text-red-500">*</span>
-                                                </label>
-                                                <input 
-                                                    type="text" 
-                                                    id="paymentNumber" 
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
-                                                    placeholder="01XXXXXXXXX" 
-                                                    value={paymentNumber} 
-                                                    onChange={(e) => setPaymentNumber(e.target.value)} 
-                                                    required={deliveryLocation === 'outsideDhaka'}
-                                                />
-                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label htmlFor="paymentNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Payment Number <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        id="paymentNumber" 
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
+                                                        placeholder="01XXXXXXXXX" 
+                                                        value={paymentNumber} 
+                                                        onChange={(e) => setPaymentNumber(e.target.value)} 
+                                                        required={deliveryLocation === 'outsideDhaka'}
+                                                    />
+                                                </div>
 
-                                            <div>
-                                                <label htmlFor="transactionId" className="block text-sm font-medium text-gray-700 mb-1">
-                                                    Transaction ID <span className="text-red-500">*</span>
-                                                </label>
-                                                <input 
-                                                    type="text" 
-                                                    id="transactionId" 
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
-                                                    placeholder="Enter transaction ID" 
-                                                    value={transactionId} 
-                                                    onChange={(e) => setTransactionId(e.target.value)} 
-                                                    required={deliveryLocation === 'outsideDhaka'}
-                                                />
+                                                <div>
+                                                    <label htmlFor="transactionId" className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Transaction ID <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        id="transactionId" 
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lipstick"
+                                                        placeholder="Enter transaction ID" 
+                                                        value={transactionId} 
+                                                        onChange={(e) => setTransactionId(e.target.value)} 
+                                                        required={deliveryLocation === 'outsideDhaka'}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -428,7 +453,7 @@ const OrderForm = () => {
                             </div>
                         </div>
 
-                        {/* Order Summary */}
+                        {/* Order Summary - শুধু SlimProductCard ব্যবহার করা হচ্ছে */}
                         <div className="bg-white p-6 rounded-lg shadow-md h-fit">
                             <h2 className="text-2xl font-bold mb-6 text-lipstick">Order Summary</h2>
 
