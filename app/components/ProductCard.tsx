@@ -54,19 +54,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const productName = product?.name || 'Unknown Product';
     const productId = product?.id || 'unknown';
 
-    const handleShowProductDetail = (id: string) => {
+    // ✅ সব প্রোডাক্ট কার্ডে ক্লিক করলে প্রোডাক্ট ডিটেলস পেজে যায়
+    const handleCardClick = () => {
         if (showProductDetail) {
-            showProductDetail(id);
+            showProductDetail(productId);
         } else {
-            router.push(`/product/${id}`);
+            router.push(`/product-detail/${productId}`);
         }
     };
 
     // ✅ ইভেন্ট প্রপাগেশন বন্ধ করে দিচ্ছি
     const handleIncrement = (e: React.MouseEvent) => {
-        e.stopPropagation(); // ফর্ম সাবমিট হওয়া বন্ধ করবে
-        e.preventDefault(); // ডিফল্ট বিহেভিয়ার বন্ধ করবে
-        
+        e.stopPropagation();
+        e.preventDefault();
+
         if (product && updateCartQuantity) {
             updateCartQuantity(productId, cartItemQuantity + 1);
         }
@@ -74,9 +75,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     // ✅ ইভেন্ট প্রপাগেশন বন্ধ করে দিচ্ছি
     const handleDecrement = (e: React.MouseEvent) => {
-        e.stopPropagation(); // ফর্ম সাবমিট হওয়া বন্ধ করবে
-        e.preventDefault(); // ডিফল্ট বিহেভিয়ার বন্ধ করবে
-        
+        e.stopPropagation();
+        e.preventDefault();
+
         if (product && updateCartQuantity) {
             if (cartItemQuantity > 1) {
                 updateCartQuantity(productId, cartItemQuantity - 1);
@@ -88,9 +89,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     // ✅ ইভেন্ট প্রপাগেশন বন্ধ করে দিচ্ছি
     const handleAddToCart = (e: React.MouseEvent) => {
-        e.stopPropagation(); // ফর্ম সাবমিট হওয়া বন্ধ করবে
-        e.preventDefault(); // ডিফল্ট বিহেভিয়ার বন্ধ করবে
-        
+        e.stopPropagation();
+        e.preventDefault();
+
         if (product && addToCart) {
             addToCart(product);
         }
@@ -99,7 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const handleBuyNow = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        
+
         if (product) {
             const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
             if (buyNowSingle) {
@@ -110,23 +111,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
         }
     };
 
-    // স্লিম ভ্যারিয়েন্ট রেন্ডার
+    // স্লিম ভ্যারিয়েন্ট রেন্ডার (সাইডবারের জন্য)
     if (variant === 'slim') {
         return (
-            <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+            <div 
+                className="flex items-center justify-between p-3 border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={handleCardClick} // ✅ পুরো কার্ডে ক্লিক করলে প্রোডাক্ট ডিটেলস
+            >
                 {/* বাম পাশ: ইমেজ এবং প্রোডাক্ট তথ্য */}
                 <div className="flex items-center space-x-3 flex-1">
                     <img
                         src={imageUrl}
                         alt={productName}
-                        className="w-12 h-12 object-cover rounded cursor-pointer"
-                        onClick={() => handleShowProductDetail(productId)}
+                        className="w-12 h-12 object-cover rounded"
                     />
                     <div className="flex-1 min-w-0">
-                        <h3
-                            className="font-medium text-sm text-gray-800 cursor-pointer truncate hover:text-lipstick transition-colors"
-                            onClick={() => handleShowProductDetail(productId)}
-                        >
+                        <h3 className="font-medium text-sm text-gray-800 truncate hover:text-lipstick transition-colors">
                             {productName}
                         </h3>
                         <p className="text-lg font-bold text-black mt-1">
@@ -136,7 +136,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 </div>
 
                 {/* ডান পাশ: কোয়ান্টিটি কন্ট্রোল এবং অ্যাকশন বাটন */}
-                <div className="flex items-center space-x-2 ml-3">
+                <div className="flex items-center space-x-2 ml-3" onClick={(e) => e.stopPropagation()}>
                     {cartItemQuantity > 0 ? (
                         <div className="flex items-center space-x-2">
                             <div className="bg-gray-100 rounded-md flex items-center px-2 py-1">
@@ -177,24 +177,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
         );
     }
 
-    // নরমাল ভ্যারিয়েন্ট রেন্ডার (ডিফল্ট)
+    // নরমাল ভ্যারিয়েন্ট রেন্ডার (হোমপেজের জন্য)
     return (
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col border border-gray-200 hover:shadow-md transition-shadow duration-300 w-full">
+        <div 
+            className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col border border-gray-200 hover:shadow-md transition-shadow duration-300 w-full cursor-pointer"
+            onClick={handleCardClick} // ✅ পুরো কার্ডে ক্লিক করলে প্রোডাক্ট ডিটেলস
+        >
             <div className="relative">
                 <img
                     src={imageUrl}
                     alt={productName}
-                    className="w-full h-32 object-cover cursor-pointer"
-                    onClick={() => handleShowProductDetail(productId)}
+                    className="w-full h-32 object-cover"
                 />
             </div>
 
             <div className="p-3 flex flex-col flex-grow bg-white">
                 <div className="flex-grow">
-                    <h3
-                        className="font-medium text-sm mb-1 cursor-pointer line-clamp-2 hover:text-lipstick transition-colors"
-                        onClick={() => handleShowProductDetail(productId)}
-                    >
+                    <h3 className="font-medium text-sm mb-1 line-clamp-2 hover:text-lipstick transition-colors">
                         {productName}
                     </h3>
                 </div>
@@ -204,7 +203,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         {product?.price ? `${product.price} টাকা` : 'Price N/A'}
                     </p>
 
-                    <div className="mt-2 space-y-2">
+                    <div className="mt-2 space-y-2" onClick={(e) => e.stopPropagation()}>
                         {cartItemQuantity > 0 ? (
                             <div className="w-full bg-gray-100 text-black rounded-md font-semibold flex items-center justify-between h-8 px-2">
                                 <button
