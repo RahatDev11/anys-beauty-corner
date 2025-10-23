@@ -4,10 +4,107 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
 import { database, ref, push, set } from '@/lib/firebase';
-import { SlimProductCard } from '../components/ProductCard';
+
+// OrderForm এর জন্য আলাদা Product Card কম্পোনেন্ট
+const OrderProductCard = ({ 
+    product, 
+    cartItemQuantity, 
+    onUpdateQuantity, 
+    onRemove 
+}: { 
+    product: any;
+    cartItemQuantity: number;
+    onUpdateQuantity: (productId: string, quantity: number) => void;
+    onRemove: (productId: string) => void;
+}) => {
+    const router = useRouter();
+
+    const getImageUrl = () => {
+        if (!product) return "https://via.placeholder.com/150?text=No+Product";
+        if (!product.image) return "https://via.placeholder.com/150?text=No+Image";
+        if (typeof product.image === 'string' && product.image.includes(',')) {
+            const urls = product.image.split(',').map(url => url.trim());
+            const firstUrl = urls[0];
+            if (firstUrl && firstUrl.startsWith('http')) return firstUrl;
+        }
+        if (typeof product.image === 'string' && product.image.startsWith('http')) {
+            return product.image;
+        }
+        return "https://via.placeholder.com/150?text=Invalid+URL";
+    };
+
+    const imageUrl = getImageUrl();
+    const productName = product?.name || 'Unknown Product';
+    const productId = product?.id || 'unknown';
+
+    const handleCardClick = () => {
+        router.push(`/product-detail/${productId}`);
+    };
+
+    const handleIncrement = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        onUpdateQuantity(productId, cartItemQuantity + 1);
+    };
+
+    const handleDecrement = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (cartItemQuantity > 1) {
+            onUpdateQuantity(productId, cartItemQuantity - 1);
+        } else {
+            onRemove(productId);
+        }
+    };
+
+    return (
+        <div 
+            className="flex items-center justify-between p-3 border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+            onClick={handleCardClick}
+        >
+            {/* বাম পাশ: ইমেজ এবং প্রোডাক্ট তথ্য */}
+            <div className="flex items-center space-x-3 flex-1">
+                <img
+                    src={imageUrl}
+                    alt={productName}
+                    className="w-12 h-12 object-cover rounded"
+                />
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm text-gray-800 truncate hover:text-lipstick transition-colors">
+                        {productName}
+                    </h3>
+                    <p className="text-lg font-bold text-black mt-1">
+                        {product?.price ? `${product.price} টাকা` : 'Price N/A'}
+                    </p>
+                </div>
+            </div>
+
+            {/* ডান পাশ: কোয়ান্টিটি কন্ট্রোল */}
+            <div className="flex items-center space-x-2 ml-3" onClick={(e) => e.stopPropagation()}>
+                <div className="bg-gray-100 rounded-md flex items-center px-2 py-1">
+                    <button
+                        onClick={handleDecrement}
+                        className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors font-bold"
+                    >
+                        -
+                    </button>
+                    <span className="mx-2 text-sm font-medium min-w-4 text-center">
+                        {cartItemQuantity}
+                    </span>
+                    <button
+                        onClick={handleIncrement}
+                        className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors font-bold"
+                    >
+                        +
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const OrderForm = () => {
-    const { cart, buyNowItems, clearCart, updateQuantity, removeFromCart, addToCart } = useCart();
+    const { cart, buyNowItems, clearCart, updateQuantity, removeFromCart } = useCart();
     const router = useRouter();
 
     const [customerName, setCustomerName] = useState('');
@@ -60,15 +157,6 @@ const OrderForm = () => {
             console.error('❌ Error saving order to Firebase:', error);
             throw new Error('Failed to save order to database');
         }
-    };
-
-    // ✅ CartSidebar এর মতো একই props - SlimProductCard এর জন্য
-    const productCardProps = {
-        addToCart: addToCart,
-        removeFromCart: removeFromCart,
-        updateCartQuantity: updateQuantity,
-        buyNow: () => {}, // CartSidebar এ যেমন আছে
-        buyNowSingle: () => {}, // CartSidebar এ যেমন আছে
     };
 
     // Validation function
@@ -453,17 +541,18 @@ const OrderForm = () => {
                             </div>
                         </div>
 
-                        {/* Order Summary - CartSidebar এর মতো একই SlimProductCard */}
+                        {/* Order Summary */}
                         <div className="bg-white p-6 rounded-lg shadow-md h-fit">
                             <h2 className="text-2xl font-bold mb-6 text-lipstick">Order Summary</h2>
 
                             <div className="space-y-3 mb-6">
                                 {orderItems.map((item) => (
-                                    <SlimProductCard 
+                                    <OrderProductCard 
                                         key={item.id}
                                         product={item}
                                         cartItemQuantity={item.quantity}
-                                        {...productCardProps}
+                                        onUpdateQuantity={updateQuantity}
+                                        onRemove={removeFromCart}
                                     />
                                 ))}
                             </div>
