@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
@@ -19,11 +20,13 @@ const EventSlider: React.FC<EventSliderProps> = ({ events }) => {
     const activeEvents = events.filter(event => event.isActive).slice(0, 3);
 
     if (activeEvents.length === 0) {
-        return null; // কোনো ইভেন্ট না থাকলে কিছুই show করবে না
+        return (
+            <div className="swiper-slide text-center p-6 bg-white rounded-lg">কোনো নতুন ইভেন্ট নেই।</div>
+        );
     }
 
     return (
-        <div id="event-slider-wrapper" className="w-full">
+        <div id="event-slider-wrapper">
             <Swiper
                 modules={[Autoplay, Pagination]}
                 loop={activeEvents.length > 1}
@@ -61,39 +64,7 @@ const EventSlider: React.FC<EventSliderProps> = ({ events }) => {
                     </SwiperSlide>
                 ))}
             </Swiper>
-            <div className="swiper-pagination !bottom-1"></div> {/* Custom pagination container */}
-            
-            {/* Custom CSS for pagination positioning */}
-            <style jsx global>{`
-                #event-slider-wrapper {
-                    position: relative;
-                    margin: 0;
-                    padding: 0;
-                }
-                .event-slider {
-                    width: 100%;
-                    margin: 0;
-                    padding: 0;
-                }
-                .swiper-pagination {
-                    position: absolute;
-                    bottom: 4px !important;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: auto !important;
-                    z-index: 10;
-                }
-                .swiper-pagination-bullet {
-                    width: 8px;
-                    height: 8px;
-                    background: rgba(0, 0, 0, 0.4);
-                    opacity: 1;
-                    margin: 0 3px;
-                }
-                .swiper-pagination-bullet-active {
-                    background: #A52A2A;
-                }
-            `}</style>
+            <div className="swiper-pagination"></div> {/* Custom pagination container */}
         </div>
     );
 };
