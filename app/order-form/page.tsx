@@ -8,7 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const OrderForm = () => {
-    const { cart, totalItems, totalPrice, clearCart, updateQuantity, removeFromCart } = useCart();
+    const { cart, totalItems, totalPrice, clearCart, updateCartQuantity, removeFromCart } = useCart();
     const router = useRouter();
 
     const [customerName, setCustomerName] = useState('');
@@ -26,23 +26,23 @@ const OrderForm = () => {
     const totalAmount = totalPrice + deliveryFee;
 
     // কোয়ান্টিটি বাড়ানোর ফাংশন
-    const handleIncreaseQuantity = (productId) => {
+    const handleIncreaseQuantity = (productId: string) => {
         const product = cart.find(item => item.id === productId);
         if (product) {
-            updateQuantity(productId, product.quantity + 1);
+            updateCartQuantity(productId, product.quantity + 1);
         }
     };
 
     // কোয়ান্টিটি কমানোর ফাংশন
-    const handleDecreaseQuantity = (productId) => {
+    const handleDecreaseQuantity = (productId: string) => {
         const product = cart.find(item => item.id === productId);
         if (product && product.quantity > 1) {
-            updateQuantity(productId, product.quantity - 1);
+            updateCartQuantity(productId, product.quantity - 1);
         }
     };
 
     // প্রোডাক্ট রিমুভ করার ফাংশন
-    const handleRemoveProduct = (productId) => {
+    const handleRemoveProduct = (productId: string) => {
         removeFromCart(productId);
     };
 
@@ -102,7 +102,7 @@ const OrderForm = () => {
                     price: item.price,
                     quantity: item.quantity,
                     total: item.price * item.quantity,
-                    image: item.image // ইমেজও সেভ করুন
+                    image: item.image
                 })),
                 pricing: {
                     subtotal: totalPrice,
@@ -301,7 +301,7 @@ const OrderForm = () => {
                         <h2 className="text-2xl font-bold mb-6 text-lipstick">Your Order</h2>
 
                         <div className="checkout-items">
-                            <div id="checkoutItems" className="cart-scroll-container space-y-4">
+                            <div id="checkoutItems" className="cart-scroll-container space-y-4 max-h-96 overflow-y-auto">
                                 {cart.map(item => (
                                     <div key={item.id} className="border-b pb-4 last:border-b-0">
                                         <div className="flex gap-4">
@@ -333,14 +333,14 @@ const OrderForm = () => {
                                                     href={`/products/${item.id}`}
                                                     className="block"
                                                 >
-                                                    <p className="font-semibold text-lg hover:text-lipstick transition-colors cursor-pointer">
+                                                    <p className="font-semibold text-lg hover:text-lipstick transition-colors cursor-pointer line-clamp-2">
                                                         {item.name}
                                                     </p>
                                                 </Link>
                                                 
                                                 <p className="text-gray-600 mt-1">Price: {item.price.toFixed(2)} ৳</p>
                                                 
-                                                       {/* কোয়ান্টিটি কন্ট্রোল */}
+                                                     {/* কোয়ান্টিটি কন্ট্রোল */}
                                                 <div className="flex items-center justify-between mt-2">
                                                     <div className="flex items-center space-x-2">
                                                         <button
@@ -349,10 +349,10 @@ const OrderForm = () => {
                                                             disabled={item.quantity <= 1}
                                                             className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                                         >
-                                                            <span className="text-lg">-</span>
+                                                            <span className="text-lg font-bold">−</span>
                                                         </button>
                                                         
-                                                        <span className="w-8 text-center font-semibold">
+                                                        <span className="w-8 text-center font-semibold text-lg">
                                                             {item.quantity}
                                                         </span>
                                                         
@@ -361,7 +361,7 @@ const OrderForm = () => {
                                                             onClick={() => handleIncreaseQuantity(item.id)}
                                                             className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
                                                         >
-                                                            <span className="text-lg">+</span>
+                                                            <span className="text-lg font-bold">+</span>
                                                         </button>
                                                     </div>
                                                     
@@ -372,7 +372,7 @@ const OrderForm = () => {
                                                         <button
                                                             type="button"
                                                             onClick={() => handleRemoveProduct(item.id)}
-                                                            className="text-red-500 text-sm hover:text-red-700 mt-1"
+                                                            className="text-red-500 text-sm hover:text-red-700 mt-1 transition-colors"
                                                         >
                                                             Remove
                                                         </button>
@@ -385,7 +385,13 @@ const OrderForm = () => {
                             </div>
                         </div>
 
-                        <div className="price-summary mt-6">
+                        {cart.length === 0 && (
+                            <div className="text-center py-8 text-gray-500">
+                                Your cart is empty
+                            </div>
+                        )}
+
+                        <div className="price-summary mt-6 space-y-2">
                             <div className="flex justify-between py-2">
                                 <span>Sub-total</span> 
                                 <span id="subTotalDisplay">{totalPrice.toFixed(2)} ৳</span>
@@ -394,7 +400,7 @@ const OrderForm = () => {
                                 <span>Delivery Fee</span> 
                                 <span id="deliveryFeeDisplay">{deliveryFee.toFixed(2)} ৳</span>
                             </div>
-                            <div className="flex justify-between py-2 border-t border-gray-300 font-bold text-lg">
+                            <div className="flex justify-between py-2 border-t border-gray-300 font-bold text-lg mt-4 pt-4">
                                 <span>Total</span> 
                                 <span id="totalAmountDisplay">{totalAmount.toFixed(2)} ৳</span>
                             </div>
