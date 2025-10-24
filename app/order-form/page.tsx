@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
 import { database, ref, push, set } from '@/lib/firebase';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const OrderForm = () => {
-    const { cart, totalItems, totalPrice, clearCart } = useCart();
+    const { cart, totalItems, totalPrice, clearCart, updateQuantity, removeFromCart } = useCart();
     const router = useRouter();
 
     const [customerName, setCustomerName] = useState('');
@@ -23,23 +25,42 @@ const OrderForm = () => {
     const deliveryFee = deliveryLocation === 'insideDhaka' ? 70 : 160;
     const totalAmount = totalPrice + deliveryFee;
 
+    // কোয়ান্টিটি বাড়ানোর ফাংশন
+    const handleIncreaseQuantity = (productId) => {
+        const product = cart.find(item => item.id === productId);
+        if (product) {
+            updateQuantity(productId, product.quantity + 1);
+        }
+    };
+
+    // কোয়ান্টিটি কমানোর ফাংশন
+    const handleDecreaseQuantity = (productId) => {
+        const product = cart.find(item => item.id === productId);
+        if (product && product.quantity > 1) {
+            updateQuantity(productId, product.quantity - 1);
+        }
+    };
+
+    // প্রোডাক্ট রিমুভ করার ফাংশন
+    const handleRemoveProduct = (productId) => {
+        removeFromCart(productId);
+    };
+
     // Firebase-এ অর্ডার সAVE করার ফাংশন
     const saveOrderToFirebase = async (orderData: any) => {
         try {
-            // orders নোডে নতুন অর্ডার যোগ করুন
             const ordersRef = ref(database, 'orders');
             const newOrderRef = push(ordersRef);
-            
-            // অর্ডার ডেটা সAVE করুন
+
             await set(newOrderRef, {
                 ...orderData,
-                id: newOrderRef.key, // Firebase generated ID
-                status: 'pending', // অর্ডার স্ট্যাটাস
-                createdAt: new Date().toISOString(), // অর্ডার তারিখ
+                id: newOrderRef.key,
+                status: 'pending',
+                createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             });
-            
-            return newOrderRef.key; // Return the order ID
+
+            return newOrderRef.key;
         } catch (error) {
             console.error('Error saving order to Firebase:', error);
             throw error;
@@ -48,7 +69,7 @@ const OrderForm = () => {
 
     const handleCheckout = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (cart.length === 0) {
             alert('Your cart is empty!');
             return;
@@ -58,7 +79,6 @@ const OrderForm = () => {
         setSubmitError('');
 
         try {
-            // অর্ডার ডেটা প্রস্তুত করুন
             const orderData = {
                 customerInfo: {
                     name: customerName,
@@ -81,7 +101,8 @@ const OrderForm = () => {
                     name: item.name,
                     price: item.price,
                     quantity: item.quantity,
-                    total: item.price * item.quantity
+                    total: item.price * item.quantity,
+                    image: item.image // ইমেজও সেভ করুন
                 })),
                 pricing: {
                     subtotal: totalPrice,
@@ -93,20 +114,14 @@ const OrderForm = () => {
                 updatedAt: new Date().toISOString()
             };
 
-            // Firebase-এ অর্ডার সAVE করুন
             const orderId = await saveOrderToFirebase(orderData);
-            
+
             console.log('Order saved successfully with ID:', orderId);
-            
-            // সাফল্য মেসেজ দেখান
             alert(`Order placed successfully! Your order ID is: ${orderId}`);
-            
-            // কার্ট ক্লিয়ার করুন
+
             clearCart();
-            
-            // হোম পেজে রিডাইরেক্ট করুন
             router.push('/');
-            
+
         } catch (error) {
             console.error('Order submission error:', error);
             setSubmitError('Failed to place order. Please try again.');
@@ -116,7 +131,6 @@ const OrderForm = () => {
         }
     };
 
-    // ঢাকার বাইরের অর্ডার হলে validation চেক করুন
     useEffect(() => {
         if (deliveryLocation === 'outsideDhaka') {
             if (!deliveryPaymentMethod || !paymentNumber || !transactionId) {
@@ -287,32 +301,103 @@ const OrderForm = () => {
                         <h2 className="text-2xl font-bold mb-6 text-lipstick">Your Order</h2>
 
                         <div className="checkout-items">
-                            <div id="checkoutItems" className="cart-scroll-container">
+                            <div id="checkoutItems" className="cart-scroll-container space-y-4">
                                 {cart.map(item => (
-                                    <div key={item.id} className="flex justify-between items-center mb-4">
-                                        <div>
-                                            <p className="font-semibold">{item.name}</p>
-                                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                    <div key={item.id} className="border-b pb-4 last:border-b-0">
+                                        <div className="flex gap-4">
+                                            {/* ক্লিকযোগ্য প্রোডাক্ট ইমেজ */}
+                                            <Link 
+                                                href={`/products/${item.id}`}
+                                                className="flex-shrink-0"
+                                            >
+                                                <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
+                                                    {item.image ? (
+                                                        <Image 
+                                                            src={item.image} 
+                                                            alt={item.name}
+                                                            width={80}
+                                                            height={80}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                                                            <span className="text-gray-500 text-xs">No Image</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </Link>
+                                            
+                                            <div className="flex-grow">
+                                                {/* ক্লিকযোগ্য প্রোডাক্ট নাম */}
+                                                <Link 
+                                                    href={`/products/${item.id}`}
+                                                    className="block"
+                                                >
+                                                    <p className="font-semibold text-lg hover:text-lipstick transition-colors cursor-pointer">
+                                                        {item.name}
+                                                    </p>
+                                                </Link>
+                                                
+                                                <p className="text-gray-600 mt-1">Price: {item.price.toFixed(2)} ৳</p>
+                                                
+                                                       {/* কোয়ান্টিটি কন্ট্রোল */}
+                                                <div className="flex items-center justify-between mt-2">
+                                                    <div className="flex items-center space-x-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDecreaseQuantity(item.id)}
+                                                            disabled={item.quantity <= 1}
+                                                            className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                        >
+                                                            <span className="text-lg">-</span>
+                                                        </button>
+                                                        
+                                                        <span className="w-8 text-center font-semibold">
+                                                            {item.quantity}
+                                                        </span>
+                                                        
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleIncreaseQuantity(item.id)}
+                                                            className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+                                                        >
+                                                            <span className="text-lg">+</span>
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <div className="text-right">
+                                                        <p className="font-semibold text-lg">
+                                                            {(item.price * item.quantity).toFixed(2)} ৳
+                                                        </p>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveProduct(item.id)}
+                                                            className="text-red-500 text-sm hover:text-red-700 mt-1"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <p className="font-semibold">{(item.price * item.quantity).toFixed(2)} ৳</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="price-summary">
-                            <p>
+                        <div className="price-summary mt-6">
+                            <div className="flex justify-between py-2">
                                 <span>Sub-total</span> 
                                 <span id="subTotalDisplay">{totalPrice.toFixed(2)} ৳</span>
-                            </p>
-                            <p>
+                            </div>
+                            <div className="flex justify-between py-2">
                                 <span>Delivery Fee</span> 
                                 <span id="deliveryFeeDisplay">{deliveryFee.toFixed(2)} ৳</span>
-                            </p>
-                            <p className="total-row">
+                            </div>
+                            <div className="flex justify-between py-2 border-t border-gray-300 font-bold text-lg">
                                 <span>Total</span> 
                                 <span id="totalAmountDisplay">{totalAmount.toFixed(2)} ৳</span>
-                            </p>
+                            </div>
                         </div>
 
                         <button 
