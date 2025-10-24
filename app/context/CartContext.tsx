@@ -1,5 +1,4 @@
 // app/context/CartContext.tsx - FINAL VERSION
-
 'use client';
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
 import { database, ref, onValue, set, auth, onAuthStateChanged } from '@/lib/firebase';
