@@ -7,7 +7,7 @@ import { useCartSidebar } from '../hooks/useCartSidebar';
 
 const CartSidebar = () => {
     const { isOpen, closeCartSidebar } = useCartSidebar();
-    const { cart, totalPrice, updateQuantity, removeFromCart, checkout } = useCart();
+    const { cart, totalPrice, updateQuantity, removeFromCart, buyNowCart } = useCart(); // ✅ checkout-এর পরিবর্তে buyNowCart
 
     return (
         <div id="cartSidebar" className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
@@ -63,8 +63,9 @@ const CartSidebar = () => {
                 </div>
                 <div className="cart-footer mt-4">
                     <p id="totalPrice" className="text-lg font-bold">মোট মূল্য: {totalPrice.toFixed(2)} টাকা</p>
-                    <button onClick={checkout} className="w-full bg-lipstick-dark text-white px-4 py-2 rounded mt-2 hover:bg-lipstick transition-colors duration-300">
-                        চেকআউট
+                    {/* ✅ checkout-এর পরিবর্তে buyNowCart ব্যবহার করুন */}
+                    <button onClick={buyNowCart} className="w-full bg-lipstick-dark text-white px-4 py-2 rounded mt-2 hover:bg-lipstick transition-colors duration-300">
+                        Buy Now ({cart.length})
                     </button>
                 </div>
             </div>
