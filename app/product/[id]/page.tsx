@@ -1,4 +1,3 @@
-// app/product/[id]/page.tsx - UPDATED VERSION
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -7,7 +6,6 @@ import { database, ref, onValue } from '@/lib/firebase';
 import { useCart } from '@/app/context/CartContext';
 import Image from 'next/image';
 import { Product } from '@/types/product';
-import ProductCard from '../../components/ProductCard';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -20,39 +18,45 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const { addToCart, buyNow, buyNowSingle, cart, removeFromCart, updateCartQuantity } = useCart(); // ✅ buyNowSingle যোগ করুন
+    const { addToCart, buyNow, cart, removeFromCart, updateCartQuantity } = useCart();
 
     // কার্টে প্রোডাক্টের কোয়ান্টিটি পাওয়ার জন্য
     const cartItem = cart.find(item => item.id === product?.id);
     const cartItemQuantity = cartItem ? cartItem.quantity : 0;
 
-    // ✅ FIXED: Multiple images handling
+    // ✅ FIXED: Multiple images handling - UPDATED VERSION
     const getAllImages = (productData: Product): string[] => {
         let images: string[] = [];
 
+        // Case 1: If image field exists as comma-separated string (YOUR MAIN CASE)
         if (productData.image && typeof productData.image === 'string' && productData.image.trim() !== '') {
             const imageString = productData.image.trim();
 
+            // Check if it's comma separated multiple images
             if (imageString.includes(',')) {
                 images = imageString
                     .split(',')
                     .map(img => img.trim())
                     .filter(img => img !== '' && (img.startsWith('http') || img.startsWith('https')));
             } 
+            // Single image
             else if (imageString.startsWith('http') || imageString.startsWith('https')) {
                 images = [imageString];
             }
         }
+        // Case 2: If images field exists as comma-separated string (backup)
         else if (productData.images && typeof productData.images === 'string' && productData.images.trim() !== '') {
             images = productData.images
                 .split(',')
                 .map(img => img.trim())
                 .filter(img => img !== '' && (img.startsWith('http') || img.startsWith('https')));
         }
+        // Case 3: No images found
         else {
             images = ['https://via.placeholder.com/400x300/ffffff/cccccc?text=No+Image+Available'];
         }
 
+        console.log('🖼️ Extracted images:', images); // Debug log
         return images;
     };
 
@@ -65,12 +69,17 @@ const ProductDetail = () => {
                 const productData = { id: snapshot.key, ...snapshot.val() } as Product;
                 setProduct(productData);
 
+                // ✅ Get all images - FIXED
                 const allImages = getAllImages(productData);
                 setProductImages(allImages);
 
+                // Set main image
                 if (allImages.length > 0) {
                     setMainImage(allImages[0]);
                 }
+
+                console.log('📦 Product data:', productData); // Debug log
+                console.log('🖼️ All images:', allImages); // Debug log
             } else {
                 setProduct(null);
             }
@@ -91,6 +100,16 @@ const ProductDetail = () => {
         });
     }, [id]);
 
+    // Function to process tags
+    const processTags = (tags: any): string[] => {
+        if (Array.isArray(tags)) {
+            return tags;
+        } else if (typeof tags === 'string') {
+            return tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+        }
+        return [];
+    };
+
     const handleThumbnailClick = (image: string) => {
         setMainImage(image);
         setImageError(false);
@@ -110,16 +129,14 @@ const ProductDetail = () => {
         }
     };
 
-    // ✅ FIXED: Quantity handler functions with proper event handling
-    const handleIncrement = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    // কোয়ান্টিটি হ্যান্ডলার ফাংশন
+    const handleIncrement = () => {
         if (product) {
             updateCartQuantity(product.id, cartItemQuantity + 1);
         }
     };
 
-    const handleDecrement = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleDecrement = () => {
         if (product) {
             if (cartItemQuantity > 1) {
                 updateCartQuantity(product.id, cartItemQuantity - 1);
@@ -129,25 +146,16 @@ const ProductDetail = () => {
         }
     };
 
-    const handleAddToCart = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleAddToCart = () => {
         if (product) {
             addToCart(product);
         }
     };
 
-    const handleBuyNow = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleBuyNow = () => {
         if (product) {
-            const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
-            
-            if (buyNowSingle) {
-                // ✅ buyNowSingle ব্যবহার করুন - শুধু এই প্রোডাক্টটি যাবে
-                buyNowSingle(product, quantity);
-            } else {
-                // ✅ পুরানো ফাংশন (fallback)
-                buyNow(product, quantity);
-            }
+            buyNow(product);
+            router.push('/order-form');
         }
     };
 
@@ -156,7 +164,7 @@ const ProductDetail = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center pt-20">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lipstick mx-auto"></div>
                     <p className="mt-4 text-lg text-gray-600">Loading product details...</p>
@@ -167,7 +175,7 @@ const ProductDetail = () => {
 
     if (!product) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center pt-20">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-800">Product not found</h1>
                     <p className="text-gray-600 mt-2">The product you&apos;re looking for doesn&apos;t exist.</p>
@@ -192,10 +200,9 @@ const ProductDetail = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* ✅ FIXED: Reduced padding-top */}
-            <main className="p-4 pt-4 md:pt-6 max-w-4xl mx-auto pb-24">
+            <main className="p-4 pt-24 md:pt-28 max-w-4xl mx-auto pb-24">
                 {/* Main Product */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                     {/* Image Gallery */}
                     <div className="space-y-4">
                         {/* Main Image */}
@@ -238,8 +245,7 @@ const ProductDetail = () => {
                                             style={{ objectFit: 'cover' }}
                                             className="rounded-lg"
                                             onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.style.display = 'none';
+                                                console.log('❌ Thumbnail image failed to load:', image);
                                             }}
                                             unoptimized={true}
                                         />
@@ -249,12 +255,12 @@ const ProductDetail = () => {
                         )}
                     </div>
 
-                    {/* Product Details Section */}
-                    <div className="space-y-4">
-                        <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">{product.name}</h1>
-                        <p className="text-lipstick text-xl lg:text-2xl font-bold">{product.price} ৳</p>
+                          {/* Product Details Section */}
+                    <div>
+                        <h1 className="text-2xl lg:text-3xl font-bold mb-4 text-gray-800">{product.name}</h1>
+                        <p className="text-lipstick text-xl lg:text-2xl font-bold mb-4">{product.price} ৳</p>
 
-                        <div className="space-y-2">
+                        <div className="mb-6 space-y-2">
                             <div>
                                 <span className="text-gray-600">Category: </span>
                                 <span className="font-semibold capitalize">{product.category}</span>
@@ -270,8 +276,9 @@ const ProductDetail = () => {
                             </div>
                         </div>
 
-                        {/* ✅ FIXED: Action Buttons with proper event handling */}
-                        <div className="space-y-3">
+                        {/* Action Buttons - Homepage Style */}
+                        <div className="space-y-3 mb-6">
+                            {/* Add to Cart Button */}
                             {cartItemQuantity > 0 ? (
                                 <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center justify-between h-12 px-4">
                                     <button
@@ -298,12 +305,13 @@ const ProductDetail = () => {
                                 </button>
                             )}
 
+                            {/* Buy Now Button */}
                             <button
                                 onClick={handleBuyNow}
                                 disabled={product.stockStatus !== 'in_stock'}
                                 className="w-full bg-gray-800 text-white py-3 rounded-lg font-semibold text-base hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Buy Now {cartItemQuantity > 0 ? `(${cartItemQuantity})` : ''}
+                                Buy Now
                             </button>
                         </div>
 
@@ -325,27 +333,140 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* ✅ FIXED: Related Products with proper spacing */}
+                {/* Related Products */}
                 {relatedProducts.length > 0 && (
-                    <section className="mt-12">
-                        <h2 className="text-2xl font-bold text-center mb-6 text-lipstick-dark">Related Products</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <section className="mt-16">
+                        <h2 className="text-3xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                             {relatedProducts.slice(0, 4).map((relatedProduct) => {
+                                const productTags = processTags(relatedProduct.tags);
+                                const relatedImages = getAllImages(relatedProduct);
                                 const relatedCartItem = cart.find(item => item.id === relatedProduct.id);
                                 const relatedCartQuantity = relatedCartItem ? relatedCartItem.quantity : 0;
 
+                                const handleRelatedAddToCart = (e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    addToCart(relatedProduct);
+                                };
+
+                                const handleRelatedBuyNow = (e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    buyNow(relatedProduct);
+                                    router.push('/order-form');
+                                };
+
+                                const handleRelatedIncrement = (e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    updateCartQuantity(relatedProduct.id, relatedCartQuantity + 1);
+                                };
+
+                                const handleRelatedDecrement = (e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    if (relatedCartQuantity > 1) {
+                                        updateCartQuantity(relatedProduct.id, relatedCartQuantity - 1);
+                                    } else {
+                                        removeFromCart(relatedProduct.id);
+                                    }
+                                };
+
                                 return (
-                                    <ProductCard
+                                    <div 
                                         key={relatedProduct.id}
-                                        product={relatedProduct}
-                                        addToCart={addToCart}
-                                        removeFromCart={removeFromCart}
-                                        updateCartQuantity={updateCartQuantity}
-                                        buyNow={buyNow}
-                                        buyNowSingle={buyNowSingle} // ✅ buyNowSingle prop পাস করুন
-                                        cartItemQuantity={relatedCartQuantity}
-                                        showProductDetail={(productId) => router.push(`/product/${productId}`)}
-                                    />
+                                        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg border border-gray-100"
+                                        onClick={() => router.push(`/product/${relatedProduct.id}`)}
+                                    >
+                                        <div className="relative h-48 bg-gray-100 overflow-hidden">
+                                            <Image
+                                                src={relatedImages[0] || 'https://via.placeholder.com/200x200?text=No+Image'}
+                                                alt={relatedProduct.name}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                                className="transition-transform duration-500 hover:scale-110"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = 'https://via.placeholder.com/200x200?text=No+Image';
+                                                }}
+                                                unoptimized={true}
+                                            />
+                                            {relatedProduct.stockStatus !== 'in_stock' && (
+                                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                                    <span className="text-white font-bold text-sm bg-red-500 px-3 py-1 rounded">
+                                                        Out of Stock
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="p-4">
+                                            <h3 className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2">
+                                                {relatedProduct.name}
+                                            </h3>
+                                            <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                                                {relatedProduct.description || 'Product description'}
+                                            </p>
+                                            
+                                            <div className="flex justify-between items-center mb-3">
+                                                <span className="text-lipstick font-bold text-xl">
+                                                    ৳{relatedProduct.price}
+                                                </span>
+                                                {relatedProduct.stockStatus === 'in_stock' && (
+                                                    <span className="text-green-600 text-sm font-medium">
+                                                        In Stock
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Homepage Style Buttons for Related Products */}
+                                            <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
+                                                {relatedCartQuantity > 0 ? (
+                                                    <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center justify-between h-10 px-3">
+                                                        <button
+                                                            onClick={handleRelatedDecrement}
+                                                            className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="text-lg font-medium">{relatedCartQuantity}</span>
+                                                        <button
+                                                            onClick={handleRelatedIncrement}
+                                                            className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={handleRelatedAddToCart}
+                                                        disabled={relatedProduct.stockStatus !== 'in_stock'}
+                                                        className="w-full bg-lipstick text-white rounded-lg font-semibold flex items-center h-10 justify-center text-sm hover:bg-lipstick-dark border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    >
+                                                        Add To Cart
+                                                    </button>
+                                                )}
+
+                                                <button
+                                                    onClick={handleRelatedBuyNow}
+                                                    disabled={relatedProduct.stockStatus !== 'in_stock'}
+                                                    className="w-full bg-gray-800 text-white py-2 rounded-lg font-semibold text-sm hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    Buy Now
+                                                </button>
+                                            </div>
+
+                                            {productTags.length > 0 && (
+                                                <div className="mt-3 flex flex-wrap gap-1">
+                                                    {productTags.slice(0, 2).map((tag, index) => (
+                                                        <span 
+                                                            key={index}
+                                                            className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                                                        >
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 );
                             })}
                         </div>
@@ -353,7 +474,7 @@ const ProductDetail = () => {
                 )}
             </main>
 
-            {/* ✅ FIXED: Fixed Order Bar */}
+            {/* Fixed Order Bar */}
             {totalItems > 0 && (
                 <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                     <div className="flex justify-between items-center max-w-4xl mx-auto">
@@ -375,7 +496,7 @@ const ProductDetail = () => {
                 </div>
             )}
 
-            {/* ✅ FIXED: Modal */}
+            {/* Modal */}
             {showModal && mainImage && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
