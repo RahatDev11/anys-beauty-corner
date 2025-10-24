@@ -1,4 +1,5 @@
 // components/ProductCard.tsx - FINAL VERSION
+
 'use client';
 
 import React from 'react';
@@ -11,6 +12,7 @@ interface ProductCardProps {
     removeFromCart: (productId: string) => void;
     updateCartQuantity: (productId: string, quantity: number) => void;
     buyNow: (product: Product, quantity?: number) => void;
+    buyNowSingle?: (product: Product, quantity?: number) => void; // ✅ Optional prop
     cartItemQuantity?: number;
     showProductDetail?: (id: string) => void;
 }
@@ -21,6 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     removeFromCart,
     updateCartQuantity,
     buyNow,
+    buyNowSingle, // ✅ নতুন prop
     cartItemQuantity = 0,
     showProductDetail,
 }) => {
@@ -77,7 +80,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const handleBuyNow = () => {
         if (product) {
             const quantity = cartItemQuantity > 0 ? cartItemQuantity : 1;
-            buyNow(product, quantity);
+            
+            // ✅ buyNowSingle থাকলে সেটা ব্যবহার করুন, নাহলে buyNow ব্যবহার করুন
+            if (buyNowSingle) {
+                buyNowSingle(product, quantity);
+            } else {
+                buyNow(product, quantity);
+            }
         }
     };
 
