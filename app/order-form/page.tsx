@@ -25,6 +25,12 @@ const OrderForm = () => {
     const deliveryFee = deliveryLocation === 'insideDhaka' ? 70 : 160;
     const totalAmount = totalPrice + deliveryFee;
 
+    // ✅ Price formatting helper function
+    const formatPrice = (price: any): string => {
+        const numPrice = typeof price === 'number' ? price : Number(price);
+        return isNaN(numPrice) ? '0.00' : numPrice.toFixed(2);
+    };
+
     // কোয়ান্টিটি বাড়ানোর ফাংশন
     const handleIncreaseQuantity = (productId: string) => {
         const product = cart.find(item => item.id === productId);
@@ -326,7 +332,7 @@ const OrderForm = () => {
                                                     )}
                                                 </div>
                                             </Link>
-                                            
+
                                             <div className="flex-grow">
                                                 {/* ক্লিকযোগ্য প্রোডাক্ট নাম */}
                                                 <Link 
@@ -337,10 +343,10 @@ const OrderForm = () => {
                                                         {item.name}
                                                     </p>
                                                 </Link>
-                                                
-                                                <p className="text-gray-600 mt-1">Price: {item.price.toFixed(2)} ৳</p>
-                                                
-                                                
+
+                                                   {/* ✅ FIXED: Price display */}
+                                                <p className="text-gray-600 mt-1">Price: {formatPrice(item.price)} ৳</p>
+
                                                 {/* কোয়ান্টিটি কন্ট্রোল */}
                                                 <div className="flex items-center justify-between mt-2">
                                                     <div className="flex items-center space-x-2">
@@ -352,11 +358,11 @@ const OrderForm = () => {
                                                         >
                                                             <span className="text-lg font-bold">−</span>
                                                         </button>
-                                                        
+
                                                         <span className="w-8 text-center font-semibold text-lg">
                                                             {item.quantity}
                                                         </span>
-                                                        
+
                                                         <button
                                                             type="button"
                                                             onClick={() => handleIncreaseQuantity(item.id)}
@@ -365,10 +371,11 @@ const OrderForm = () => {
                                                             <span className="text-lg font-bold">+</span>
                                                         </button>
                                                     </div>
-                                                    
+
                                                     <div className="text-right">
+                                                        {/* ✅ FIXED: Total price calculation */}
                                                         <p className="font-semibold text-lg">
-                                                            {(item.price * item.quantity).toFixed(2)} ৳
+                                                            {formatPrice(Number(item.price) * item.quantity)} ৳
                                                         </p>
                                                         <button
                                                             type="button"
@@ -395,15 +402,16 @@ const OrderForm = () => {
                         <div className="price-summary mt-6 space-y-2">
                             <div className="flex justify-between py-2">
                                 <span>Sub-total</span> 
-                                <span id="subTotalDisplay">{totalPrice.toFixed(2)} ৳</span>
+                                {/* ✅ FIXED: Total price display */}
+                                <span id="subTotalDisplay">{formatPrice(totalPrice)} ৳</span>
                             </div>
                             <div className="flex justify-between py-2">
                                 <span>Delivery Fee</span> 
-                                <span id="deliveryFeeDisplay">{deliveryFee.toFixed(2)} ৳</span>
+                                <span id="deliveryFeeDisplay">{formatPrice(deliveryFee)} ৳</span>
                             </div>
                             <div className="flex justify-between py-2 border-t border-gray-300 font-bold text-lg mt-4 pt-4">
                                 <span>Total</span> 
-                                <span id="totalAmountDisplay">{totalAmount.toFixed(2)} ৳</span>
+                                <span id="totalAmountDisplay">{formatPrice(totalAmount)} ৳</span>
                             </div>
                         </div>
 
@@ -426,4 +434,4 @@ const OrderForm = () => {
     );
 };
 
-export default OrderForm;
+export default OrderForm;``` 
