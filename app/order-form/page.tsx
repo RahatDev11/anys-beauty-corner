@@ -344,7 +344,7 @@ const OrderForm = () => {
                                                     </p>
                                                 </Link>
 
-                                                   {/* ✅ FIXED: Price display */}
+                                                 {/* ✅ FIXED: Price display */}
                                                 <p className="text-gray-600 mt-1">Price: {formatPrice(item.price)} ৳</p>
 
                                                 {/* কোয়ান্টিটি কন্ট্রোল */}
@@ -434,4 +434,4 @@ const OrderForm = () => {
     );
 };
 
-export default OrderForm;``` 
+export default OrderForm;
