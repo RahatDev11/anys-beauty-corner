@@ -1,4 +1,4 @@
-// lib/firebase.ts
+// lib/firebase.ts - আপনার existing ফাইল ঠিক আছে
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getDatabase, ref, onValue, set, get, query, orderByChild, equalTo, update, push, runTransaction, remove, Database } from 'firebase/database';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, getRedirectResult, Auth } from 'firebase/auth';
@@ -40,7 +40,7 @@ export {
     auth,
     database,
     db,
-    createGoogleProvider, // পরিবর্তন করুন
+    createGoogleProvider,
     ref,
     onValue,
     set,
