@@ -9,6 +9,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 // Temporary components
+<<<<<<< HEAD
 const SearchSuggestion = () => (
     <div className="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-lg mt-1 z-50 border border-t-0">
         <div className="p-3 hover:bg-gray-100 cursor-pointer flex items-center">
@@ -25,6 +26,8 @@ const SearchSuggestion = () => (
         </div>
     </div>
 );
+=======
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
 const SearchInput = () => (
     <div className="relative">
         <input 
@@ -33,8 +36,11 @@ const SearchInput = () => (
             type="text" 
         />
         <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800"></i>
+<<<<<<< HEAD
         {/* Placeholder for Search Suggestions */}
         <SearchSuggestion />
+=======
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
     </div>
 );
 
@@ -117,8 +123,13 @@ const Header = () => {
             const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
             const photoURL = user.photoURL;
             return (
+<<<<<<< HEAD
                 <div className="relative logout-container" onClick={handleToggleLogoutMenu}>
                     <button className="flex items-center space-x-2 focus:outline-none">
+=======
+                <div className="relative logout-container">
+                    <button className="flex items-center space-x-2 focus:outline-none" onClick={handleToggleLogoutMenu}>
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
                         {photoURL && !imgError ? (
                             <Image 
                                 src={photoURL} 
@@ -182,10 +193,13 @@ const Header = () => {
                 </Link>
 
                 <div className="flex items-center space-x-[10px] md:space-x-[50px]">
+<<<<<<< HEAD
                     {/* Login Button for Desktop */}
                     <div className="hidden md:block">
                         {renderLoginButton(false)}
                     </div>
+=======
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
                     {/* ডেস্কটপ সার্চ বার */}
                     <div className="hidden md:block p-2 md:flex-grow relative">
                         <SearchInput />
@@ -222,15 +236,26 @@ const Header = () => {
 
                     {/* ডেস্কটপ মেনু */}
                     <nav className="hidden md:flex space-x-6 items-center text-white">
+<<<<<<< HEAD
                         {/* Login button is now part of the main header icons for unified access */}
                         <Link className="text-black hover:text-gray-600 transition-colors focus:outline-none focus:ring-0" href="/">
+=======
+                        <div className="desktop-login-button">
+                            {renderLoginButton(false)}
+                        </div>
+                        <Link className="text-black hover:text-gray-600 transition-colors" href="/">
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
                             হোম
                         </Link>
                         {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
                             <Link
                                 key={category}
                                 href={`/?filter=${category}`}
+<<<<<<< HEAD
                                 className="text-black hover:text-gray-600 transition-colors focus:outline-none focus:ring-0"
+=======
+                                className="text-black hover:text-gray-600 transition-colors"
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
                             >
                                 {category === 'all' && 'সকল প্রোডাক্ট'}
                                 {category === 'health' && 'স্বাস্থ্য'}
@@ -242,25 +267,41 @@ const Header = () => {
                         ))}
 
                         <Link
+<<<<<<< HEAD
                             className="text-black hover:text-gray-600 transition-colors focus:outline-none focus:ring-0"
+=======
+                            className="text-black hover:text-gray-600 transition-colors"
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
                             href="/order-track"
                         >
                             অর্ডার ট্র্যাক
                         </Link>
                         <Link
+<<<<<<< HEAD
                             className="text-black hover:text-gray-600 transition-colors focus:outline-none focus:ring-0"
+=======
+                            className="text-black hover:text-gray-600 transition-colors"
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
                             href="/about"
                         >
                             আমাদের সম্পর্কে
                         </Link>
                         <Link
+<<<<<<< HEAD
                             className="text-black hover:text-gray-600 transition-colors focus:outline-none focus:ring-0"
+=======
+                            className="text-black hover:text-gray-600 transition-colors"
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
                             href="/contact"
                         >
                             যোগাযোগ
                         </Link>
                         <Link
+<<<<<<< HEAD
                             className="text-black hover:text-gray-600 transition-colors focus:outline-none focus:ring-0"
+=======
+                            className="text-black hover:text-gray-600 transition-colors"
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
                             href="/faq"
                         >
                             FAQ
@@ -270,7 +311,11 @@ const Header = () => {
             </header>
 
             {/* ✅ FIXED: কার্ট সাইডবার - Multiple Images Support */}
+<<<<<<< HEAD
             <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''} fixed top-0 right-0 w-full md:w-96 h-full bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50`}>
+=======
+            <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''}`}>
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
@@ -354,8 +399,6 @@ const Header = () => {
                     onClick={closeCartSidebar}
                 />
             )}
-                
-            )}
 
             {/* মোবাইল সাইডবার */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''} fixed top-0 left-0 w-full md:w-96 h-full bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50`}>
@@ -425,12 +468,19 @@ const Header = () => {
             {/* মোবাইল সাইডবার Overlay */}
             {isSidebarOpen && (
                 <div 
+<<<<<<< HEAD
                     className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 transition-opacity duration-300"
                     onClick={closeSidebar}
                 />
             )}
                 
             )}
+=======
+                    className="mobile-sidebar-overlay"
+                    onClick={closeSidebar}
+                />
+            )}
+>>>>>>> d91ef1457d0d55a1dbe9fd07a688b6788708306b
 
             {/* মোবাইল সার্চ বার */}
             <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
