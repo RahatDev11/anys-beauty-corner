@@ -227,6 +227,24 @@ const Header = () => {
                         >
                             অর্ডার ট্র্যাক
                         </Link>
+                        <Link
+                            className="text-black hover:text-gray-600 transition-colors"
+                            href="/about"
+                        >
+                            আমাদের সম্পর্কে
+                        </Link>
+                        <Link
+                            className="text-black hover:text-gray-600 transition-colors"
+                            href="/contact"
+                        >
+                            যোগাযোগ
+                        </Link>
+                        <Link
+                            className="text-black hover:text-gray-600 transition-colors"
+                            href="/faq"
+                        >
+                            FAQ
+                        </Link>
                     </nav>
                 </div>
             </header>
@@ -368,6 +386,15 @@ const Header = () => {
 
                         <Link href="/order-track" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
                             অর্ডার ট্র্যাক
+                        </Link>
+                        <Link href="/about" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
+                            আমাদের সম্পর্কে
+                        </Link>
+                        <Link href="/contact" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
+                            যোগাযোগ
+                        </Link>
+                        <Link href="/faq" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
+                            FAQ
                         </Link>
                     </nav>
                 </div>

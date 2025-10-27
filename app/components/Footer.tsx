@@ -44,6 +44,9 @@ const Footer = () => {
                         </h4>
                         <ul id="importantLinksMenu" className={`space-y-2 ${importantLinksOpen ? 'block' : 'hidden'}`}>
                             <li><Link href="/" className="text-sm text-gray-700 hover:text-gray-900">হোম</Link></li>
+                            <li><Link href="/about" className="text-sm text-gray-700 hover:text-gray-900">আমাদের সম্পর্কে</Link></li>
+                            <li><Link href="/contact" className="text-sm text-gray-700 hover:text-gray-900">যোগাযোগ</Link></li>
+                            <li><Link href="/faq" className="text-sm text-gray-700 hover:text-gray-900">প্রশ্নোত্তর</Link></li>
                             <li><Link href="/order-track" className="text-sm text-gray-700 hover:text-gray-900">অর্ডার ট্র্যাক</Link></li>
                             <li><Link href="/order-list" className="text-sm text-gray-700 hover:text-gray-900">আমার অর্ডার</Link></li>
                         </ul>
@@ -66,8 +69,8 @@ const Footer = () => {
                             <i className={`fas fa-chevron-down text-xs transition-transform duration-300 ${policiesOpen ? 'rotate-180' : ''}`}></i>
                         </h4>
                         <ul id="policiesMenu" className={`space-y-2 ${policiesOpen ? 'block' : 'hidden'}`}>
-                            <li><a onClick={(e) => e.preventDefault()} className="text-sm text-gray-700 hover:text-gray-900">প্রাইভেসি পলিসি</a></li>
-                            <li><a onClick={(e) => e.preventDefault()} className="text-sm text-gray-700 hover:text-gray-900">শর্তাবলী</a></li>
+                            <li><Link href="/privacy-policy" className="text-sm text-gray-700 hover:text-gray-900">প্রাইভেসি পলিসি</Link></li>
+                            <li><Link href="/terms-of-service" className="text-sm text-gray-700 hover:text-gray-900">শর্তাবলী</Link></li>
                             <li><a onClick={(e) => e.preventDefault()} className="text-sm text-gray-700 hover:text-gray-900">রিটার্ন পলিসি</a></li>
                         </ul>
                     </div>
