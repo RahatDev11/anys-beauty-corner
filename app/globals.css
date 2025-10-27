@@ -13,11 +13,15 @@
 
 /* Base Styles */
 :root {
-  --lipstick: #A52A2A;
-  --lipstick-dark: #7a1f1f;
-  --lipstick-light: #F4A7B9;
+  --lipstick: #E8547C;
+  --lipstick-dark: #C91E63;
+  --lipstick-light: #F5A9C1;
   --background: #FFF5F7;
   --highlight: #FFD700;
+  --rose-gold: #B76E79;
+  --blush: #FFB6C1;
+  --coral: #FF7F50;
+  --peach: #FFDAB9;
 }
 
 * {
@@ -1330,3 +1334,227 @@ header.bg-brushstroke {
   display: flex !important;
   align-items: center !important;
 }
+
+
+
+/* ============================================
+   RESPONSIVE DESIGN IMPROVEMENTS
+   ============================================ */
+
+/* Mobile First Approach */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .header-container {
+    padding: 0.5rem;
+  }
+
+  .icons-container {
+    gap: 8px !important;
+  }
+
+  .cart-sidebar {
+    width: 100% !important;
+  }
+
+  .mobile-sidebar {
+    width: 100% !important;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Tablet Styles */
+@media (min-width: 641px) and (max-width: 1024px) {
+  body {
+    font-size: 15px;
+  }
+
+  .cart-sidebar {
+    width: 350px !important;
+  }
+
+  .mobile-sidebar {
+    width: 300px !important;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 1025px) {
+  body {
+    font-size: 16px;
+  }
+
+  .cart-sidebar {
+    width: 380px !important;
+  }
+}
+
+/* ============================================
+   ENHANCED BUTTON STYLES
+   ============================================ */
+
+.btn-primary {
+  background: linear-gradient(135deg, #E8547C 0%, #C91E63 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(201, 30, 99, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 30, 99, 0.3);
+}
+
+.btn-secondary {
+  background: white;
+  color: #C91E63;
+  border: 2px solid #C91E63;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #C91E63;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   CARD STYLES
+   ============================================ */
+
+.card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 15px rgba(201, 30, 99, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 8px 25px rgba(201, 30, 99, 0.15);
+  transform: translateY(-4px);
+}
+
+/* ============================================
+   GRADIENT BACKGROUNDS
+   ============================================ */
+
+.gradient-primary {
+  background: linear-gradient(135deg, #FFF5F7 0%, #FFE4E1 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, #E8547C 0%, #C91E63 100%);
+}
+
+/* ============================================
+   TEXT UTILITIES
+   ============================================ */
+
+.text-center {
+  text-align: center;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+.line-clamp-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ============================================
+   SPACING UTILITIES
+   ============================================ */
+
+.gap-responsive {
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .gap-responsive {
+    gap: 0.5rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus Styles for Keyboard Navigation */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #C91E63;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.shadow-soft {
+  box-shadow: 0 4px 15px rgba(201, 30, 99, 0.1);
+}
+
+.shadow-medium {
+  box-shadow: 0 8px 25px rgba(201, 30, 99, 0.15);
+}
+
+.shadow-strong {
+  box-shadow: 0 12px 35px rgba(201, 30, 99, 0.2);
+}
+
+.transition-smooth {
+  transition: all 0.3s ease-in-out;
+}
+
+.rounded-xl {
+  border-radius: 1rem;
+}
+
+.rounded-2xl {
+  border-radius: 1.5rem;
+}
+
