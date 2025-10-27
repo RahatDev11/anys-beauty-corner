@@ -8,159 +8,10 @@ import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// Temporary components
-const SearchSuggestion = () => (
-    <div className="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-lg mt-1 z-50 border border-t-0">
-        <div className="p-3 hover:bg-gray-100 cursor-pointer flex items-center">
-            <i className="fas fa-search text-sm mr-2 text-gray-500"></i>
-            <span className="text-sm text-gray-700">Suggestion 1</span>
-        </div>
-        <div className="p-3 hover:bg-gray-100 cursor-pointer flex items-center">
-            <i className="fas fa-search text-sm mr-2 text-gray-500"></i>
-            <span className="text-sm text-gray-700">Suggestion 2</span>
-        </div>
-        <div className="p-3 hover:bg-gray-100 cursor-pointer flex items-center">
-            <i className="fas fa-search text-sm mr-2 text-gray-500"></i>
-            <span className="text-sm text-gray-700">Suggestion 3</span>
-        </div>
-    </div>
-);
-
-const SearchInput = () => (
-    <div className="relative">
-        <input 
-            className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
-            placeholder="প্রোডাক্ট সার্চ করুন..." 
-            type="text" 
-        />
-        <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800"></i>
-        {/* Placeholder for Search Suggestions */}
-        <SearchSuggestion />
-    </div>
-);
-
-const NotificationIcon = () => (
-    <Link href="/notifications" className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative">
-        <i className="fas fa-bell text-2xl"></i>
-        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-    </Link>
-);
+// ... (keep all your temporary components and imports the same)
 
 const Header = () => {
-    const { isOpen: isSidebarOpen, openSidebar, closeSidebar } = useSidebar();
-    const { isOpen: isCartSidebarOpen, openCartSidebar, closeCartSidebar } = useCartSidebar();
-    const [isMobileSubMenuOpen, setIsMobileSubMenuOpen] = useState(false);
-    const [isMobileSearchBarOpen, setIsMobileSearchBarOpen] = useState(false);
-    const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
-    const [imgError, setImgError] = useState(false);
-
-    const router = useRouter();
-    const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
-    const { user, loginWithGmail, logout } = useAuth();
-
-    // Close logout menu when clicking outside
-    useEffect(() => {
-        const handleClickOutside = () => {
-            setIsLogoutMenuOpen(false);
-        };
-
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
-
-    const handleSubMenuItemClick = (category: string) => {
-        router.push(`/?filter=${category}`);
-        setIsMobileSubMenuOpen(false);
-        closeSidebar();
-    };
-
-    const handleFocusMobileSearch = () => {
-        setIsMobileSearchBarOpen((prev) => !prev);
-    };
-
-    const handleToggleLogoutMenu = (event: React.MouseEvent) => {
-        event.stopPropagation();
-        setIsLogoutMenuOpen((prev) => !prev);
-    };
-
-    const handleConfirmLogout = () => {
-        if (window.confirm("আপনি কি লগআউট করতে চান?")) {
-            logout();
-            setIsLogoutMenuOpen(false);
-        }
-    };
-
-    // ✅ FIXED: Multiple images handling function - SAME AS PRODUCT DETAIL PAGE
-    const getCartItemImage = (imageString: string | undefined) => {
-        if (!imageString) return "https://via.placeholder.com/50?text=No+Image";
-
-        // Handle comma separated multiple images (YOUR MAIN CASE)
-        if (typeof imageString === 'string' && imageString.includes(',')) {
-            const urls = imageString
-                .split(',')
-                .map(url => url.trim())
-                .filter(url => url !== '' && (url.startsWith('http') || url.startsWith('https')));
-            
-            // Return the first valid URL
-            return urls[0] || "https://via.placeholder.com/50?text=Invalid+URL";
-        }
-
-        // Handle single image
-        if (typeof imageString === 'string' && imageString.startsWith('http')) {
-            return imageString;
-        }
-
-        return "https://via.placeholder.com/50?text=Invalid+URL";
-    };
-
-    const renderLoginButton = (isMobile: boolean) => {
-        if (user) {
-            const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
-            const photoURL = user.photoURL;
-            return (
-                <div className="relative logout-container" onClick={handleToggleLogoutMenu}>
-                    <button className="flex items-center space-x-2 focus:outline-none">
-                        {photoURL && !imgError ? (
-                            <Image 
-                                src={photoURL} 
-                                className="w-8 h-8 rounded-full" 
-                                alt="User Avatar" 
-                                width={32} 
-                                height={32}
-                                onError={() => setImgError(true)}
-                            />
-                        ) : (
-                            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
-                                {displayName.charAt(0).toUpperCase()}
-                            </div>
-                        )}
-                        <span className="text-black font-semibold">{displayName}</span>
-                        <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
-                    </button>
-                    {isLogoutMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                            <button 
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                onClick={handleConfirmLogout}
-                            >
-                                লগআউট
-                            </button>
-                        </div>
-                    )}
-                </div>
-            );
-        } else {
-            return (
-                <button 
-                    className={`flex items-center ${isMobile ? 'w-full' : ''} hover:text-gray-600`} 
-                    onClick={loginWithGmail}
-                >
-                    <i className="fas fa-user-circle mr-2"></i>
-                    <span className="text-black">লগইন</span>
-                </button>
-            );
-        }
-    };
+    // ... (keep all your useState, useEffect, and functions the same)
 
     return (
         <>
@@ -268,7 +119,7 @@ const Header = () => {
                         </Link>
                     </nav>
                 </div>
-            </div>
+            </header> {/* ✅ FIXED: Added missing closing header tag */}
 
             {/* কার্ট সাইডবার Overlay */}
             {isCartSidebarOpen && (
