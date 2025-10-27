@@ -9,7 +9,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 // Temporary components
-<<<<<<< HEAD
 const SearchSuggestion = () => (
     <div className="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-lg mt-1 z-50 border border-t-0">
         <div className="p-3 hover:bg-gray-100 cursor-pointer flex items-center">
@@ -244,7 +243,6 @@ const Header = () => {
                         ))}
 
                         <Link
-<<<<<<< HEAD
                             className="text-black hover:text-gray-600 transition-colors focus:outline-none focus:ring-0"
                             href="/order-track"
                         >
@@ -257,9 +255,9 @@ const Header = () => {
                             আমাদের সম্পর্কে
                         </Link>
                         <Link
-<<<<<<< HEAD
-                                                        className="text-black hover:text-gray-600 transition-colors focus:outline-none focus:ring-0"
-                                                        href="/contact"                        >
+                            className="text-black hover:text-gray-600 transition-colors focus:outline-none focus:ring-0"
+                            href="/contact"
+                        >
                             যোগাযোগ
                         </Link>
                         <Link
@@ -269,84 +267,6 @@ const Header = () => {
                             FAQ
                         </Link>
                     </nav>
-                </div>
-            </header>
-
-            {/* ✅ FIXED: কার্ট সাইডবার - Multiple Images Support */}
-            <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''} fixed top-0 right-0 w-full md:w-96 h-full bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50`}>
-                <div className="p-4 h-full flex flex-col">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
-                        <button 
-                            onClick={closeCartSidebar}
-                            className="text-gray-500 hover:text-gray-700"
-                        >
-                            <i className="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto">
-                        {cart.length === 0 ? (
-                            <div className="text-center text-gray-500 py-8">
-                                <i className="fas fa-shopping-cart text-4xl mb-4"></i>
-                                <p>আপনার কার্ট খালি</p>
-                            </div>
-                        ) : (
-                            cart.map(item => {
-                                // ✅ FIXED: Use the same image handling function as product detail page
-                                const cartItemImage = getCartItemImage(item.image);
-
-                                return (
-                                    <div key={item.id} className="flex items-center justify-between py-2 border-b">
-                                        <div className="flex items-center">
-                                            <Image 
-                                                src={cartItemImage} 
-                                                alt={item.name} 
-                                                width={50} 
-                                                height={50} 
-                                                className="rounded object-cover"
-                                                onError={(e) => {
-                                                    e.currentTarget.src = "https://via.placeholder.com/50?text=Error";
-                                                }}
-                                                unoptimized={true}
-                                            />
-                                            <div className="ml-4">
-                                                <p className="font-semibold text-sm">{item.name}</p>
-                                                <p className="text-gray-600 text-sm">{item.price} টাকা</p>
-                                                <p className="text-xs text-gray-500">পরিমাণ: {item.quantity}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <button 
-                                                onClick={() => updateQuantity(item.id, -1)} 
-                                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
-                                            >
-                                                -
-                                            </button>
-                                            <span className="font-semibold w-6 text-center">{item.quantity}</span>
-                                            <button 
-                                                onClick={() => updateQuantity(item.id, 1)} 
-                                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        )}
-                    </div>
-                    <div className="border-t pt-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <p className="text-lg font-bold">সর্বমোট</p>
-                            <p className="text-lg font-bold">{totalPrice} টাকা</p>
-                        </div>
-                        <button
-                            onClick={checkout}
-                            className="w-full bg-lipstick text-white py-3 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors"
-                        >
-                            চেকআউট
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -424,8 +344,6 @@ const Header = () => {
             </div>
 
             {/* মোবাইল সাইডবার Overlay */}
-            {isSidebarOpen && (
-                <div 
             {isSidebarOpen && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 transition-opacity duration-300"
