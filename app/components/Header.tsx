@@ -81,7 +81,7 @@ const Header = () => {
                 .split(',')
                 .map(url => url.trim())
                 .filter(url => url !== '' && (url.startsWith('http') || url.startsWith('https')));
-            
+
             // Return the first valid URL
             return urls[0] || "https://via.placeholder.com/50?text=Invalid+URL";
         }
@@ -146,12 +146,12 @@ const Header = () => {
     return (
         <>
             <header className="bg-brushstroke text-black py-2 px-2 md:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
-                {/* লোগো */}
+                {/* লোগো - Border Removed */}
                 <Link className="flex items-center text-white" href="/">
                     <div className="flex items-center">
                         <Image 
                             alt="Any's Beauty Corner লোগো" 
-                            className="h-10 w-10 rounded-full mr-2 border-2 border-lipstick flex-shrink-0" 
+                            className="h-10 w-10 rounded-full mr-2 flex-shrink-0" 
                             height={40} 
                             width={40} 
                             src="/img.jpg"
@@ -400,7 +400,7 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* মোবাইল সাইডবার Overlay */}
+                  {/* মোবাইল সাইডবার Overlay */}
             {isSidebarOpen && (
                 <div 
                     className="mobile-sidebar-overlay"
