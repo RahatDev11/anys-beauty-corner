@@ -1,4 +1,4 @@
-// Header.tsx - COMPLETE UPDATED VERSION
+// Header.tsx - COMPLETE FIXED VERSION
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useSidebar } from '../hooks/useSidebar';
@@ -42,10 +42,11 @@ const Header = () => {
     const { cart, totalItems } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
 
-    // ✅ কার্ট বাটন ক্লিক হ্যান্ডলার
+    // ✅ IMPROVED: কার্ট বাটন ক্লিক হ্যান্ডলার
     const handleCartButtonClick = (event: React.MouseEvent) => {
+        event.preventDefault();
         event.stopPropagation();
-        console.log('🛒 Cart button clicked in Header');
+        console.log('🛒 Header: Cart button clicked with proper event prevention');
         openCartSidebar();
     };
 
@@ -63,12 +64,15 @@ const Header = () => {
 
     // Close logout menu when clicking outside
     useEffect(() => {
-        const handleClickOutside = () => {
-            setIsLogoutMenuOpen(false);
+        const handleClickOutside = (event: MouseEvent) => {
+            const logoutContainer = document.querySelector('.logout-container');
+            if (logoutContainer && !logoutContainer.contains(event.target as Node)) {
+                setIsLogoutMenuOpen(false);
+            }
         };
 
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const handleSubMenuItemClick = (category: string) => {
@@ -77,16 +81,19 @@ const Header = () => {
         closeSidebar();
     };
 
-    const handleFocusMobileSearch = () => {
+    const handleFocusMobileSearch = (event: React.MouseEvent) => {
+        event.stopPropagation();
         setIsMobileSearchBarOpen((prev) => !prev);
     };
 
     const handleToggleLogoutMenu = (event: React.MouseEvent) => {
+        event.preventDefault();
         event.stopPropagation();
         setIsLogoutMenuOpen((prev) => !prev);
     };
 
-    const handleConfirmLogout = () => {
+    const handleConfirmLogout = (event: React.MouseEvent) => {
+        event.stopPropagation();
         if (window.confirm("আপনি কি লগআউট করতে চান?")) {
             logout();
             setIsLogoutMenuOpen(false);
@@ -99,7 +106,10 @@ const Header = () => {
             const photoURL = user.photoURL;
             return (
                 <div className="relative logout-container">
-                    <button className="flex items-center space-x-2 focus:outline-none" onClick={handleToggleLogoutMenu}>
+                    <button 
+                        className="flex items-center space-x-2 focus:outline-none" 
+                        onClick={handleToggleLogoutMenu}
+                    >
                         {photoURL && !imgError ? (
                             <Image 
                                 src={photoURL} 
@@ -139,13 +149,28 @@ const Header = () => {
             return (
                 <button 
                     className={`flex items-center ${isMobile ? 'w-full justify-center py-2' : ''} hover:text-gray-600 transition-colors`} 
-                    onClick={loginWithGmail}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        loginWithGmail();
+                    }}
                 >
                     <i className="fas fa-user-circle mr-2 text-sm md:text-base"></i>
                     <span className="text-black text-sm md:text-base">লগইন</span>
                 </button>
             );
         }
+    };
+
+    // ✅ IMPROVED: Mobile sidebar close handler
+    const handleMobileSidebarClose = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        closeSidebar();
+    };
+
+    // ✅ IMPROVED: Mobile submenu toggle
+    const handleMobileSubMenuToggle = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        setIsMobileSubMenuOpen(!isMobileSubMenuOpen);
     };
 
     return (
@@ -157,7 +182,10 @@ const Header = () => {
                     {/* Mobile Menu Button - Only show on mobile */}
                     <button 
                         className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded flex items-center justify-center bg-transparent border-none lg:hidden" 
-                        onClick={openSidebar}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            openSidebar();
+                        }}
                     >
                         <i className="fas fa-bars text-lg md:text-xl"></i>
                     </button>
@@ -166,6 +194,7 @@ const Header = () => {
                     <Link 
                         className="flex items-center text-white focus:outline-none focus:ring-0" 
                         href="/"
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center space-x-2">
                             <Image 
@@ -194,7 +223,10 @@ const Header = () => {
                 {/* Right Section - Icons and Desktop Menu */}
                 <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-6">
                     {/* Mobile Search Icon - Only show on mobile */}
-                    <div className="lg:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
+                    <div 
+                        className="lg:hidden cursor-pointer" 
+                        onClick={handleFocusMobileSearch}
+                    >
                         <i className="fas fa-search text-lg md:text-xl text-gray-800"></i>
                     </div>
 
@@ -203,7 +235,7 @@ const Header = () => {
 
                     {/* ✅ FIXED: Shopping Bag Icon */}
                     <button 
-                        className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center relative bg-transparent border-none hover:bg-white/20 transition-colors" 
+                        className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center relative bg-transparent border-none hover:bg-white/20 transition-colors cart-trigger" 
                         onClick={handleCartButtonClick}
                     >
                         <i className="fas fa-shopping-bag text-lg md:text-xl"></i>
@@ -221,20 +253,31 @@ const Header = () => {
 
                     {/* Desktop Navigation - Show directly on desktop */}
                     <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
-                        <Link className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium" href="/">
+                        <Link 
+                            className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium" 
+                            href="/"
+                            onClick={(e) => e.stopPropagation()}
+                        >
                             হোম
                         </Link>
                         <div className="relative group">
-                            <button className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium flex items-center">
+                            <button 
+                                className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium flex items-center"
+                                onClick={(e) => e.stopPropagation()}
+                            >
                                 পণ্য
                                 <i className="fas fa-chevron-down ml-1 text-xs"></i>
                             </button>
-                            <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-200">
+                            <div 
+                                className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-200"
+                                onClick={(e) => e.stopPropagation()}
+                            >
                                 {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
                                     <Link
                                         key={category}
                                         href={`/?filter=${category}`}
                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-lipstick transition-colors"
+                                        onClick={(e) => e.stopPropagation()}
                                     >
                                         {category === 'all' && 'সকল প্রোডাক্ট'}
                                         {category === 'health' && 'স্বাস্থ্য'}
@@ -246,7 +289,11 @@ const Header = () => {
                                 ))}
                             </div>
                         </div>
-                        <Link className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium" href="/order-track">
+                        <Link 
+                            className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium" 
+                            href="/order-track"
+                            onClick={(e) => e.stopPropagation()}
+                        >
                             অর্ডার ট্র্যাক
                         </Link>
                     </nav>
@@ -254,22 +301,28 @@ const Header = () => {
             </header>
 
             {/* Mobile Search Bar - Only show on mobile */}
-            <div className={`fixed top-16 left-0 w-full bg-white shadow-lg z-40 transition-all duration-300 ${isMobileSearchBarOpen ? 'block' : 'hidden'} lg:hidden`}>
+            <div 
+                className={`fixed top-16 left-0 w-full bg-white shadow-lg z-40 transition-all duration-300 ${isMobileSearchBarOpen ? 'block' : 'hidden'} lg:hidden`}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="p-3">
                     <SearchInput />
                 </div>
             </div>
 
-            {/* ✅ CartSidebar Component */}
+               {/* ✅ CartSidebar Component */}
             <CartSidebar />
 
             {/* Mobile Sidebar - Only for mobile */}
-            <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+            <div 
+                className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                         <h2 className="text-xl font-bold text-gray-800">মেনু</h2>
                         <button 
-                            onClick={closeSidebar}
+                            onClick={handleMobileSidebarClose}
                             className="text-gray-500 hover:text-gray-700 transition-colors"
                         >
                             <i className="fas fa-times text-xl"></i>
@@ -281,14 +334,18 @@ const Header = () => {
                     </div>
 
                     <nav className="space-y-1 flex-1">
-                        <Link href="/" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                        <Link 
+                            href="/" 
+                            className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" 
+                            onClick={handleMobileSidebarClose}
+                        >
                             <i className="fas fa-home mr-3"></i>
                             হোম
                         </Link>
 
                         <button 
                             className="w-full text-left py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg flex justify-between items-center"
-                            onClick={() => setIsMobileSubMenuOpen(!isMobileSubMenuOpen)}
+                            onClick={handleMobileSubMenuToggle}
                         >
                             <span>
                                 <i className="fas fa-box mr-3"></i>
@@ -298,11 +355,17 @@ const Header = () => {
                         </button>
 
                         {isMobileSubMenuOpen && (
-                            <div className="ml-6 space-y-1 bg-gray-50 rounded-lg p-2">
+                            <div 
+                                className="ml-6 space-y-1 bg-gray-50 rounded-lg p-2"
+                                onClick={(e) => e.stopPropagation()}
+                            >
                                 {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
                                     <button
                                         key={category}
-                                        onClick={() => handleSubMenuItemClick(category)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSubMenuItemClick(category);
+                                        }}
                                         className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-white hover:text-lipstick rounded transition-colors text-sm"
                                     >
                                         {category === 'all' && 'সকল প্রোডাক্ট'}
@@ -316,19 +379,35 @@ const Header = () => {
                             </div>
                         )}
 
-                        <Link href="/order-track" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                        <Link 
+                            href="/order-track" 
+                            className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" 
+                            onClick={handleMobileSidebarClose}
+                        >
                             <i className="fas fa-truck mr-3"></i>
                             অর্ডার ট্র্যাক
                         </Link>
-                        <Link href="/about" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                        <Link 
+                            href="/about" 
+                            className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" 
+                            onClick={handleMobileSidebarClose}
+                        >
                             <i className="fas fa-info-circle mr-3"></i>
                             আমাদের সম্পর্কে
                         </Link>
-                        <Link href="/contact" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                        <Link 
+                            href="/contact" 
+                            className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" 
+                            onClick={handleMobileSidebarClose}
+                        >
                             <i className="fas fa-phone mr-3"></i>
                             যোগাযোগ
                         </Link>
-                        <Link href="/faq" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                        <Link 
+                            href="/faq" 
+                            className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" 
+                            onClick={handleMobileSidebarClose}
+                        >
                             <i className="fas fa-question-circle mr-3"></i>
                             FAQ
                         </Link>
@@ -340,7 +419,7 @@ const Header = () => {
             {isSidebarOpen && (
                 <div 
                     className="mobile-sidebar-overlay"
-                    onClick={closeSidebar}
+                    onClick={handleMobileSidebarClose}
                 />
             )}
 
