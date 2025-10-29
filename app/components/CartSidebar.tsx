@@ -23,7 +23,7 @@ const CartSidebar = () => {
                 </div>
                 
                 {/* Scrollable Items Section */}
-                <div id="cartItems" className="flex-1 overflow-y-auto min-h-0 mb-4">
+                <div id="cartItems" className="flex-1 overflow-y-auto min-h-0 mb-2"> {/* ✅ mb-2 instead of mb-4 */}
                     {cart.length === 0 ? (
                         <div className="h-full flex items-center justify-center">
                             <p className="text-center text-gray-500">আপনার কার্ট খালি।</p>
@@ -73,11 +73,11 @@ const CartSidebar = () => {
                     )}
                 </div>
                 
-                {/* ✅ FIXED: Footer Section - Always at bottom */}
+                {/* ✅ FIXED: Footer Section - Moved further up */}
                 {cart.length > 0 && (
-                    <div className="cart-footer mt-auto pt-4 border-t border-gray-200 flex-shrink-0">
-                        <p id="totalPrice" className="text-lg font-bold mb-3">মোট মূল্য: {totalPrice.toFixed(2)} টাকা</p>
-                        <button onClick={checkout} className="w-full bg-lipstick-dark text-white px-4 py-3 rounded-lg hover:bg-lipstick transition-colors duration-300 font-semibold text-lg">
+                    <div className="cart-footer mt-2 pt-3 border-t border-gray-200 flex-shrink-0"> {/* ✅ mt-2 and pt-3 */}
+                        <p id="totalPrice" className="text-lg font-bold mb-2">মোট মূল্য: {totalPrice.toFixed(2)} টাকা</p> {/* ✅ mb-2 */}
+                        <button onClick={checkout} className="w-full bg-lipstick-dark text-white px-4 py-2 rounded-lg hover:bg-lipstick transition-colors duration-300 font-semibold"> {/* ✅ py-2 */}
                             চেকআউট
                         </button>
                     </div>
