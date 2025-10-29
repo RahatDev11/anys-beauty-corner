@@ -1,4 +1,4 @@
-// app/hooks/useCartSidebar.ts - FIXED VERSION
+// app/hooks/useCartSidebar.ts - OPTIMIZED VERSION
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
@@ -11,6 +11,7 @@ export const useCartSidebar = () => {
         setIsOpen(true);
         // Prevent body scroll
         document.body.style.overflow = 'hidden';
+        document.body.style.paddingRight = '0px'; // Scrollbar compensation
     }, []);
 
     const closeCartSidebar = useCallback(() => {
@@ -18,45 +19,50 @@ export const useCartSidebar = () => {
         setIsOpen(false);
         // Restore body scroll
         document.body.style.overflow = 'unset';
+        document.body.style.paddingRight = '0px';
     }, []);
 
     const toggleCartSidebar = useCallback(() => {
-        if (isOpen) {
-            closeCartSidebar();
-        } else {
-            openCartSidebar();
-        }
-    }, [isOpen, openCartSidebar, closeCartSidebar]);
+        console.log('🎯 useCartSidebar: Toggling cart sidebar');
+        setIsOpen(prev => !prev);
+    }, []);
 
-    // ✅ বাইরে ক্লিক করলে বন্ধ হওয়ার ফাংশন (Fixed)
+    // ✅ Handle outside click
     const handleClickOutside = useCallback((event: MouseEvent) => {
-        const cartSidebar = document.querySelector('.cart-sidebar');
+        const cartSidebar = document.getElementById('cartSidebar');
         const overlay = document.querySelector('.cart-sidebar-overlay');
-
-        // শুধু overlay এ ক্লিক করলে বন্ধ করুন
+        
+        // Check if click is on overlay or outside sidebar
         if (overlay && overlay.contains(event.target as Node)) {
+            closeCartSidebar();
+        }
+        
+        // Additional check for clicks outside the sidebar
+        if (cartSidebar && !cartSidebar.contains(event.target as Node) && 
+            !(event.target as Element).closest('.cart-trigger')) {
             closeCartSidebar();
         }
     }, [closeCartSidebar]);
 
-    // ✅ ESC key press করলে বন্ধ হওয়ার ফাংশন
+    // ✅ Handle escape key
     const handleEscapeKey = useCallback((event: KeyboardEvent) => {
         if (event.key === 'Escape' && isOpen) {
             closeCartSidebar();
         }
     }, [isOpen, closeCartSidebar]);
 
-    // ✅ Event listeners যোগ করুন
+    // ✅ Handle body scroll and event listeners
     useEffect(() => {
         if (isOpen) {
+            // Add event listeners
             document.addEventListener('mousedown', handleClickOutside);
             document.addEventListener('keydown', handleEscapeKey);
             
-            // Responsive height management
-            const updateSidebarHeight = () => {
-                const cartSidebar = document.querySelector('.cart-sidebar') as HTMLElement;
+            // Update heights for mobile
+            const updateHeights = () => {
+                const cartSidebar = document.getElementById('cartSidebar');
                 const overlay = document.querySelector('.cart-sidebar-overlay') as HTMLElement;
-
+                
                 if (cartSidebar) {
                     cartSidebar.style.height = `${window.innerHeight}px`;
                 }
@@ -64,24 +70,25 @@ export const useCartSidebar = () => {
                     overlay.style.height = `${window.innerHeight}px`;
                 }
             };
-
-            // প্রথমবার এবং resize এ update করুন
-            updateSidebarHeight();
-            window.addEventListener('resize', updateSidebarHeight);
-
+            
+            updateHeights();
+            window.addEventListener('resize', updateHeights);
+            
             return () => {
-                window.removeEventListener('resize', updateSidebarHeight);
+                window.removeEventListener('resize', updateHeights);
             };
         } else {
+            // Remove event listeners when closed
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleEscapeKey);
         }
     }, [isOpen, handleClickOutside, handleEscapeKey]);
 
-    // ✅ Cleanup on unmount
+    // ✅ Global cleanup
     useEffect(() => {
         return () => {
             document.body.style.overflow = 'unset';
+            document.body.style.paddingRight = '0px';
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleEscapeKey);
         };
