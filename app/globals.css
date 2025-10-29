@@ -53,22 +53,22 @@ a {
   text-decoration: none;
 }
 
-/* ✅ FIXED: Main content starts right after header with light spacing */
+/* ✅ FIXED: Main content starts right after header with NO spacing */
 main {
-  margin-top: 64px !important; /* Header height */
-  padding-top: 16px !important; /* Light spacing */
+  margin-top: 64px !important; /* Header height only */
+  padding-top: 0 !important; /* No extra spacing */
   min-height: calc(100vh - 64px) !important;
 }
 
-/* Page specific content spacing */
+/* Page specific content - NO extra spacing */
 .page-content {
-  padding-top: 8px !important;
-  padding-bottom: 20px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 .container {
-  padding-top: 8px !important;
-  padding-bottom: 20px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 /* Custom Colors */
@@ -143,7 +143,7 @@ header .text-lg.md\:text-xl {
   font-size: 1.3rem !important;
 }
 
-/* ✅ FIXED: Cart Sidebar Styles - Perfect layout */
+/* ✅ FIXED: Cart Sidebar Styles - Perfect layout with fixed checkout */
 .cart-sidebar {
   position: fixed !important;
   top: 0 !important;
@@ -172,7 +172,7 @@ header .text-lg.md\:text-xl {
   right: 0 !important;
 }
 
-/* ✅ FIXED: Cart Content Layout */
+/* ✅ FIXED: Cart Content Layout - Perfect flexbox */
 .cart-sidebar > .p-4 {
   display: flex !important;
   flex-direction: column !important;
@@ -190,26 +190,29 @@ header .text-lg.md\:text-xl {
   border-bottom: 1px solid #e5e7eb !important;
 }
 
-/* Scrollable Items Area */
+/* ✅ FIXED: Scrollable Items Area */
 .cart-sidebar .flex-1.overflow-y-auto {
-  flex: 1 !important;
+  flex: 1 1 auto !important;
   overflow-y: auto !important;
+  overflow-x: hidden !important;
   min-height: 0 !important;
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
 }
 
-/* ✅ FIXED: Checkout Section - Always sticks to bottom */
-.cart-sidebar .border-t {
+/* ✅ FIXED: Checkout Section - ALWAYS at bottom and visible */
+.cart-sidebar .border-t.border-gray-200.pt-4.mt-4 {
   flex-shrink: 0 !important;
   margin-top: auto !important;
   padding-top: 1rem !important;
   padding-bottom: 0 !important;
   border-top: 1px solid #e5e7eb !important;
   background: white !important;
-  position: relative !important;
+  position: sticky !important;
   bottom: 0 !important;
-  width: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 10 !important;
 }
 
 /* ✅ FIXED: Checkout Button */
@@ -241,6 +244,11 @@ header .text-lg.md\:text-xl {
   padding: 2rem 1rem !important;
   margin: 0 !important;
   flex: 1 !important;
+}
+
+/* ✅ FIXED: Cart Items Container */
+.cart-sidebar .space-y-3 {
+  padding-bottom: 0.5rem !important;
 }
 
 /* Cart Sidebar Overlay */
@@ -334,10 +342,10 @@ header .text-lg.md\:text-xl {
     padding: 0.75rem !important;
   }
 
-  /* Mobile content spacing */
+  /* Mobile content - NO spacing */
   main {
     margin-top: 64px !important;
-    padding-top: 12px !important;
+    padding-top: 0 !important;
   }
 }
 
@@ -357,10 +365,10 @@ header .text-lg.md\:text-xl {
     font-size: 1.4rem !important;
   }
 
-  /* Desktop content spacing */
+  /* Desktop content - NO spacing */
   main {
     margin-top: 64px !important;
-    padding-top: 16px !important;
+    padding-top: 0 !important;
   }
 }
 
@@ -378,7 +386,7 @@ header .text-lg.md\:text-xl {
 
   main {
     margin-top: 64px !important;
-    padding-top: 8px !important;
+    padding-top: 0 !important;
   }
 }
 
@@ -390,7 +398,7 @@ header .text-lg.md\:text-xl {
 
   main {
     margin-top: 64px !important;
-    padding-top: 6px !important;
+    padding-top: 0 !important;
   }
 }
 
@@ -946,7 +954,6 @@ textarea:focus {
   }
 }
 
-
 /* Additional Tailwind-like Utilities */
 .flex-1 { flex: 1 1 0%; }
 .text-center { text-align: center; }
@@ -1103,7 +1110,7 @@ header {
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-camp: 2;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
