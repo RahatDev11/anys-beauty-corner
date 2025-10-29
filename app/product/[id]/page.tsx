@@ -6,6 +6,7 @@ import { database, ref, onValue } from '@/lib/firebase';
 import { useCart } from '@/app/context/CartContext';
 import Image from 'next/image';
 import { Product } from '@/types/product';
+import ProductCard from '@/app/components/ProductCard';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -56,7 +57,7 @@ const ProductDetail = () => {
             images = ['https://via.placeholder.com/400x300/ffffff/cccccc?text=No+Image+Available'];
         }
 
-        console.log('🖼️ Extracted images:', images); // Debug log
+        console.log('🖼️ Extracted images:', images);
         return images;
     };
 
@@ -78,8 +79,8 @@ const ProductDetail = () => {
                     setMainImage(allImages[0]);
                 }
 
-                console.log('📦 Product data:', productData); // Debug log
-                console.log('🖼️ All images:', allImages); // Debug log
+                console.log('📦 Product data:', productData);
+                console.log('🖼️ All images:', allImages);
             } else {
                 setProduct(null);
             }
@@ -99,16 +100,6 @@ const ProductDetail = () => {
             }
         });
     }, [id]);
-
-    // Function to process tags
-    const processTags = (tags: any): string[] => {
-        if (Array.isArray(tags)) {
-            return tags;
-        } else if (typeof tags === 'string') {
-            return tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-        }
-        return [];
-    };
 
     const handleThumbnailClick = (image: string) => {
         setMainImage(image);
@@ -159,6 +150,10 @@ const ProductDetail = () => {
         }
     };
 
+    const showProductDetail = (id: string) => {
+        router.push(`/product/${id}`);
+    };
+
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -196,7 +191,12 @@ const ProductDetail = () => {
         ? description 
         : `${description.substring(0, 150)}...`;
 
-    const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id);
+    // ✅ FIXED: Related Products Filtering - Only show products from same category
+    const relatedProducts = products.filter(p => 
+        p.category === product.category && 
+        p.id !== product.id &&
+        p.stockStatus === 'in_stock'
+    ).slice(0, 8); // Show maximum 8 related products
 
     return (
         <div className="min-h-screen bg-white">
@@ -255,7 +255,7 @@ const ProductDetail = () => {
                         )}
                     </div>
 
-                          {/* Product Details Section */}
+                    {/* Product Details Section */}
                     <div>
                         <h1 className="text-2xl lg:text-3xl font-bold mb-4 text-gray-800">{product.name}</h1>
                         <p className="text-lipstick text-xl lg:text-2xl font-bold mb-4">{product.price} ৳</p>
@@ -333,148 +333,71 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                {/* Related Products */}
+                {/* ✅ UPDATED: Related Products Section - Using ProductCard Component */}
                 {relatedProducts.length > 0 && (
                     <section className="mt-16">
-                        <h2 className="text-3xl font-bold text-center mb-8 text-lipstick-dark">Related Products</h2>
+                        <h2 className="text-3xl font-bold text-center mb-8 text-lipstick-dark">
+                            Related Products in {product.category}
+                        </h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                            {relatedProducts.slice(0, 4).map((relatedProduct) => {
-                                const productTags = processTags(relatedProduct.tags);
-                                const relatedImages = getAllImages(relatedProduct);
+                            {relatedProducts.map((relatedProduct) => {
                                 const relatedCartItem = cart.find(item => item.id === relatedProduct.id);
                                 const relatedCartQuantity = relatedCartItem ? relatedCartItem.quantity : 0;
 
-                                const handleRelatedAddToCart = (e: React.MouseEvent) => {
-                                    e.stopPropagation();
-                                    addToCart(relatedProduct);
-                                };
-
-                                const handleRelatedBuyNow = (e: React.MouseEvent) => {
-                                    e.stopPropagation();
-                                    buyNow(relatedProduct);
-                                    router.push('/order-form');
-                                };
-
-                                const handleRelatedIncrement = (e: React.MouseEvent) => {
-                                    e.stopPropagation();
-                                    updateCartQuantity(relatedProduct.id, relatedCartQuantity + 1);
-                                };
-
-                                const handleRelatedDecrement = (e: React.MouseEvent) => {
-                                    e.stopPropagation();
-                                    if (relatedCartQuantity > 1) {
-                                        updateCartQuantity(relatedProduct.id, relatedCartQuantity - 1);
-                                    } else {
-                                        removeFromCart(relatedProduct.id);
-                                    }
-                                };
-
                                 return (
-                                    <div 
+                                    <ProductCard
                                         key={relatedProduct.id}
-                                        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg border border-gray-100"
-                                        onClick={() => router.push(`/product/${relatedProduct.id}`)}
-                                    >
-                                        <div className="relative h-48 bg-gray-100 overflow-hidden">
-                                            <Image
-                                                src={relatedImages[0] || 'https://via.placeholder.com/200x200?text=No+Image'}
-                                                alt={relatedProduct.name}
-                                                fill
-                                                style={{ objectFit: 'cover' }}
-                                                className="transition-transform duration-500 hover:scale-110"
-                                                onError={(e) => {
-                                                    const target = e.target as HTMLImageElement;
-                                                    target.src = 'https://via.placeholder.com/200x200?text=No+Image';
-                                                }}
-                                                unoptimized={true}
-                                            />
-                                            {relatedProduct.stockStatus !== 'in_stock' && (
-                                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                                                    <span className="text-white font-bold text-sm bg-red-500 px-3 py-1 rounded">
-                                                        Out of Stock
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                        
-                                        <div className="p-4">
-                                            <h3 className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2">
-                                                {relatedProduct.name}
-                                            </h3>
-                                            <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                                                {relatedProduct.description || 'Product description'}
-                                            </p>
-                                            
-                                            <div className="flex justify-between items-center mb-3">
-                                                <span className="text-lipstick font-bold text-xl">
-                                                    ৳{relatedProduct.price}
-                                                </span>
-                                                {relatedProduct.stockStatus === 'in_stock' && (
-                                                    <span className="text-green-600 text-sm font-medium">
-                                                        In Stock
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            {/* Homepage Style Buttons for Related Products */}
-                                            <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-                                                {relatedCartQuantity > 0 ? (
-                                                    <div className="w-full bg-gray-100 text-black rounded-lg font-semibold flex items-center justify-between h-10 px-3">
-                                                        <button
-                                                            onClick={handleRelatedDecrement}
-                                                            className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
-                                                        >
-                                                            -
-                                                        </button>
-                                                        <span className="text-lg font-medium">{relatedCartQuantity}</span>
-                                                        <button
-                                                            onClick={handleRelatedIncrement}
-                                                            className="w-6 h-6 flex items-center justify-center bg-gray-300 rounded-full text-sm hover:bg-gray-400 transition-colors"
-                                                        >
-                                                            +
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <button
-                                                        onClick={handleRelatedAddToCart}
-                                                        disabled={relatedProduct.stockStatus !== 'in_stock'}
-                                                        className="w-full bg-lipstick text-white rounded-lg font-semibold flex items-center h-10 justify-center text-sm hover:bg-lipstick-dark border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                                    >
-                                                        Add To Cart
-                                                    </button>
-                                                )}
-
-                                                <button
-                                                    onClick={handleRelatedBuyNow}
-                                                    disabled={relatedProduct.stockStatus !== 'in_stock'}
-                                                    className="w-full bg-gray-800 text-white py-2 rounded-lg font-semibold text-sm hover:bg-gray-700 transition-colors border-none disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    Buy Now
-                                                </button>
-                                            </div>
-
-                                            {productTags.length > 0 && (
-                                                <div className="mt-3 flex flex-wrap gap-1">
-                                                    {productTags.slice(0, 2).map((tag, index) => (
-                                                        <span 
-                                                            key={index}
-                                                            className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
-                                                        >
-                                                            {tag}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
+                                        product={relatedProduct}
+                                        addToCart={addToCart}
+                                        removeFromCart={removeFromCart}
+                                        updateCartQuantity={updateCartQuantity}
+                                        buyNow={buyNow}
+                                        cartItemQuantity={relatedCartQuantity}
+                                        showProductDetail={showProductDetail}
+                                    />
                                 );
                             })}
                         </div>
                     </section>
                 )}
+
+                {/* Additional Related Products from other categories if not enough from same category */}
+                {relatedProducts.length < 4 && (
+                    <section className="mt-16">
+                        <h2 className="text-3xl font-bold text-center mb-8 text-lipstick-dark">
+                            You May Also Like
+                        </h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                            {products
+                                .filter(p => 
+                                    p.id !== product.id && 
+                                    p.stockStatus === 'in_stock' &&
+                                    p.category !== product.category
+                                )
+                                .slice(0, 4 - relatedProducts.length)
+                                .map((otherProduct) => {
+                                    const otherCartItem = cart.find(item => item.id === otherProduct.id);
+                                    const otherCartQuantity = otherCartItem ? otherCartItem.quantity : 0;
+
+                                    return (
+                                        <ProductCard
+                                            key={otherProduct.id}
+                                            product={otherProduct}
+                                            addToCart={addToCart}
+                                            removeFromCart={removeFromCart}
+                                            updateCartQuantity={updateCartQuantity}
+                                            buyNow={buyNow}
+                                            cartItemQuantity={otherCartQuantity}
+                                            showProductDetail={showProductDetail}
+                                        />
+                                    );
+                                })}
+                        </div>
+                    </section>
+                )}
             </main>
 
-            {/* Fixed Order Bar */}
+              {/* Fixed Order Bar */}
             {totalItems > 0 && (
                 <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg z-40 border-t border-gray-200">
                     <div className="flex justify-between items-center max-w-4xl mx-auto">
