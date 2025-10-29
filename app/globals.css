@@ -55,9 +55,20 @@ a {
 
 /* ✅ FIXED: Main content starts right after header with NO spacing */
 main {
-  margin-top: 64px !important;
-  padding-top: 0 !important;
+  margin-top: 64px !important; /* Header height only */
+  padding-top: 0 !important; /* No extra spacing */
   min-height: calc(100vh - 64px) !important;
+}
+
+/* Page specific content - NO extra spacing */
+.page-content {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.container {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 /* Custom Colors */
@@ -132,26 +143,37 @@ header .text-lg.md\:text-xl {
   font-size: 1.3rem !important;
 }
 
-/* ✅ FIXED: CartSidebar Component Styles */
-#cartSidebar {
+/* ✅ FIXED: Cart Sidebar Styles - Perfect layout with fixed checkout */
+.cart-sidebar {
   position: fixed !important;
   top: 0 !important;
-  right: 0 !important;
+  right: -100% !important;
   height: 100vh !important;
-  width: 320px !important;
   background: white !important;
   box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15) !important;
   z-index: 10000 !important;
-  transition: transform 0.3s ease-in-out !important;
-  transform: translateX(100%) !important;
+  transition: right 0.3s ease-in-out !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
-#cartSidebar.translate-x-0 {
-  transform: translateX(0) !important;
+.cart-sidebar.mobile-cart {
+  width: 85% !important;
+  max-width: 320px !important;
 }
 
-/* ✅ FIXED: CartSidebar Content Layout */
-#cartSidebar > .p-4 {
+.cart-sidebar.desktop-cart {
+  width: 400px !important;
+  max-width: 400px !important;
+}
+
+.cart-sidebar.open {
+  right: 0 !important;
+}
+
+/* ✅ FIXED: Cart Content Layout - Perfect flexbox */
+.cart-sidebar > .p-4 {
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
@@ -160,31 +182,41 @@ header .text-lg.md\:text-xl {
   min-height: 0 !important;
 }
 
-/* ✅ FIXED: Cart Items Scrollable Area */
-#cartItems {
-  flex: 1 !important;
-  overflow-y: auto !important;
-  min-height: 0 !important;
+/* Cart Header - Fixed at top */
+.cart-sidebar .flex.justify-between.items-center {
+  flex-shrink: 0 !important;
   margin-bottom: 1rem !important;
+  padding-bottom: 0.5rem !important;
+  border-bottom: 1px solid #e5e7eb !important;
 }
 
-/* ✅ FIXED: Cart Footer - Moved 20px Upward */
-.cart-footer {
+/* ✅ FIXED: Scrollable Items Area */
+.cart-sidebar .flex-1.overflow-y-auto {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  min-height: 0 !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* ✅ FIXED: Checkout Section - ALWAYS at bottom and visible */
+.cart-sidebar .border-t.border-gray-200.pt-4.mt-4 {
   flex-shrink: 0 !important;
   margin-top: auto !important;
-  padding-top: 0.5rem !important;
+  padding-top: 1rem !important;
+  padding-bottom: 0 !important;
   border-top: 1px solid #e5e7eb !important;
   background: white !important;
   position: sticky !important;
-  bottom: -20px !important;
+  bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
   z-index: 10 !important;
-  transform: translateY(-20px) !important;
 }
 
 /* ✅ FIXED: Checkout Button */
-.cart-footer .bg-lipstick-dark {
+.cart-sidebar .w-full.bg-lipstick {
   width: 100% !important;
   padding: 0.75rem 1rem !important;
   font-size: 1.1rem !important;
@@ -194,19 +226,29 @@ header .text-lg.md\:text-xl {
   border: none !important;
   cursor: pointer !important;
   margin-top: 0.5rem !important;
-  transform: translateY(-15px) !important;
 }
 
-.cart-footer .bg-lipstick-dark:hover {
-  background: var(--lipstick) !important;
-  transform: translateY(-17px) !important;
+.cart-sidebar .w-full.bg-lipstick:hover {
+  background: var(--lipstick-dark) !important;
+  transform: translateY(-2px) !important;
   box-shadow: 0 4px 12px rgba(201, 30, 99, 0.3) !important;
 }
 
-/* ✅ FIXED: Total Price Text */
-.cart-footer #totalPrice {
-  margin-bottom: 0.5rem !important;
-  transform: translateY(-10px) !important;
+/* ✅ FIXED: Empty Cart Message */
+.cart-sidebar .text-center.text-gray-500 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  padding: 2rem 1rem !important;
+  margin: 0 !important;
+  flex: 1 !important;
+}
+
+/* ✅ FIXED: Cart Items Container */
+.cart-sidebar .space-y-3 {
+  padding-bottom: 0.5rem !important;
 }
 
 /* Cart Sidebar Overlay */
@@ -256,6 +298,24 @@ header .text-lg.md\:text-xl {
   cursor: pointer !important;
 }
 
+/* ✅ FIXED: Mobile Submenu Styles */
+.mobile-sidebar .ml-6.space-y-1 .block {
+  padding: 0.75rem 1rem !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.3s ease !important;
+  font-family: 'SolaimanLipi', sans-serif !important;
+  margin: 0.125rem 0 !important;
+}
+
+.mobile-sidebar .ml-6.space-y-1 .block:hover {
+  background-color: #f8fafc !important;
+  color: var(--lipstick) !important;
+  transform: translateX(4px) !important;
+}
+
 /* Mobile Specific Adjustments */
 @media (max-width: 768px) {
   header .flex.items-center img {
@@ -273,30 +333,13 @@ header .text-lg.md\:text-xl {
   }
   
   /* Mobile Cart Responsive */
-  #cartSidebar {
+  .cart-sidebar.mobile-cart {
     width: 90% !important;
     max-width: 300px !important;
   }
   
-  #cartSidebar > .p-4 {
+  .cart-sidebar > .p-4 {
     padding: 0.75rem !important;
-  }
-  
-  .cart-footer {
-    bottom: -15px !important;
-    transform: translateY(-15px) !important;
-  }
-  
-  .cart-footer .bg-lipstick-dark {
-    transform: translateY(-12px) !important;
-  }
-  
-  .cart-footer .bg-lipstick-dark:hover {
-    transform: translateY(-14px) !important;
-  }
-  
-  .cart-footer #totalPrice {
-    transform: translateY(-8px) !important;
   }
 
   /* Mobile content - NO spacing */
@@ -331,26 +374,14 @@ header .text-lg.md\:text-xl {
 
 /* Very Small Mobile Devices */
 @media (max-width: 480px) {
-  #cartSidebar {
-    width: 95% !important;
+  .cart-sidebar.mobile-cart {
+    width: 92% !important;
     max-width: 280px !important;
   }
   
-  .cart-footer {
-    bottom: -10px !important;
-    transform: translateY(-10px) !important;
-  }
-  
-  .cart-footer .bg-lipstick-dark {
-    transform: translateY(-8px) !important;
-  }
-  
-  .cart-footer .bg-lipstick-dark:hover {
-    transform: translateY(-10px) !important;
-  }
-  
-  .cart-footer #totalPrice {
-    transform: translateY(-5px) !important;
+  .cart-sidebar .w-full.bg-lipstick {
+    padding: 0.875rem 1rem !important;
+    font-size: 1rem !important;
   }
 
   main {
@@ -360,8 +391,8 @@ header .text-lg.md\:text-xl {
 }
 
 @media (max-width: 360px) {
-  #cartSidebar {
-    width: 98% !important;
+  .cart-sidebar.mobile-cart {
+    width: 95% !important;
     max-width: 260px !important;
   }
 
@@ -732,6 +763,136 @@ header .text-lg.md\:text-xl {
   animation: spin 1s linear infinite;
 }
 
+/* ✅ FIXED: Desktop Menu Visibility */
+.desktop-menu {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+}
+
+.desktop-menu-item {
+  color: black !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+  font-family: 'SolaimanLipi', sans-serif !important;
+  white-space: nowrap !important;
+  transition: color 0.3s ease !important;
+}
+
+.desktop-menu-item:hover {
+  color: #4b5563 !important;
+}
+
+@media (max-width: 768px) {
+  .desktop-menu {
+    display: none !important;
+  }
+}
+
+/* ✅ FIXED: Mobile Header Layout */
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .mobile-header-icons {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .mobile-icon {
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .desktop-menu {
+    display: none !important;
+  }
+
+  header.bg-brushstroke {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+/* ✅ FIXED: Mobile Search Bar Positioning */
+.mobile-search-bar-container {
+  position: fixed !important;
+  top: 64px !important;
+  left: 0 !important;
+  width: 100% !important;
+  z-index: 40 !important;
+  background: white !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ✅ FIXED: Prevent horizontal scrolling */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden !important;
+    position: relative !important;
+  }
+
+  html {
+    overflow-x: hidden !important;
+  }
+}
+
+/* ✅ FIXED: Cart Badge */
+.cart-badge {
+  position: absolute !important;
+  top: -2px !important;
+  right: -2px !important;
+  background: #ef4444 !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 16px !important;
+  height: 16px !important;
+  font-size: 0.7rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, #E8547C 0%, #C91E63 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(201, 30, 99, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 30, 99, 0.3);
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 15px rgba(201, 30, 99, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 8px 25px rgba(201, 30, 99, 0.15);
+  transform: translateY(-4px);
+}
+
 /* Focus Styles for Accessibility */
 a:focus,
 button:focus,
@@ -742,6 +903,81 @@ textarea:focus {
   outline-offset: 2px;
 }
 
+/* Responsive Design */
+@media (max-width: 768px) {
+  .checkout-item img { 
+    width: 50px; 
+    height: 50px; 
+  }
+
+  .radio-group { 
+    flex-direction: row;
+    gap: 0.75rem; 
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .price-summary {
+    padding: 1rem;
+  }
+
+  .submit-btn {
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-item { 
+    padding: 0.6rem; 
+  }
+
+  .checkout-item img { 
+    width: 45px; 
+    height: 45px; 
+  }
+
+  .submit-btn { 
+    font-size: 0.95rem; 
+    padding: 0.75rem; 
+  }
+
+  .cart-scroll-container {
+    max-height: 220px;
+  }
+
+  .radio-custom {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.85rem;
+  }
+}
+
+
+/* Additional Tailwind-like Utilities */
+.flex-1 { flex: 1 1 0%; }
+.text-center { text-align: center; }
+.block { display: block; }
+.cursor-pointer { cursor: pointer; }
+.transition-all { transition: all 0.3s ease; }
+.duration-300 { transition-duration: 300ms; }
+.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+.shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.rounded-lg { border-radius: 0.5rem; }
+.p-6 { padding: 1.5rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.text-sm { font-size: 0.875rem; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.bg-white { background-color: #ffffff; }
+.text-gray-600 { color: #6b7280; }
+.text-gray-700 { color: #374151; }
+.text-gray-800 { color: #1f2937; }
+
 /* ✅ FIXED: Performance optimization */
 @media (prefers-reduced-motion: reduce) {
   .cart-sidebar-overlay,
@@ -750,7 +986,7 @@ textarea:focus {
     -webkit-backdrop-filter: blur(2px) !important;
   }
   
-  #cartSidebar,
+  .cart-sidebar,
   .mobile-sidebar {
     transition: none !important;
   }
@@ -793,6 +1029,72 @@ header a:hover img {
 
 header {
   margin-bottom: 0 !important;
+}
+
+/* ✅ FIXED: Desktop-specific styles */
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+
+  .desktop-only {
+    display: flex !important;
+  }
+}
+
+/* ✅ FIXED: Search Input Responsive */
+.search-input-container {
+  position: relative !important;
+}
+
+@media (max-width: 768px) {
+  .search-input-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ✅ FIXED: Mobile menu button specific styling */
+.mobile-menu-button {
+  background: transparent !important;
+  border: none !important;
+  padding: 4px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* ✅ FIXED: Notification icon sizing */
+.notification-icon {
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ✅ FIXED: Cart icon container */
+.cart-icon-container {
+  position: relative !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ✅ FIXED: Search icon container */
+.search-icon-container {
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
 }
 
 /* Text Utilities */
@@ -879,4 +1181,130 @@ header {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ✅ CartSidebar Fix - Add this to your existing global CSS */
+#cartSidebar {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  height: 100vh !important;
+  width: 320px !important;
+  background: white !important;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15) !important;
+  z-index: 10000 !important;
+  transition: transform 0.3s ease-in-out !important;
+  transform: translateX(100%) !important;
+}
+
+#cartSidebar.translate-x-0 {
+  transform: translateX(0) !important;
+}
+
+#cartSidebar > .p-4 {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  padding: 1rem !important;
+  gap: 0 !important;
+  min-height: 0 !important;
+}
+
+#cartItems {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* ✅ Cart Footer - Moved 20px Upward */
+.cart-footer {
+  flex-shrink: 0 !important;
+  margin-top: auto !important;
+  padding-top: 0.5rem !important;
+  border-top: 1px solid #e5e7eb !important;
+  background: white !important;
+  position: sticky !important;
+  bottom: -20px !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 10 !important;
+  transform: translateY(-20px) !important;
+}
+
+.cart-footer .bg-lipstick-dark {
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
+  cursor: pointer !important;
+  margin-top: 0.5rem !important;
+  transform: translateY(-15px) !important;
+}
+
+.cart-footer .bg-lipstick-dark:hover {
+  background: var(--lipstick) !important;
+  transform: translateY(-17px) !important;
+  box-shadow: 0 4px 12px rgba(201, 30, 99, 0.3) !important;
+}
+
+.cart-footer #totalPrice {
+  margin-bottom: 0.5rem !important;
+  transform: translateY(-10px) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #cartSidebar {
+    width: 90% !important;
+    max-width: 300px !important;
+  }
+  
+  .cart-footer {
+    bottom: -15px !important;
+    transform: translateY(-15px) !important;
+  }
+  
+  .cart-footer .bg-lipstick-dark {
+    transform: translateY(-12px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #cartSidebar {
+    width: 95% !important;
+    max-width: 280px !important;
+  }
+  
+  .cart-footer {
+    bottom: -10px !important;
+    transform: translateY(-10px) !important;
+  }
+  
+  .cart-footer .bg-lipstick-dark {
+    transform: translateY(-8px) !important;
+  }
+}
+
+/* Main content fix */
+main {
+  margin-top: 64px !important;
+  padding-top: 0 !important;
+  min-height: calc(100vh - 64px) !important;
 }
