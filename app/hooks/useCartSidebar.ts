@@ -1,85 +1,40 @@
-// app/hooks/useCartSidebar.ts - UPDATED VERSION WITH CLICK OUTSIDE & RESPONSIVE
+// app/hooks/useCartSidebar.ts - FIXED VERSION
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export const useCartSidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const sidebarRef = useRef<HTMLDivElement>(null);
 
     const openCartSidebar = useCallback(() => {
-        console.log('🎯 useCartSidebar: openCartSidebar called');
-
+        console.log('🎯 useCartSidebar: Opening cart sidebar');
         setIsOpen(true);
-        document.body.classList.add('overflow-hidden');
-
-        // ✅ DOM manipulation যোগ করুন
-        const cartSidebar = document.querySelector('.cart-sidebar');
-        const overlay = document.querySelector('.cart-sidebar-overlay');
-
-        console.log('🔍 DOM Elements - Sidebar:', cartSidebar, 'Overlay:', overlay);
-
-        if (cartSidebar) {
-            cartSidebar.classList.add('open');
-            console.log('✅ Added "open" class to cart-sidebar');
-        } else {
-            console.error('❌ cart-sidebar element not found');
-        }
-
-        if (overlay) {
-            overlay.classList.add('active');
-            console.log('✅ Added "active" class to overlay');
-        } else {
-            console.error('❌ cart-sidebar-overlay element not found');
-        }
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
     }, []);
 
     const closeCartSidebar = useCallback(() => {
-        console.log('🎯 useCartSidebar: closeCartSidebar called');
-
+        console.log('🎯 useCartSidebar: Closing cart sidebar');
         setIsOpen(false);
-        document.body.classList.remove('overflow-hidden');
-
-        // ✅ DOM manipulation যোগ করুন
-        const cartSidebar = document.querySelector('.cart-sidebar');
-        const overlay = document.querySelector('.cart-sidebar-overlay');
-
-        if (cartSidebar) {
-            cartSidebar.classList.remove('open');
-        }
-        if (overlay) {
-            overlay.classList.remove('active');
-        }
+        // Restore body scroll
+        document.body.style.overflow = 'unset';
     }, []);
 
     const toggleCartSidebar = useCallback(() => {
-        setIsOpen(prev => {
-            const newState = !prev;
-            const cartSidebar = document.querySelector('.cart-sidebar');
-            const overlay = document.querySelector('.cart-sidebar-overlay');
+        if (isOpen) {
+            closeCartSidebar();
+        } else {
+            openCartSidebar();
+        }
+    }, [isOpen, openCartSidebar, closeCartSidebar]);
 
-            if (newState) {
-                document.body.classList.add('overflow-hidden');
-                if (cartSidebar) cartSidebar.classList.add('open');
-                if (overlay) overlay.classList.add('active');
-            } else {
-                document.body.classList.remove('overflow-hidden');
-                if (cartSidebar) cartSidebar.classList.remove('open');
-                if (overlay) overlay.classList.remove('active');
-            }
-            return newState;
-        });
-    }, []);
-
-    // ✅ বাইরে ক্লিক করলে বন্ধ হওয়ার ফাংশন
+    // ✅ বাইরে ক্লিক করলে বন্ধ হওয়ার ফাংশন (Fixed)
     const handleClickOutside = useCallback((event: MouseEvent) => {
         const cartSidebar = document.querySelector('.cart-sidebar');
         const overlay = document.querySelector('.cart-sidebar-overlay');
-        
-        if (cartSidebar && 
-            overlay && 
-            !cartSidebar.contains(event.target as Node) && 
-            overlay.contains(event.target as Node)) {
+
+        // শুধু overlay এ ক্লিক করলে বন্ধ করুন
+        if (overlay && overlay.contains(event.target as Node)) {
             closeCartSidebar();
         }
     }, [closeCartSidebar]);
@@ -96,41 +51,41 @@ export const useCartSidebar = () => {
         if (isOpen) {
             document.addEventListener('mousedown', handleClickOutside);
             document.addEventListener('keydown', handleEscapeKey);
+            
+            // Responsive height management
+            const updateSidebarHeight = () => {
+                const cartSidebar = document.querySelector('.cart-sidebar') as HTMLElement;
+                const overlay = document.querySelector('.cart-sidebar-overlay') as HTMLElement;
+
+                if (cartSidebar) {
+                    cartSidebar.style.height = `${window.innerHeight}px`;
+                }
+                if (overlay) {
+                    overlay.style.height = `${window.innerHeight}px`;
+                }
+            };
+
+            // প্রথমবার এবং resize এ update করুন
+            updateSidebarHeight();
+            window.addEventListener('resize', updateSidebarHeight);
+
+            return () => {
+                window.removeEventListener('resize', updateSidebarHeight);
+            };
         } else {
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleEscapeKey);
         }
+    }, [isOpen, handleClickOutside, handleEscapeKey]);
 
+    // ✅ Cleanup on unmount
+    useEffect(() => {
         return () => {
+            document.body.style.overflow = 'unset';
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleEscapeKey);
         };
-    }, [isOpen, handleClickOutside, handleEscapeKey]);
-
-    // ✅ Responsive height management
-    useEffect(() => {
-        const updateSidebarHeight = () => {
-            const cartSidebar = document.querySelector('.cart-sidebar') as HTMLElement;
-            const overlay = document.querySelector('.cart-sidebar-overlay') as HTMLElement;
-            
-            if (cartSidebar && overlay) {
-                // Viewport height অনুযায়ী সাইডবারের height সেট করুন
-                const viewportHeight = window.innerHeight;
-                cartSidebar.style.height = `${viewportHeight}px`;
-                overlay.style.height = `${viewportHeight}px`;
-            }
-        };
-
-        if (isOpen) {
-            // প্রথমবার এবং resize এ update করুন
-            updateSidebarHeight();
-            window.addEventListener('resize', updateSidebarHeight);
-        }
-
-        return () => {
-            window.removeEventListener('resize', updateSidebarHeight);
-        };
-    }, [isOpen]);
+    }, [handleClickOutside, handleEscapeKey]);
 
     return { 
         isOpen, 
