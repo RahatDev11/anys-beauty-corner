@@ -1,52 +1,57 @@
-// components/CartSidebar.tsx - COMPLETELY REWRITTEN
+// components/CartSidebar.tsx - PROPS BASED VERSION
 'use client';
 
 import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { useCart } from '../context/CartContext';
-import { useCartSidebar } from '../hooks/useCartSidebar';
 
-const CartSidebar = () => {
-    const { isOpen, closeCartSidebar } = useCartSidebar();
+interface CartSidebarProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
     const { cart, totalPrice, updateQuantity, removeFromCart, checkout } = useCart();
 
-    console.log('🔍 CartSidebar RENDER:', { isOpen, cartLength: cart.length });
+    console.log('🔍 CartSidebar PROPS:', { isOpen, cartLength: cart.length });
 
-    // ✅ Handle overlay click
+    // Handle overlay click
     const handleOverlayClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
-            closeCartSidebar();
+            onClose();
         }
     };
 
-    // ✅ Handle button clicks with proper event prevention
+    // Handle button clicks
     const handleButtonClick = (e: React.MouseEvent, action: () => void) => {
         e.preventDefault();
         e.stopPropagation();
         action();
     };
 
-    // ✅ Direct DOM manipulation as backup
+    // Apply styles directly
     useEffect(() => {
         const cartSidebar = document.getElementById('cartSidebar');
         const overlay = document.querySelector('.cart-sidebar-overlay');
         
         if (isOpen) {
-            console.log('✅ Applying open styles to sidebar');
+            console.log('✅ CartSidebar: Applying OPEN styles');
             if (cartSidebar) {
                 cartSidebar.style.transform = 'translateX(0)';
             }
             if (overlay) {
                 (overlay as HTMLElement).style.display = 'block';
             }
+            document.body.style.overflow = 'hidden';
         } else {
-            console.log('✅ Applying close styles to sidebar');
+            console.log('✅ CartSidebar: Applying CLOSE styles');
             if (cartSidebar) {
                 cartSidebar.style.transform = 'translateX(100%)';
             }
             if (overlay) {
                 (overlay as HTMLElement).style.display = 'none';
             }
+            document.body.style.overflow = 'unset';
         }
     }, [isOpen]);
 
@@ -70,13 +75,12 @@ const CartSidebar = () => {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-4 h-full flex flex-col">
-                    {/* Header */}
                     <div className="flex justify-between items-center mb-4 border-b pb-4">
                         <h2 className="text-xl font-bold text-gray-800">
-                            আপনার কার্ট
+                            আপনার কার্ট {isOpen ? '(OPEN)' : '(CLOSED)'}
                         </h2>
                         <button 
-                            onClick={(e) => handleButtonClick(e, closeCartSidebar)}
+                            onClick={(e) => handleButtonClick(e, onClose)}
                             className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,17 +89,10 @@ const CartSidebar = () => {
                         </button>
                     </div>
 
-                    {/* Cart Items */}
                     <div className="flex-1 overflow-y-auto">
                         {cart.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-center">
-                                <div className="text-gray-400 mb-4">
-                                    <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                    </svg>
-                                </div>
                                 <p className="text-gray-500 text-lg">আপনার কার্ট খালি</p>
-                                <p className="text-gray-400 text-sm mt-2">কিছু পণ্য যোগ করুন</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -149,7 +146,6 @@ const CartSidebar = () => {
                         )}
                     </div>
 
-                    {/* Footer */}
                     {cart.length > 0 && (
                         <div className="border-t pt-4 space-y-4">
                             <div className="flex justify-between items-center text-lg font-bold">
@@ -159,7 +155,7 @@ const CartSidebar = () => {
                             <button 
                                 onClick={(e) => handleButtonClick(e, () => {
                                     checkout();
-                                    closeCartSidebar();
+                                    onClose();
                                 })}
                                 className="w-full bg-lipstick text-white py-3 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors"
                             >
