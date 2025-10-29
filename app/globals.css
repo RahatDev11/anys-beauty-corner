@@ -90,84 +90,84 @@ a {
   color: #ea580c !important; 
 }
 
-/* ✅ FIXED: Header Logo and Buttons Size Increase */
+/* ✅ FIXED: Header Logo Size - Smaller Logo */
 header.bg-brushstroke {
   min-height: 64px !important;
   display: flex !important;
   align-items: center !important;
 }
 
-/* Logo Size Increase */
+/* Logo Size - Smaller */
 header .flex.items-center img {
-  height: 48px !important;
-  width: 48px !important;
+  height: 36px !important; /* Smaller logo */
+  width: 36px !important;  /* Smaller logo */
 }
 
-/* Logo Text Size Increase */
+/* Logo Text Size */
 header .text-sm.sm\:text-base.md\:text-lg {
-  font-size: 1.1rem !important;
+  font-size: 1rem !important;
 }
 
 @media (max-width: 640px) {
   header .text-sm.sm\:text-base.md\:text-lg {
-    font-size: 1rem !important;
+    font-size: 0.9rem !important;
   }
 }
 
-/* Icon Buttons Size Increase */
+/* Icon Buttons Size */
 header .text-gray-800.w-8.h-8.md\:w-10.md\:h-10 {
-  width: 44px !important;
-  height: 44px !important;
+  width: 40px !important;
+  height: 40px !important;
 }
 
-/* Icon Size Increase */
+/* Icon Size */
 header .text-lg.md\:text-xl {
-  font-size: 1.4rem !important;
+  font-size: 1.3rem !important;
 }
 
 /* Search Icon Size */
 header .fas.fa-search {
-  font-size: 1.3rem !important;
+  font-size: 1.2rem !important;
 }
 
 /* Menu Icon Size */
 header .fas.fa-bars {
-  font-size: 1.4rem !important;
+  font-size: 1.3rem !important;
 }
 
 /* Shopping Bag Icon Size */
 header .fas.fa-shopping-bag {
-  font-size: 1.4rem !important;
+  font-size: 1.3rem !important;
 }
 
 /* Bell Icon Size */
 header .fas.fa-bell {
-  font-size: 1.4rem !important;
+  font-size: 1.3rem !important;
 }
 
-/* User Avatar Size Increase */
+/* User Avatar Size */
 header .w-6.h-6.md\:w-8.md\:h-8 {
-  width: 36px !important;
-  height: 36px !important;
+  width: 32px !important;
+  height: 32px !important;
 }
 
 /* User Name Text Size */
 header .text-sm.md\:text-base {
-  font-size: 1rem !important;
+  font-size: 0.9rem !important;
 }
 
-/* Cart Badge Size Increase */
+/* Cart Badge Size */
 .cart-badge {
-  width: 20px !important;
-  height: 20px !important;
-  font-size: 0.75rem !important;
-  top: -4px !important;
-  right: -4px !important;
+  width: 18px !important;
+  height: 18px !important;
+  font-size: 0.7rem !important;
+  top: -3px !important;
+  right: -3px !important;
 }
 
 /* Desktop Menu Text Size */
 header .text-sm.xl\:text-base {
-  font-size: 1rem !important;
+  font-size: 0.95rem !important;
 }
 
 /* Hover Effects for Better UX */
@@ -186,35 +186,57 @@ header a:hover img {
 /* Mobile Specific Adjustments */
 @media (max-width: 768px) {
   header .flex.items-center img {
-    height: 44px !important;
-    width: 44px !important;
+    height: 32px !important;
+    width: 32px !important;
   }
   
   header .text-gray-800.w-8.h-8.md\:w-10.md\:h-10 {
-    width: 40px !important;
-    height: 40px !important;
+    width: 36px !important;
+    height: 36px !important;
   }
   
   header .text-lg.md\:text-xl {
-    font-size: 1.3rem !important;
+    font-size: 1.2rem !important;
   }
 }
 
 /* Desktop Specific Adjustments */
 @media (min-width: 769px) {
   header .flex.items-center img {
-    height: 52px !important;
-    width: 52px !important;
+    height: 40px !important;
+    width: 40px !important;
   }
   
   header .text-gray-800.w-8.h-8.md\:w-10.md\:h-10 {
-    width: 48px !important;
-    height: 48px !important;
+    width: 44px !important;
+    height: 44px !important;
   }
   
   header .text-lg.md\:text-xl {
-    font-size: 1.5rem !important;
+    font-size: 1.4rem !important;
   }
+}
+
+/* ✅ FIXED: Cart Sidebar Overlay with Blur Effect */
+.cart-sidebar-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 9999 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: all 0.3s ease-in-out !important;
+  cursor: pointer !important;
+}
+
+.cart-sidebar-overlay.active {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* ✅ FIXED: Cart Sidebar Styles */
@@ -235,14 +257,26 @@ header a:hover img {
   transform: translateX(0%) !important;
 }
 
-.cart-sidebar-overlay {
+/* ✅ FIXED: Mobile Sidebar Overlay with Blur */
+.mobile-sidebar-overlay {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
   background: rgba(0, 0, 0, 0.5) !important;
-  z-index: 9999 !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 9997 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: all 0.3s ease-in-out !important;
+  cursor: pointer !important;
+}
+
+.mobile-sidebar-overlay.active {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* ✅ FIXED: Mobile Sidebar Styles */
@@ -263,14 +297,22 @@ header a:hover img {
   transform: translateX(0%) !important;
 }
 
-.mobile-sidebar-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: rgba(0, 0, 0, 0.5) !important;
-  z-index: 9997 !important;
+/* ✅ FIXED: Mobile Submenu Styles - Same as Main Menu */
+.mobile-sidebar .ml-4.space-y-1 .block {
+  padding: 0.75rem 1rem !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.3s ease !important;
+  font-family: 'SolaimanLipi', sans-serif !important;
+  margin: 0.125rem 0 !important;
+}
+
+.mobile-sidebar .ml-4.space-y-1 .block:hover {
+  background-color: #f8fafc !important;
+  color: var(--lipstick) !important;
+  transform: translateX(4px) !important;
 }
 
 /* ✅ FIXED: Remove extra space below header */
@@ -939,6 +981,7 @@ textarea:focus-visible {
   }
 }
 
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .checkout-item img { 
@@ -1059,7 +1102,6 @@ textarea:focus-visible {
     gap: 0.4rem;
   }
 }
-
 
 /* Additional Tailwind-like Utilities */
 .flex-1 { flex: 1 1 0%; }
@@ -1186,25 +1228,6 @@ nav.hidden.md\:flex {
 
 .transition-transform {
   transition: transform 0.3s ease-in-out !important;
-}
-
-/* ✅ FIXED: Cart Sidebar Overlay Active State */
-.cart-sidebar-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: rgba(0, 0, 0, 0.5) !important;
-  z-index: 9999 !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out !important;
-}
-
-.cart-sidebar-overlay.active {
-  opacity: 1 !important;
-  visibility: visible !important;
 }
 
 /* ✅ FIXED: Mobile Header Layout - IMPORTANT */
@@ -1528,3 +1551,23 @@ textarea:focus {
     background-position: -200% 0;
   }
 }
+
+/* ✅ FIXED: Performance optimization for older devices */
+@media (prefers-reduced-motion: reduce) {
+  .cart-sidebar-overlay,
+  .mobile-sidebar-overlay {
+    backdrop-filter: blur(2px) !important;
+    -webkit-backdrop-filter: blur(2px) !important;
+  }
+}
+
+/* ✅ FIXED: Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .cart-sidebar-overlay,
+  .mobile-sidebar-overlay {
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+}
+```
+    
