@@ -48,7 +48,7 @@ const Header = () => {
 
         checkDevice();
         window.addEventListener('resize', checkDevice);
-        
+
         return () => window.removeEventListener('resize', checkDevice);
     }, []);
 
@@ -271,10 +271,11 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* Cart Sidebar - Different widths for mobile and desktop */}
+            {/* ✅ FIXED: Cart Sidebar - Perfect layout with sticky checkout */}
             <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''} ${isDesktop ? 'desktop-cart' : 'mobile-cart'}`}>
                 <div className="p-4 h-full flex flex-col">
-                    <div className="flex justify-between items-center mb-4">
+                    {/* Header - Fixed at top */}
+                    <div className="flex justify-between items-center mb-4 flex-shrink-0">
                         <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
                         <button 
                             onClick={closeCartSidebar}
@@ -283,9 +284,11 @@ const Header = () => {
                             <i className="fas fa-times text-xl"></i>
                         </button>
                     </div>
-                    <div className="flex-1 overflow-y-auto">
+                    
+                    {/* Scrollable Items Area */}
+                    <div className="flex-1 overflow-y-auto min-h-0 mb-4">
                         {cart.length === 0 ? (
-                            <div className="text-center text-gray-500 py-8">
+                            <div className="text-center text-gray-500 h-full flex flex-col items-center justify-center">
                                 <i className="fas fa-shopping-cart text-4xl mb-4 opacity-50"></i>
                                 <p className="text-lg">আপনার কার্ট খালি</p>
                             </div>
@@ -333,8 +336,10 @@ const Header = () => {
                             </div>
                         )}
                     </div>
+                    
+                    {/* ✅ FIXED: Checkout Section - Always sticks to bottom */}
                     {cart.length > 0 && (
-                        <div className="border-t border-gray-200 pt-4 mt-4">
+                        <div className="border-t border-gray-200 pt-4 mt-auto flex-shrink-0">
                             <div className="flex justify-between items-center mb-4">
                                 <p className="text-lg font-bold">সর্বমোট</p>
                                 <p className="text-lg font-bold">{totalPrice} টাকা</p>
