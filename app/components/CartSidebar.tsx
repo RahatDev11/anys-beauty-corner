@@ -23,7 +23,7 @@ const CartSidebar = () => {
                 </div>
                 
                 {/* Scrollable Items Section */}
-                <div id="cartItems" className="flex-1 overflow-y-auto min-h-0 mb-2">
+                <div className="flex-1 overflow-y-auto min-h-0 mb-4">
                     {cart.length === 0 ? (
                         <div className="h-full flex items-center justify-center">
                             <p className="text-center text-gray-500">আপনার কার্ট খালি।</p>
@@ -73,33 +73,31 @@ const CartSidebar = () => {
                     )}
                 </div>
                 
-                {/* ✅ FIXED: Footer Section with price breakdown */}
+                {/* ✅ FIXED: Footer Section with proper flex layout */}
                 {cart.length > 0 && (
-                    <div className="flex flex-col space-y-3 mt-auto pt-3 border-t border-gray-200 flex-shrink-0">
-                        <div className="cart-footer">
-                            {/* Price Breakdown */}
-                            <div className="space-y-2 mb-3">
-                                <div className="flex justify-between text-sm text-gray-600">
-                                    <span>পণ্যের মূল্য:</span>
-                                    <span>{totalPrice.toFixed(2)} টাকা</span>
-                                </div>
-                                <div className="flex justify-between text-sm text-gray-600">
-                                    <span>ডেলিভারি চার্জ:</span>
-                                    <span className="text-green-600">ফ্রি</span>
-                                </div>
-                                <div className="flex justify-between text-base font-bold text-black border-t pt-2">
-                                    <span>সর্বমোট:</span>
-                                    <span>{totalPrice.toFixed(2)} টাকা</span>
-                                </div>
+                    <div className="mt-auto pt-4 border-t border-gray-200 flex-shrink-0">
+                        {/* Price Breakdown */}
+                        <div className="space-y-2 mb-4">
+                            <div className="flex justify-between text-sm text-gray-600">
+                                <span>পণ্যের মূল্য:</span>
+                                <span>{totalPrice.toFixed(2)} টাকা</span>
                             </div>
-                            
-                            <button onClick={checkout} className="w-full bg-lipstick-dark text-white px-4 py-3 rounded-lg hover:bg-lipstick transition-colors duration-300 font-semibold text-lg">
-                                চেকআউট
-                            </button>
+                            <div className="flex justify-between text-sm text-gray-600">
+                                <span>ডেলিভারি চার্জ:</span>
+                                <span className="text-green-600">ফ্রি</span>
+                            </div>
+                            <div className="flex justify-between text-lg font-bold text-black border-t pt-2">
+                                <span>সর্বমোট:</span>
+                                <span>{totalPrice.toFixed(2)} টাকা</span>
+                            </div>
                         </div>
                         
-                        {/* Extra Info Component */}
-                        <div className="extra-space-component bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <button onClick={checkout} className="w-full bg-lipstick-dark text-white px-4 py-3 rounded-lg hover:bg-lipstick transition-colors duration-300 font-semibold text-lg mb-3">
+                            চেকআউট
+                        </button>
+                        
+                        {/* Extra Info */}
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                             <div className="flex items-center justify-between text-sm text-gray-600">
                                 <span>🚚 ফ্রি ডেলিভারি</span>
                                 <span className="font-semibold text-green-600">৫০০৳+ অর্ডারে</span>
@@ -107,9 +105,6 @@ const CartSidebar = () => {
                             <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
                                 <span>⏰ ডেলিভারি সময়</span>
                                 <span className="font-semibold">২-৩ দিন</span>
-                            </div>
-                            <div className="mt-2 text-xs text-gray-500 text-center">
-                                সুরক্ষিত পেমেন্ট ও ক্যাশ অন ডেলিভারি
                             </div>
                         </div>
                     </div>
