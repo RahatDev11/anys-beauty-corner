@@ -23,7 +23,7 @@ const CartSidebar = () => {
                 </div>
                 
                 {/* Scrollable Items Section */}
-                <div id="cartItems" className="flex-1 overflow-y-auto min-h-0 mb-2"> {/* ✅ mb-2 instead of mb-4 */}
+                <div id="cartItems" className="flex-1 overflow-y-auto min-h-0 mb-2">
                     {cart.length === 0 ? (
                         <div className="h-full flex items-center justify-center">
                             <p className="text-center text-gray-500">আপনার কার্ট খালি।</p>
@@ -73,13 +73,30 @@ const CartSidebar = () => {
                     )}
                 </div>
                 
-                {/* ✅ FIXED: Footer Section - Moved further up */}
+                {/* ✅ FIXED: Footer Section with extra component below */}
                 {cart.length > 0 && (
-                    <div className="cart-footer mt-2 pt-3 border-t border-gray-200 flex-shrink-0"> {/* ✅ mt-2 and pt-3 */}
-                        <p id="totalPrice" className="text-lg font-bold mb-2">মোট মূল্য: {totalPrice.toFixed(2)} টাকা</p> {/* ✅ mb-2 */}
-                        <button onClick={checkout} className="w-full bg-lipstick-dark text-white px-4 py-2 rounded-lg hover:bg-lipstick transition-colors duration-300 font-semibold"> {/* ✅ py-2 */}
-                            চেকআউট
-                        </button>
+                    <div className="flex flex-col space-y-3 mt-auto pt-3 border-t border-gray-200 flex-shrink-0">
+                        <div className="cart-footer">
+                            <p id="totalPrice" className="text-lg font-bold mb-2">মোট মূল্য: {totalPrice.toFixed(2)} টাকা</p>
+                            <button onClick={checkout} className="w-full bg-lipstick-dark text-white px-4 py-3 rounded-lg hover:bg-lipstick transition-colors duration-300 font-semibold text-lg">
+                                চেকআউট
+                            </button>
+                        </div>
+                        
+                        {/* ✅ EXTRA COMPONENT - This will push checkout button upward */}
+                        <div className="extra-space-component bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="flex items-center justify-between text-sm text-gray-600">
+                                <span>🚚 ফ্রি ডেলিভারি</span>
+                                <span className="font-semibold text-green-600">৫০০৳+ অর্ডারে</span>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+                                <span>⏰ ডেলিভারি সময়</span>
+                                <span className="font-semibold">২-৩ দিন</span>
+                            </div>
+                            <div className="mt-2 text-xs text-gray-500 text-center">
+                                সুরক্ষিত পেমেন্ট ও ক্যাশ অন ডেলিভারি
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
