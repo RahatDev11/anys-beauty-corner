@@ -7,6 +7,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
+import CartSidebar from './CartSidebar'; // ✅ CartSidebar import করুন
 
 // Temporary components
 const SearchInput = () => (
@@ -37,7 +38,7 @@ const Header = () => {
     const [isDesktop, setIsDesktop] = useState(false);
 
     const router = useRouter();
-    const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
+    const { cart, totalItems } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
 
     // Detect desktop device
@@ -82,26 +83,6 @@ const Header = () => {
             logout();
             setIsLogoutMenuOpen(false);
         }
-    };
-
-    // ✅ FIXED: Multiple images handling function
-    const getCartItemImage = (imageString: string | undefined) => {
-        if (!imageString) return "https://via.placeholder.com/50?text=No+Image";
-
-        if (typeof imageString === 'string' && imageString.includes(',')) {
-            const urls = imageString
-                .split(',')
-                .map(url => url.trim())
-                .filter(url => url !== '' && (url.startsWith('http') || url.startsWith('https')));
-
-            return urls[0] || "https://via.placeholder.com/50?text=Invalid+URL";
-        }
-
-        if (typeof imageString === 'string' && imageString.startsWith('http')) {
-            return imageString;
-        }
-
-        return "https://via.placeholder.com/50?text=Invalid+URL";
     };
 
     const renderLoginButton = (isMobile: boolean) => {
@@ -271,99 +252,10 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* ✅ FIXED: Cart Sidebar - Perfect layout with sticky checkout */}
-            <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''} ${isDesktop ? 'desktop-cart' : 'mobile-cart'}`}>
-                <div className="p-4 h-full flex flex-col">
-                    {/* Header - Fixed at top */}
-                    <div className="flex justify-between items-center mb-4 flex-shrink-0">
-                        <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
-                        <button 
-                            onClick={closeCartSidebar}
-                            className="text-gray-500 hover:text-gray-700 transition-colors"
-                        >
-                            <i className="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    
-                    {/* Scrollable Items Area */}
-                    <div className="flex-1 overflow-y-auto min-h-0 mb-4">
-                        {cart.length === 0 ? (
-                            <div className="text-center text-gray-500 h-full flex flex-col items-center justify-center">
-                                <i className="fas fa-shopping-cart text-4xl mb-4 opacity-50"></i>
-                                <p className="text-lg">আপনার কার্ট খালি</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {cart.map(item => {
-                                    const cartItemImage = getCartItemImage(item.image);
-                                    return (
-                                        <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-200">
-                                            <div className="flex items-center space-x-3">
-                                                <Image 
-                                                    src={cartItemImage} 
-                                                    alt={item.name} 
-                                                    width={50} 
-                                                    height={50} 
-                                                    className="rounded-lg object-cover flex-shrink-0"
-                                                    onError={(e) => {
-                                                        e.currentTarget.src = "https://via.placeholder.com/50?text=Error";
-                                                    }}
-                                                    unoptimized={true}
-                                                />
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="font-semibold text-sm truncate">{item.name}</p>
-                                                    <p className="text-gray-600 text-sm">{item.price} টাকা</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <button 
-                                                    onClick={() => updateQuantity(item.id, -1)} 
-                                                    className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
-                                                >
-                                                    -
-                                                </button>
-                                                <span className="font-semibold w-6 text-center text-sm">{item.quantity}</span>
-                                                <button 
-                                                    onClick={() => updateQuantity(item.id, 1)} 
-                                                    className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
-                                                >
-                                                    +
-                                                </button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </div>
-                    
-                    {/* ✅ FIXED: Checkout Section - Always sticks to bottom */}
-                    {cart.length > 0 && (
-                        <div className="border-t border-gray-200 pt-4 mt-auto flex-shrink-0">
-                            <div className="flex justify-between items-center mb-4">
-                                <p className="text-lg font-bold">সর্বমোট</p>
-                                <p className="text-lg font-bold">{totalPrice} টাকা</p>
-                            </div>
-                            <button
-                                onClick={checkout}
-                                className="w-full bg-lipstick text-white py-3 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors text-lg"
-                            >
-                                চেকআউট
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
+            {/* ✅ CartSidebar Component */}
+            <CartSidebar />
 
-            {/* Cart Sidebar Overlay */}
-            {isCartSidebarOpen && (
-                <div 
-                    className="cart-sidebar-overlay"
-                    onClick={closeCartSidebar}
-                />
-            )}
-
-             {/* Mobile Sidebar - Only for mobile */}
+            {/* Mobile Sidebar - Only for mobile */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
