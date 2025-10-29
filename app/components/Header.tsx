@@ -146,8 +146,11 @@ const Header = () => {
     return (
         <>
             <header className="bg-brushstroke text-black py-2 px-2 md:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
-                {/* লোগো - Border Removed */}
-                <Link className="flex items-center text-white" href="/">
+                {/* লোগো - Focus style removed */}
+                <Link 
+                    className="flex items-center text-white focus:outline-none focus:ring-0" 
+                    href="/"
+                >
                     <div className="flex items-center">
                         <Image 
                             alt="Any's Beauty Corner লোগো" 
@@ -400,7 +403,7 @@ const Header = () => {
                 </div>
             </div>
 
-                  {/* মোবাইল সাইডবার Overlay */}
+            {/* মোবাইল সাইডবার Overlay */}
             {isSidebarOpen && (
                 <div 
                     className="mobile-sidebar-overlay"
