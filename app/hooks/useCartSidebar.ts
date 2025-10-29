@@ -1,103 +1,78 @@
-// app/hooks/useCartSidebar.ts - OPTIMIZED VERSION
+// app/hooks/useCartSidebar.ts - FIXED VERSION
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export const useCartSidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const isOpenRef = useRef(isOpen);
+
+    // ✅ Sync ref with state
+    useEffect(() => {
+        isOpenRef.current = isOpen;
+    }, [isOpen]);
 
     const openCartSidebar = useCallback(() => {
         console.log('🎯 useCartSidebar: Opening cart sidebar');
         setIsOpen(true);
-        // Prevent body scroll
+        isOpenRef.current = true;
         document.body.style.overflow = 'hidden';
-        document.body.style.paddingRight = '0px'; // Scrollbar compensation
     }, []);
 
     const closeCartSidebar = useCallback(() => {
         console.log('🎯 useCartSidebar: Closing cart sidebar');
         setIsOpen(false);
-        // Restore body scroll
+        isOpenRef.current = false;
         document.body.style.overflow = 'unset';
-        document.body.style.paddingRight = '0px';
     }, []);
 
-    const toggleCartSidebar = useCallback(() => {
-        console.log('🎯 useCartSidebar: Toggling cart sidebar');
-        setIsOpen(prev => !prev);
-    }, []);
-
-    // ✅ Handle outside click
+    // ✅ Fixed outside click handler
     const handleClickOutside = useCallback((event: MouseEvent) => {
         const cartSidebar = document.getElementById('cartSidebar');
         const overlay = document.querySelector('.cart-sidebar-overlay');
         
-        // Check if click is on overlay or outside sidebar
-        if (overlay && overlay.contains(event.target as Node)) {
+        // Check if click is specifically on the overlay
+        if (overlay && event.target === overlay) {
+            console.log('🎯 Overlay clicked, closing sidebar');
             closeCartSidebar();
+            return;
         }
-        
-        // Additional check for clicks outside the sidebar
+
+        // Check if click is outside both sidebar and overlay
         if (cartSidebar && !cartSidebar.contains(event.target as Node) && 
-            !(event.target as Element).closest('.cart-trigger')) {
+            overlay && !overlay.contains(event.target as Node)) {
+            console.log('🎯 Outside click, closing sidebar');
             closeCartSidebar();
         }
     }, [closeCartSidebar]);
 
     // ✅ Handle escape key
     const handleEscapeKey = useCallback((event: KeyboardEvent) => {
-        if (event.key === 'Escape' && isOpen) {
+        if (event.key === 'Escape' && isOpenRef.current) {
+            console.log('🎯 ESC key pressed, closing sidebar');
             closeCartSidebar();
         }
-    }, [isOpen, closeCartSidebar]);
+    }, [closeCartSidebar]);
 
-    // ✅ Handle body scroll and event listeners
+    // ✅ Event listeners
     useEffect(() => {
         if (isOpen) {
-            // Add event listeners
-            document.addEventListener('mousedown', handleClickOutside);
-            document.addEventListener('keydown', handleEscapeKey);
-            
-            // Update heights for mobile
-            const updateHeights = () => {
-                const cartSidebar = document.getElementById('cartSidebar');
-                const overlay = document.querySelector('.cart-sidebar-overlay') as HTMLElement;
-                
-                if (cartSidebar) {
-                    cartSidebar.style.height = `${window.innerHeight}px`;
-                }
-                if (overlay) {
-                    overlay.style.height = `${window.innerHeight}px`;
-                }
-            };
-            
-            updateHeights();
-            window.addEventListener('resize', updateHeights);
+            console.log('🎯 Adding event listeners');
+            // Use capture phase to catch events early
+            document.addEventListener('mousedown', handleClickOutside, true);
+            document.addEventListener('keydown', handleEscapeKey, true);
             
             return () => {
-                window.removeEventListener('resize', updateHeights);
+                console.log('🎯 Removing event listeners');
+                document.removeEventListener('mousedown', handleClickOutside, true);
+                document.removeEventListener('keydown', handleEscapeKey, true);
             };
-        } else {
-            // Remove event listeners when closed
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleEscapeKey);
         }
     }, [isOpen, handleClickOutside, handleEscapeKey]);
-
-    // ✅ Global cleanup
-    useEffect(() => {
-        return () => {
-            document.body.style.overflow = 'unset';
-            document.body.style.paddingRight = '0px';
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleEscapeKey);
-        };
-    }, [handleClickOutside, handleEscapeKey]);
 
     return { 
         isOpen, 
         openCartSidebar, 
-        closeCartSidebar, 
-        toggleCartSidebar 
+        closeCartSidebar
     };
 };
