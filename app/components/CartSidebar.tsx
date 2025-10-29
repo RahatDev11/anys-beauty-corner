@@ -1,7 +1,7 @@
-// components/CartSidebar.tsx - EMERGENCY FIX
+// components/CartSidebar.tsx - FIXED VERSION
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { useCart } from '../context/CartContext';
 import { useCartSidebar } from '../hooks/useCartSidebar';
@@ -9,89 +9,58 @@ import { useCartSidebar } from '../hooks/useCartSidebar';
 const CartSidebar = () => {
     const { isOpen, closeCartSidebar } = useCartSidebar();
     const { cart, totalPrice, updateQuantity, removeFromCart, checkout } = useCart();
-    const [forceOpen, setForceOpen] = useState(false);
 
-    console.log('🔍 CartSidebar rendering:', { 
-        isOpen, 
-        forceOpen,
-        cartItems: cart.length 
-    });
-
-    // ✅ EMERGENCY: Force open if state is out of sync
-    useEffect(() => {
-        if (isOpen && !forceOpen) {
-            setForceOpen(true);
-            console.log('🚨 EMERGENCY: Setting forceOpen to true');
-        } else if (!isOpen && forceOpen) {
-            setForceOpen(false);
-        }
-    }, [isOpen, forceOpen]);
-
-    // ✅ EMERGENCY: Direct DOM manipulation as backup
-    useEffect(() => {
-        const cartSidebar = document.getElementById('cartSidebar');
-        const overlay = document.querySelector('.cart-sidebar-overlay');
-        
-        if (isOpen || forceOpen) {
-            console.log('🚨 EMERGENCY: Applying direct DOM styles for open');
-            if (cartSidebar) {
-                cartSidebar.style.transform = 'translateX(0)';
-                cartSidebar.classList.add('translate-x-0');
-                cartSidebar.classList.remove('translate-x-full');
-            }
-            if (overlay) {
-                (overlay as HTMLElement).style.display = 'block';
-            }
-            document.body.style.overflow = 'hidden';
-        } else {
-            if (cartSidebar) {
-                cartSidebar.style.transform = 'translateX(100%)';
-                cartSidebar.classList.remove('translate-x-0');
-                cartSidebar.classList.add('translate-x-full');
-            }
-            if (overlay) {
-                (overlay as HTMLElement).style.display = 'none';
-            }
-            document.body.style.overflow = 'unset';
-        }
-    }, [isOpen, forceOpen]);
-
+    // ✅ Handle overlay click
     const handleOverlayClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
         if (e.target === e.currentTarget) {
-            console.log('🔍 Overlay clicked, closing sidebar');
             closeCartSidebar();
-            setForceOpen(false);
         }
     };
 
+    // ✅ Handle button clicks
     const handleButtonClick = (e: React.MouseEvent, action: () => void) => {
         e.preventDefault();
         e.stopPropagation();
         action();
     };
 
-    const shouldShow = isOpen || forceOpen;
+    // ✅ Direct DOM manipulation
+    useEffect(() => {
+        const cartSidebar = document.getElementById('cartSidebar');
+        const overlay = document.querySelector('.cart-sidebar-overlay');
+        
+        if (isOpen) {
+            if (cartSidebar) {
+                cartSidebar.style.transform = 'translateX(0)';
+            }
+            if (overlay) {
+                (overlay as HTMLElement).style.display = 'block';
+            }
+        } else {
+            if (cartSidebar) {
+                cartSidebar.style.transform = 'translateX(100%)';
+            }
+            if (overlay) {
+                (overlay as HTMLElement).style.display = 'none';
+            }
+        }
+    }, [isOpen]);
 
     return (
         <>
-            {/* Overlay */}
-            {shouldShow && (
-                <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40 cart-sidebar-overlay"
-                    onClick={handleOverlayClick}
-                    style={{ display: shouldShow ? 'block' : 'none' }}
-                />
-            )}
+            {/* ✅ Simple Overlay - No blur effects */}
+            <div 
+                className="fixed inset-0 bg-black bg-opacity-50 z-40 cart-sidebar-overlay"
+                style={{ display: isOpen ? 'block' : 'none' }}
+                onClick={handleOverlayClick}
+            />
             
             {/* Cart Sidebar */}
             <div 
                 id="cartSidebar"
-                className={`fixed top-0 right-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${
-                    shouldShow ? 'translate-x-0' : 'translate-x-full'
-                }`}
+                className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50"
                 style={{ 
-                    transform: shouldShow ? 'translateX(0)' : 'translateX(100%)',
+                    transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
                     transition: 'transform 0.3s ease-in-out'
                 }}
                 onClick={(e) => e.stopPropagation()}
@@ -99,9 +68,7 @@ const CartSidebar = () => {
                 <div className="p-4 h-full flex flex-col">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-4 border-b pb-4">
-                        <h2 className="text-xl font-bold text-gray-800">
-                            আপনার কার্ট {shouldShow ? '(OPEN)' : '(CLOSED)'}
-                        </h2>
+                        <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
                         <button 
                             onClick={(e) => handleButtonClick(e, closeCartSidebar)}
                             className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -122,27 +89,35 @@ const CartSidebar = () => {
                             <div className="space-y-4">
                                 {cart.map(item => (
                                     <div key={item.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
-                                        <Image 
-                                            src={item.image || '/placeholder-image.jpg'} 
-                                            alt={item.name}
-                                            width={60}
-                                            height={60}
-                                            className="w-15 h-15 object-cover rounded"
-                                        />
+                                        <div className="flex-shrink-0">
+                                            {item.image ? (
+                                                <Image 
+                                                    src={item.image} 
+                                                    alt={item.name}
+                                                    width={60}
+                                                    height={60}
+                                                    className="w-15 h-15 object-cover rounded"
+                                                />
+                                            ) : (
+                                                <div className="w-15 h-15 bg-gray-200 rounded flex items-center justify-center">
+                                                    <span className="text-gray-500 text-xs">No image</span>
+                                                </div>
+                                            )}
+                                        </div>
                                         <div className="flex-grow">
-                                            <h3 className="font-semibold text-gray-800 text-sm">{item.name}</h3>
+                                            <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">{item.name}</h3>
                                             <p className="text-lipstick font-bold text-sm">{item.price}৳</p>
                                             <div className="flex items-center space-x-2 mt-2">
                                                 <button 
                                                     onClick={(e) => handleButtonClick(e, () => updateQuantity(item.id, -1))}
-                                                    className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
+                                                    className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 text-sm"
                                                 >
                                                     -
                                                 </button>
                                                 <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
                                                 <button 
                                                     onClick={(e) => handleButtonClick(e, () => updateQuantity(item.id, 1))}
-                                                    className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
+                                                    className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 text-sm"
                                                 >
                                                     +
                                                 </button>
@@ -150,9 +125,11 @@ const CartSidebar = () => {
                                         </div>
                                         <button 
                                             onClick={(e) => handleButtonClick(e, () => removeFromCart(item.id))}
-                                            className="text-red-500 hover:text-red-700 p-1"
+                                            className="text-red-500 hover:text-red-700 p-1 flex-shrink-0"
                                         >
-                                            🗑️
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
                                         </button>
                                     </div>
                                 ))}
@@ -171,7 +148,6 @@ const CartSidebar = () => {
                                 onClick={(e) => handleButtonClick(e, () => {
                                     checkout();
                                     closeCartSidebar();
-                                    setForceOpen(false);
                                 })}
                                 className="w-full bg-lipstick text-white py-3 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors"
                             >
