@@ -34,10 +34,23 @@ const Header = () => {
     const [isMobileSearchBarOpen, setIsMobileSearchBarOpen] = useState(false);
     const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
     const [imgError, setImgError] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
 
     const router = useRouter();
     const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
+
+    // Detect desktop device
+    useEffect(() => {
+        const checkDevice = () => {
+            setIsDesktop(window.innerWidth >= 1024);
+        };
+
+        checkDevice();
+        window.addEventListener('resize', checkDevice);
+        
+        return () => window.removeEventListener('resize', checkDevice);
+    }, []);
 
     // Close logout menu when clicking outside
     useEffect(() => {
@@ -152,7 +165,7 @@ const Header = () => {
             <header className="bg-brushstroke text-black py-2 px-3 sm:px-4 md:px-6 flex justify-between items-center fixed top-0 left-0 w-full z-50 h-16">
                 {/* Left Section - Logo and Mobile Menu */}
                 <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
-                    {/* Mobile Menu Button */}
+                    {/* Mobile Menu Button - Only show on mobile */}
                     <button 
                         className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded flex items-center justify-center bg-transparent border-none lg:hidden" 
                         onClick={openSidebar}
@@ -184,14 +197,14 @@ const Header = () => {
                     </Link>
                 </div>
 
-                {/* Center Section - Desktop Search */}
+                {/* Center Section - Desktop Search - Show full search bar on desktop */}
                 <div className="hidden lg:block flex-1 max-w-2xl mx-4 xl:mx-8">
                     <SearchInput />
                 </div>
 
                 {/* Right Section - Icons and Desktop Menu */}
                 <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-6">
-                    {/* Mobile Search Icon */}
+                    {/* Mobile Search Icon - Only show on mobile */}
                     <div className="lg:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
                         <i className="fas fa-search text-lg md:text-xl text-gray-800"></i>
                     </div>
@@ -217,7 +230,7 @@ const Header = () => {
                         {renderLoginButton(false)}
                     </div>
 
-                    {/* Desktop Navigation */}
+                    {/* Desktop Navigation - Show directly on desktop */}
                     <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
                         <Link className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium" href="/">
                             হোম
@@ -251,15 +264,15 @@ const Header = () => {
                 </div>
             </header>
 
-            {/* Mobile Search Bar */}
-            <div className={`fixed top-16 left-0 w-full bg-white shadow-lg z-40 transition-all duration-300 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
+           {/* Mobile Search Bar - Only show on mobile */}
+            <div className={`fixed top-16 left-0 w-full bg-white shadow-lg z-40 transition-all duration-300 ${isMobileSearchBarOpen ? 'block' : 'hidden'} lg:hidden`}>
                 <div className="p-3">
                     <SearchInput />
                 </div>
             </div>
 
-            {/* Cart Sidebar */}
-            <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''}`}>
+            {/* Cart Sidebar - Different widths for mobile and desktop */}
+            <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''} ${isDesktop ? 'desktop-cart' : 'mobile-cart'}`}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
@@ -345,7 +358,7 @@ const Header = () => {
                 />
             )}
 
-             {/* Mobile Sidebar */}
+            {/* Mobile Sidebar - Only for mobile */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
