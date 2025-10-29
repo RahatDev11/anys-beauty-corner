@@ -25,7 +25,6 @@ const OrderForm = () => {
     const deliveryFee = deliveryLocation === 'insideDhaka' ? 70 : 160;
     const totalAmount = totalPrice + deliveryFee;
 
-<<<<<<< HEAD
     // ✅ Price formatting helper function
     const formatPrice = (price: any): string => {
         const numPrice = typeof price === 'number' ? price : Number(price);
@@ -76,6 +75,21 @@ const OrderForm = () => {
 
     const handleCheckout = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!customerName || !phoneNumber || !address) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        if (deliveryLocation === 'outsideDhaka' && (!deliveryPaymentMethod || !paymentNumber || !transactionId)) {
+            alert('Please fill in all payment information for outside Dhaka delivery');
+            return;
+        }
+
+        setIsSubmitting(true);
+        setSubmitError('');
+
+        try {
             const orderData = {
                 customerInfo: {
                     name: customerName,
@@ -111,7 +125,6 @@ const OrderForm = () => {
                 updatedAt: new Date().toISOString()
             };
 
-<<<<<<< HEAD
             const orderId = await saveOrderToFirebase(orderData);
 
             console.log('Order saved successfully with ID:', orderId);
@@ -128,7 +141,6 @@ const OrderForm = () => {
         }
     };
 
-<<<<<<< HEAD
     useEffect(() => {
         if (deliveryLocation === 'outsideDhaka') {
             if (!deliveryPaymentMethod || !paymentNumber || !transactionId) {
@@ -299,7 +311,6 @@ const OrderForm = () => {
                         <h2 className="text-2xl font-bold mb-6 text-lipstick">Your Order</h2>
 
                         <div className="checkout-items">
-<<<<<<< HEAD
                             <div id="checkoutItems" className="cart-scroll-container space-y-4 max-h-96 overflow-y-auto">
                                 {cart.map(item => (
                                     <div key={item.id} className="border-b pb-4 last:border-b-0">
@@ -337,10 +348,10 @@ const OrderForm = () => {
                                                     </p>
                                                 </Link>
 
-                                                 {/* ✅ FIXED: Price display */}
+                                                {/* ✅ FIXED: Price display */}
                                                 <p className="text-gray-600 mt-1">Price: {formatPrice(item.price)} ৳</p>
 
-                                                {/* কোয়ান্টিটি কন্ট্রোল */}
+                                                   {/* কোয়ান্টিটি কন্ট্রোল */}
                                                 <div className="flex items-center justify-between mt-2">
                                                     <div className="flex items-center space-x-2">
                                                         <button
@@ -386,7 +397,6 @@ const OrderForm = () => {
                             </div>
                         </div>
 
-<<<<<<< HEAD
                         {cart.length === 0 && (
                             <div className="text-center py-8 text-gray-500">
                                 Your cart is empty
