@@ -1,4 +1,4 @@
-// app/hooks/useCartSidebar.ts - FIXED VERSION
+// app/hooks/useCartSidebar.ts - SIMPLE AND WORKING VERSION
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
@@ -7,33 +7,35 @@ export const useCartSidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const openCartSidebar = useCallback(() => {
-        console.log('🎯 useCartSidebar: Opening cart sidebar');
+        console.log('🎯 useCartSidebar: Opening cart sidebar - STATE WILL UPDATE');
         setIsOpen(true);
-        // ✅ শুধু body তে একটি class যোগ করুন, overflow hidden নয়
-        document.body.classList.add('cart-sidebar-open');
+        document.body.style.overflow = 'hidden';
     }, []);
 
     const closeCartSidebar = useCallback(() => {
-        console.log('🎯 useCartSidebar: Closing cart sidebar');
+        console.log('🎯 useCartSidebar: Closing cart sidebar - STATE WILL UPDATE');
         setIsOpen(false);
-        // ✅ class রিমুভ করুন
-        document.body.classList.remove('cart-sidebar-open');
+        document.body.style.overflow = 'unset';
     }, []);
 
     const toggleCartSidebar = useCallback(() => {
-        if (isOpen) {
-            closeCartSidebar();
-        } else {
-            openCartSidebar();
-        }
-    }, [isOpen, openCartSidebar, closeCartSidebar]);
-
-    // Cleanup on unmount
-    useEffect(() => {
-        return () => {
-            document.body.classList.remove('cart-sidebar-open');
-        };
+        console.log('🎯 useCartSidebar: Toggling cart sidebar');
+        setIsOpen(prev => !prev);
     }, []);
+
+    // Simple and effective - no complex event listeners
+    useEffect(() => {
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isOpen) {
+                closeCartSidebar();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscape);
+            return () => document.removeEventListener('keydown', handleEscape);
+        }
+    }, [isOpen, closeCartSidebar]);
 
     return { 
         isOpen, 
