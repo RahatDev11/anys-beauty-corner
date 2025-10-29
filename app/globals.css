@@ -1196,7 +1196,7 @@ header {
 
 
 
-/* ✅ CartSidebar Fix - Add this to your existing global CSS */
+/* ✅ CartSidebar Fix - Add this to your global CSS */
 #cartSidebar {
   position: fixed !important;
   top: 0 !important;
@@ -1218,8 +1218,6 @@ header {
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
-  padding: 1rem !important;
-  gap: 0 !important;
   min-height: 0 !important;
 }
 
@@ -1230,43 +1228,9 @@ header {
   margin-bottom: 1rem !important;
 }
 
-/* ✅ Cart Footer - Moved 20px Upward */
 .cart-footer {
   flex-shrink: 0 !important;
   margin-top: auto !important;
-  padding-top: 0.5rem !important;
-  border-top: 1px solid #e5e7eb !important;
-  background: white !important;
-  position: sticky !important;
-  bottom: -20px !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 10 !important;
-  transform: translateY(-20px) !important;
-}
-
-.cart-footer .bg-lipstick-dark {
-  width: 100% !important;
-  padding: 0.75rem 1rem !important;
-  font-size: 1.1rem !important;
-  font-weight: 600 !important;
-  border-radius: 0.5rem !important;
-  transition: all 0.3s ease !important;
-  border: none !important;
-  cursor: pointer !important;
-  margin-top: 0.5rem !important;
-  transform: translateY(-15px) !important;
-}
-
-.cart-footer .bg-lipstick-dark:hover {
-  background: var(--lipstick) !important;
-  transform: translateY(-17px) !important;
-  box-shadow: 0 4px 12px rgba(201, 30, 99, 0.3) !important;
-}
-
-.cart-footer #totalPrice {
-  margin-bottom: 0.5rem !important;
-  transform: translateY(-10px) !important;
 }
 
 /* Responsive */
@@ -1275,15 +1239,6 @@ header {
     width: 90% !important;
     max-width: 300px !important;
   }
-  
-  .cart-footer {
-    bottom: -15px !important;
-    transform: translateY(-15px) !important;
-  }
-  
-  .cart-footer .bg-lipstick-dark {
-    transform: translateY(-12px) !important;
-  }
 }
 
 @media (max-width: 480px) {
@@ -1291,20 +1246,4 @@ header {
     width: 95% !important;
     max-width: 280px !important;
   }
-  
-  .cart-footer {
-    bottom: -10px !important;
-    transform: translateY(-10px) !important;
-  }
-  
-  .cart-footer .bg-lipstick-dark {
-    transform: translateY(-8px) !important;
-  }
-}
-
-/* Main content fix */
-main {
-  margin-top: 64px !important;
-  padding-top: 0 !important;
-  min-height: calc(100vh - 64px) !important;
 }
