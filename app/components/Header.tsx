@@ -10,20 +10,20 @@ import Image from 'next/image';
 
 // Temporary components
 const SearchInput = () => (
-    <div className="relative">
+    <div className="relative w-full">
         <input 
-            className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
+            className="w-full p-2 pl-10 pr-4 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/80 backdrop-blur-sm placeholder:text-gray-500 text-sm md:text-base" 
             placeholder="প্রোডাক্ট সার্চ করুন..." 
             type="text" 
         />
-        <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-800"></i>
+        <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600"></i>
     </div>
 );
 
 const NotificationIcon = () => (
-    <Link href="/notifications" className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative">
-        <i className="fas fa-bell text-2xl"></i>
-        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+    <Link href="/notifications" className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center relative hover:bg-white/20 transition-colors">
+        <i className="fas fa-bell text-lg md:text-xl"></i>
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center font-bold hidden">0</span>
     </Link>
 );
 
@@ -71,22 +71,19 @@ const Header = () => {
         }
     };
 
-    // ✅ FIXED: Multiple images handling function - SAME AS PRODUCT DETAIL PAGE
+    // ✅ FIXED: Multiple images handling function
     const getCartItemImage = (imageString: string | undefined) => {
         if (!imageString) return "https://via.placeholder.com/50?text=No+Image";
 
-        // Handle comma separated multiple images (YOUR MAIN CASE)
         if (typeof imageString === 'string' && imageString.includes(',')) {
             const urls = imageString
                 .split(',')
                 .map(url => url.trim())
                 .filter(url => url !== '' && (url.startsWith('http') || url.startsWith('https')));
 
-            // Return the first valid URL
             return urls[0] || "https://via.placeholder.com/50?text=Invalid+URL";
         }
 
-        // Handle single image
         if (typeof imageString === 'string' && imageString.startsWith('http')) {
             return imageString;
         }
@@ -104,24 +101,30 @@ const Header = () => {
                         {photoURL && !imgError ? (
                             <Image 
                                 src={photoURL} 
-                                className="w-8 h-8 rounded-full" 
+                                className="w-6 h-6 md:w-8 md:h-8 rounded-full" 
                                 alt="User Avatar" 
                                 width={32} 
                                 height={32}
                                 onError={() => setImgError(true)}
                             />
                         ) : (
-                            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+                            <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold text-sm">
                                 {displayName.charAt(0).toUpperCase()}
                             </div>
                         )}
-                        <span className="text-black font-semibold">{displayName}</span>
-                        <i className={`fas fa-chevron-down ml-2 transition-transform duration-300 ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
+                        {!isMobile && (
+                            <span className="text-black font-semibold text-sm md:text-base hidden lg:block">
+                                {displayName}
+                            </span>
+                        )}
+                        {!isMobile && (
+                            <i className={`fas fa-chevron-down ml-1 md:ml-2 transition-transform duration-300 text-sm ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
+                        )}
                     </button>
                     {isLogoutMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                        <div className="absolute right-0 mt-2 w-36 md:w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
                             <button 
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                className="block w-full text-left px-3 py-2 text-xs md:text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                 onClick={handleConfirmLogout}
                             >
                                 লগআউট
@@ -133,11 +136,11 @@ const Header = () => {
         } else {
             return (
                 <button 
-                    className={`flex items-center ${isMobile ? 'w-full' : ''} hover:text-gray-600`} 
+                    className={`flex items-center ${isMobile ? 'w-full justify-center py-2' : ''} hover:text-gray-600 transition-colors`} 
                     onClick={loginWithGmail}
                 >
-                    <i className="fas fa-user-circle mr-2"></i>
-                    <span className="text-black">লগইন</span>
+                    <i className="fas fa-user-circle mr-2 text-sm md:text-base"></i>
+                    <span className="text-black text-sm md:text-base">লগইন</span>
                 </button>
             );
         }
@@ -145,121 +148,124 @@ const Header = () => {
 
     return (
         <>
-            <header className="bg-brushstroke text-black py-2 px-2 md:px-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
-                {/* লোগো - Focus style removed */}
-                <Link 
-                    className="flex items-center text-white focus:outline-none focus:ring-0" 
-                    href="/"
-                >
-                    <div className="flex items-center">
-                        <Image 
-                            alt="Any's Beauty Corner লোগো" 
-                            className="h-10 w-10 rounded-full mr-2 flex-shrink-0" 
-                            height={40} 
-                            width={40} 
-                            src="/img.jpg"
-                            priority
-                        />
-                        <span className="text-base md:text-lg font-bold whitespace-nowrap text-black">
-                            Any&apos;s Beauty Corner
-                        </span>
-                    </div>
-                </Link>
+            {/* Main Header */}
+            <header className="bg-brushstroke text-black py-2 px-3 sm:px-4 md:px-6 flex justify-between items-center fixed top-0 left-0 w-full z-50 h-16">
+                {/* Left Section - Logo and Mobile Menu */}
+                <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+                    {/* Mobile Menu Button */}
+                    <button 
+                        className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded flex items-center justify-center bg-transparent border-none lg:hidden" 
+                        onClick={openSidebar}
+                    >
+                        <i className="fas fa-bars text-lg md:text-xl"></i>
+                    </button>
 
-                <div className="flex items-center space-x-[10px] md:space-x-[50px]">
-                    {/* ডেস্কটপ সার্চ বার */}
-                    <div className="hidden md:block p-2 md:flex-grow relative">
-                        <SearchInput />
+                    {/* Logo */}
+                    <Link 
+                        className="flex items-center text-white focus:outline-none focus:ring-0" 
+                        href="/"
+                    >
+                        <div className="flex items-center space-x-2">
+                            <Image 
+                                alt="Any's Beauty Corner লোগো" 
+                                className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full flex-shrink-0" 
+                                height={40} 
+                                width={40} 
+                                src="/img.jpg"
+                                priority
+                            />
+                            <span className="text-sm sm:text-base md:text-lg font-bold whitespace-nowrap text-black hidden sm:block">
+                                Any&apos;s Beauty Corner
+                            </span>
+                            <span className="text-sm font-bold whitespace-nowrap text-black sm:hidden">
+                                Any&apos;s Beauty
+                            </span>
+                        </div>
+                    </Link>
+                </div>
+
+                {/* Center Section - Desktop Search */}
+                <div className="hidden lg:block flex-1 max-w-2xl mx-4 xl:mx-8">
+                    <SearchInput />
+                </div>
+
+                {/* Right Section - Icons and Desktop Menu */}
+                <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-6">
+                    {/* Mobile Search Icon */}
+                    <div className="lg:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
+                        <i className="fas fa-search text-lg md:text-xl text-gray-800"></i>
                     </div>
 
-                    {/* মোবাইল সার্চ আইকন */}
-                    <div className="md:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
-                        <i className="fas fa-search text-2xl text-gray-800"></i>
-                    </div>
-
-                    {/* Notification icon */}
+                    {/* Notification Icon */}
                     <NotificationIcon />
 
-                    {/* শপিং ব্যাগ আইকন */}
+                    {/* Shopping Bag Icon */}
                     <button 
-                        className="text-gray-800 w-10 h-10 rounded-full flex items-center justify-center relative bg-transparent border-none" 
+                        className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center relative bg-transparent border-none hover:bg-white/20 transition-colors" 
                         onClick={openCartSidebar}
                     >
-                        <i className="fas fa-shopping-bag text-2xl"></i>
+                        <i className="fas fa-shopping-bag text-lg md:text-xl"></i>
                         {totalItems > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                                {totalItems}
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center font-bold">
+                                {totalItems > 99 ? '99+' : totalItems}
                             </span>
                         )}
                     </button>
 
-                    {/* মোবাইল মেনু বাটন */}
-                    <button 
-                        className="text-gray-800 w-10 h-10 rounded md:hidden flex items-center justify-center bg-transparent border-none" 
-                        onClick={openSidebar}
-                    >
-                        <i className="fas fa-bars text-2xl"></i>
-                    </button>
+                    {/* Desktop Login */}
+                    <div className="hidden lg:block">
+                        {renderLoginButton(false)}
+                    </div>
 
-                    {/* ডেস্কটপ মেনু */}
-                    <nav className="hidden md:flex space-x-6 items-center text-white">
-                        <div className="desktop-login-button">
-                            {renderLoginButton(false)}
-                        </div>
-                        <Link className="text-black hover:text-gray-600 transition-colors" href="/">
+                    {/* Desktop Navigation */}
+                    <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+                        <Link className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium" href="/">
                             হোম
                         </Link>
-                        {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
-                            <Link
-                                key={category}
-                                href={`/?filter=${category}`}
-                                className="text-black hover:text-gray-600 transition-colors"
-                            >
-                                {category === 'all' && 'সকল প্রোডাক্ট'}
-                                {category === 'health' && 'স্বাস্থ্য'}
-                                {category === 'cosmetics' && 'মেকআপ'}
-                                {category === 'skincare' && 'স্কিনকেয়ার'}
-                                {category === 'haircare' && 'হেয়ারকেয়ার'}
-                                {category === 'mehandi' && 'মেহেদী'}
-                            </Link>
-                        ))}
-
-                        <Link
-                            className="text-black hover:text-gray-600 transition-colors"
-                            href="/order-track"
-                        >
+                        <div className="relative group">
+                            <button className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium flex items-center">
+                                পণ্য
+                                <i className="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-200">
+                                {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
+                                    <Link
+                                        key={category}
+                                        href={`/?filter=${category}`}
+                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-lipstick transition-colors"
+                                    >
+                                        {category === 'all' && 'সকল প্রোডাক্ট'}
+                                        {category === 'health' && 'স্বাস্থ্য'}
+                                        {category === 'cosmetics' && 'মেকআপ'}
+                                        {category === 'skincare' && 'স্কিনকেয়ার'}
+                                        {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                        {category === 'mehandi' && 'মেহেদী'}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                        <Link className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium" href="/order-track">
                             অর্ডার ট্র্যাক
-                        </Link>
-                        <Link
-                            className="text-black hover:text-gray-600 transition-colors"
-                            href="/about"
-                        >
-                            আমাদের সম্পর্কে
-                        </Link>
-                        <Link
-                            className="text-black hover:text-gray-600 transition-colors"
-                            href="/contact"
-                        >
-                            যোগাযোগ
-                        </Link>
-                        <Link
-                            className="text-black hover:text-gray-600 transition-colors"
-                            href="/faq"
-                        >
-                            FAQ
                         </Link>
                     </nav>
                 </div>
             </header>
 
-            {/* ✅ FIXED: কার্ট সাইডবার - Multiple Images Support */}
+            {/* Mobile Search Bar */}
+            <div className={`fixed top-16 left-0 w-full bg-white shadow-lg z-40 transition-all duration-300 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
+                <div className="p-3">
+                    <SearchInput />
+                </div>
+            </div>
+
+            {/* Cart Sidebar */}
             <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''}`}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
                         <button 
                             onClick={closeCartSidebar}
-                            className="text-gray-500 hover:text-gray-700"
+                            className="text-gray-500 hover:text-gray-700 transition-colors"
                         >
                             <i className="fas fa-times text-xl"></i>
                         </button>
@@ -267,70 +273,71 @@ const Header = () => {
                     <div className="flex-1 overflow-y-auto">
                         {cart.length === 0 ? (
                             <div className="text-center text-gray-500 py-8">
-                                <i className="fas fa-shopping-cart text-4xl mb-4"></i>
-                                <p>আপনার কার্ট খালি</p>
+                                <i className="fas fa-shopping-cart text-4xl mb-4 opacity-50"></i>
+                                <p className="text-lg">আপনার কার্ট খালি</p>
                             </div>
                         ) : (
-                            cart.map(item => {
-                                // ✅ FIXED: Use the same image handling function as product detail page
-                                const cartItemImage = getCartItemImage(item.image);
-
-                                return (
-                                    <div key={item.id} className="flex items-center justify-between py-2 border-b">
-                                        <div className="flex items-center">
-                                            <Image 
-                                                src={cartItemImage} 
-                                                alt={item.name} 
-                                                width={50} 
-                                                height={50} 
-                                                className="rounded object-cover"
-                                                onError={(e) => {
-                                                    e.currentTarget.src = "https://via.placeholder.com/50?text=Error";
-                                                }}
-                                                unoptimized={true}
-                                            />
-                                            <div className="ml-4">
-                                                <p className="font-semibold text-sm">{item.name}</p>
-                                                <p className="text-gray-600 text-sm">{item.price} টাকা</p>
-                                                <p className="text-xs text-gray-500">পরিমাণ: {item.quantity}</p>
+                            <div className="space-y-3">
+                                {cart.map(item => {
+                                    const cartItemImage = getCartItemImage(item.image);
+                                    return (
+                                        <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-200">
+                                            <div className="flex items-center space-x-3">
+                                                <Image 
+                                                    src={cartItemImage} 
+                                                    alt={item.name} 
+                                                    width={50} 
+                                                    height={50} 
+                                                    className="rounded-lg object-cover flex-shrink-0"
+                                                    onError={(e) => {
+                                                        e.currentTarget.src = "https://via.placeholder.com/50?text=Error";
+                                                    }}
+                                                    unoptimized={true}
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-semibold text-sm truncate">{item.name}</p>
+                                                    <p className="text-gray-600 text-sm">{item.price} টাকা</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <button 
+                                                    onClick={() => updateQuantity(item.id, -1)} 
+                                                    className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
+                                                >
+                                                    -
+                                                </button>
+                                                <span className="font-semibold w-6 text-center text-sm">{item.quantity}</span>
+                                                <button 
+                                                    onClick={() => updateQuantity(item.id, 1)} 
+                                                    className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
+                                                >
+                                                    +
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="flex items-center space-x-2">
-                                            <button 
-                                                onClick={() => updateQuantity(item.id, -1)} 
-                                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
-                                            >
-                                                -
-                                            </button>
-                                            <span className="font-semibold w-6 text-center">{item.quantity}</span>
-                                            <button 
-                                                onClick={() => updateQuantity(item.id, 1)} 
-                                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })
+                                    );
+                                })}
+                            </div>
                         )}
                     </div>
-                    <div className="border-t pt-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <p className="text-lg font-bold">সর্বমোট</p>
-                            <p className="text-lg font-bold">{totalPrice} টাকা</p>
+                    {cart.length > 0 && (
+                        <div className="border-t border-gray-200 pt-4 mt-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <p className="text-lg font-bold">সর্বমোট</p>
+                                <p className="text-lg font-bold">{totalPrice} টাকা</p>
+                            </div>
+                            <button
+                                onClick={checkout}
+                                className="w-full bg-lipstick text-white py-3 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors text-lg"
+                            >
+                                চেকআউট
+                            </button>
                         </div>
-                        <button
-                            onClick={checkout}
-                            className="w-full bg-lipstick text-white py-3 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors"
-                        >
-                            চেকআউট
-                        </button>
-                    </div>
+                    )}
                 </div>
             </div>
 
-            {/* কার্ট সাইডবার Overlay */}
+            {/* Cart Sidebar Overlay */}
             {isCartSidebarOpen && (
                 <div 
                     className="cart-sidebar-overlay"
@@ -338,43 +345,47 @@ const Header = () => {
                 />
             )}
 
-            {/* মোবাইল সাইডবার */}
+             {/* Mobile Sidebar */}
             <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
-                <div className="p-4">
-                    <div className="flex justify-between items-center mb-6">
+                <div className="p-4 h-full flex flex-col">
+                    <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                         <h2 className="text-xl font-bold text-gray-800">মেনু</h2>
                         <button 
                             onClick={closeSidebar}
-                            className="text-gray-500 hover:text-gray-700"
+                            className="text-gray-500 hover:text-gray-700 transition-colors"
                         >
                             <i className="fas fa-times text-xl"></i>
                         </button>
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-6">
                         {renderLoginButton(true)}
                     </div>
 
-                    <nav className="space-y-2">
-                        <Link href="/" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
+                    <nav className="space-y-1 flex-1">
+                        <Link href="/" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-home mr-3"></i>
                             হোম
                         </Link>
 
                         <button 
-                            className="w-full text-left py-2 px-4 text-gray-800 hover:bg-gray-100 rounded flex justify-between items-center"
+                            className="w-full text-left py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg flex justify-between items-center"
                             onClick={() => setIsMobileSubMenuOpen(!isMobileSubMenuOpen)}
                         >
-                            পণ্য সমূহ
+                            <span>
+                                <i className="fas fa-box mr-3"></i>
+                                পণ্য সমূহ
+                            </span>
                             <i className={`fas fa-chevron-down transition-transform ${isMobileSubMenuOpen ? 'rotate-180' : ''}`}></i>
                         </button>
 
                         {isMobileSubMenuOpen && (
-                            <div className="ml-4 space-y-1">
+                            <div className="ml-6 space-y-1 bg-gray-50 rounded-lg p-2">
                                 {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
                                     <button
                                         key={category}
                                         onClick={() => handleSubMenuItemClick(category)}
-                                        className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-gray-50 rounded text-sm"
+                                        className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-white hover:text-lipstick rounded transition-colors text-sm"
                                     >
                                         {category === 'all' && 'সকল প্রোডাক্ট'}
                                         {category === 'health' && 'স্বাস্থ্য'}
@@ -387,41 +398,33 @@ const Header = () => {
                             </div>
                         )}
 
-                        <Link href="/order-track" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
+                        <Link href="/order-track" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-truck mr-3"></i>
                             অর্ডার ট্র্যাক
                         </Link>
-                        <Link href="/about" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
+                        <Link href="/about" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-info-circle mr-3"></i>
                             আমাদের সম্পর্কে
                         </Link>
-                        <Link href="/contact" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
+                        <Link href="/contact" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-phone mr-3"></i>
                             যোগাযোগ
                         </Link>
-                        <Link href="/faq" className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded" onClick={closeSidebar}>
+                        <Link href="/faq" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-question-circle mr-3"></i>
                             FAQ
                         </Link>
                     </nav>
                 </div>
             </div>
 
-            {/* মোবাইল সাইডবার Overlay */}
+            {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
                 <div 
                     className="mobile-sidebar-overlay"
                     onClick={closeSidebar}
                 />
             )}
-
-            {/* মোবাইল সার্চ বার */}
-            <div className={`fixed top-[56px] left-0 w-full bg-white shadow-lg p-2 z-40 ${isMobileSearchBarOpen ? 'block' : 'hidden'}`}>
-                <div className="relative">
-                    <input 
-                        className="w-full p-2 pl-10 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/50 backdrop-blur-sm placeholder:text-gray-500/80" 
-                        placeholder="প্রোডাক্ট সার্চ করুন..." 
-                        type="text" 
-                    />
-                    <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400/80"></i>
-                </div>
-            </div>
         </>
     );
 };
