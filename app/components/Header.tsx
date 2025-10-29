@@ -1,1176 +1,450 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Font Faces */
-@font-face {
-  font-family: 'SolaimanLipi';
-  src: url('/fonts/SolaimanLipi.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Base Styles */
-:root {
-  --lipstick: #E8547C;
-  --lipstick-dark: #C91E63;
-  --lipstick-light: #F5A9C1;
-  --background: #FFF5F7;
-  --highlight: #FFD700;
-  --rose-gold: #B76E79;
-  --blush: #FFB6C1;
-  --coral: #FF7F50;
-  --peach: #FFDAB9;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  font-family: 'SolaimanLipi', 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f9fafb;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-body {
-  color: #1f2937;
-  background: var(--background);
-  padding-top: 0 !important;
-  margin: 0 !important;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* ✅ FIXED: Main content starts right after header with light spacing */
-main {
-  margin-top: 64px !important; /* Header height */
-  padding-top: 16px !important; /* Light spacing */
-  min-height: calc(100vh - 64px) !important;
-}
-
-/* Page specific content spacing */
-.page-content {
-  padding-top: 8px !important;
-  padding-bottom: 20px !important;
-}
-
-.container {
-  padding-top: 8px !important;
-  padding-bottom: 20px !important;
-}
-
-/* Custom Colors */
-.bg-brushstroke { 
-  background-color: var(--lipstick-light) !important; 
-}
-
-.text-lipstick { 
-  color: var(--lipstick) !important; 
-}
-
-.bg-lipstick { 
-  background-color: var(--lipstick) !important; 
-}
-
-.border-lipstick { 
-  border-color: var(--lipstick) !important; 
-}
-
-.hover\:bg-lipstick-dark:hover { 
-  background-color: var(--lipstick-dark) !important; 
-}
-
-.bg-highlight { 
-  background-color: var(--highlight) !important; 
-}
-
-.text-highlight { 
-  color: black !important; 
-}
-
-.bg-background { 
-  background-color: var(--background) !important; 
-}
-
-.text-orange-600 { 
-  color: #ea580c !important; 
-}
-
-/* ✅ FIXED: Header Styles */
-header.bg-brushstroke {
-  min-height: 64px !important;
-  height: 64px !important;
-  display: flex !important;
-  align-items: center !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 50 !important;
-}
-
-/* Logo Size */
-header .flex.items-center img {
-  height: 36px !important;
-  width: 36px !important;
-}
-
-/* Logo Text Size */
-header .text-sm.sm\:text-base.md\:text-lg {
-  font-size: 1rem !important;
-}
-
-/* Icon Buttons Size */
-header .text-gray-800.w-8.h-8.md\:w-10.md\:h-10 {
-  width: 40px !important;
-  height: 40px !important;
-}
-
-/* Icon Size */
-header .text-lg.md\:text-xl {
-  font-size: 1.3rem !important;
-}
-
-/* ✅ FIXED: Cart Sidebar Styles - Perfect layout */
-.cart-sidebar {
-  position: fixed !important;
-  top: 0 !important;
-  right: -100% !important;
-  height: 100vh !important;
-  background: white !important;
-  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15) !important;
-  z-index: 10000 !important;
-  transition: right 0.3s ease-in-out !important;
-  overflow: hidden !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.cart-sidebar.mobile-cart {
-  width: 85% !important;
-  max-width: 320px !important;
-}
-
-.cart-sidebar.desktop-cart {
-  width: 400px !important;
-  max-width: 400px !important;
-}
-
-.cart-sidebar.open {
-  right: 0 !important;
-}
-
-/* ✅ FIXED: Cart Content Layout */
-.cart-sidebar > .p-4 {
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100% !important;
-  padding: 1rem !important;
-  gap: 0 !important;
-  min-height: 0 !important;
-}
-
-/* Cart Header - Fixed at top */
-.cart-sidebar .flex.justify-between.items-center {
-  flex-shrink: 0 !important;
-  margin-bottom: 1rem !important;
-  padding-bottom: 0.5rem !important;
-  border-bottom: 1px solid #e5e7eb !important;
-}
-
-/* Scrollable Items Area */
-.cart-sidebar .flex-1.overflow-y-auto {
-  flex: 1 !important;
-  overflow-y: auto !important;
-  min-height: 0 !important;
-  margin-bottom: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-/* ✅ FIXED: Checkout Section - Always sticks to bottom */
-.cart-sidebar .border-t {
-  flex-shrink: 0 !important;
-  margin-top: auto !important;
-  padding-top: 1rem !important;
-  padding-bottom: 0 !important;
-  border-top: 1px solid #e5e7eb !important;
-  background: white !important;
-  position: relative !important;
-  bottom: 0 !important;
-  width: 100% !important;
-}
-
-/* ✅ FIXED: Checkout Button */
-.cart-sidebar .w-full.bg-lipstick {
-  width: 100% !important;
-  padding: 0.75rem 1rem !important;
-  font-size: 1.1rem !important;
-  font-weight: 600 !important;
-  border-radius: 0.5rem !important;
-  transition: all 0.3s ease !important;
-  border: none !important;
-  cursor: pointer !important;
-  margin-top: 0.5rem !important;
-}
-
-.cart-sidebar .w-full.bg-lipstick:hover {
-  background: var(--lipstick-dark) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(201, 30, 99, 0.3) !important;
-}
-
-/* ✅ FIXED: Empty Cart Message */
-.cart-sidebar .text-center.text-gray-500 {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  height: 100% !important;
-  padding: 2rem 1rem !important;
-  margin: 0 !important;
-  flex: 1 !important;
-}
-
-/* Cart Sidebar Overlay */
-.cart-sidebar-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: rgba(0, 0, 0, 0.5) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  z-index: 9999 !important;
-  cursor: pointer !important;
-}
-
-/* ✅ FIXED: Mobile Sidebar Styles */
-.mobile-sidebar {
-  position: fixed !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  max-width: 300px !important;
-  height: 100vh !important;
-  background: white !important;
-  box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15) !important;
-  z-index: 9998 !important;
-  transition: left 0.3s ease-in-out !important;
-  overflow-y: auto !important;
-}
-
-.mobile-sidebar.open {
-  left: 0 !important;
-}
-
-/* Mobile Sidebar Overlay */
-.mobile-sidebar-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: rgba(0, 0, 0, 0.5) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  z-index: 9997 !important;
-  cursor: pointer !important;
-}
-
-/* ✅ FIXED: Mobile Submenu Styles */
-.mobile-sidebar .ml-6.space-y-1 .block {
-  padding: 0.75rem 1rem !important;
-  font-size: 1rem !important;
-  font-weight: 500 !important;
-  color: #374151 !important;
-  border-radius: 0.5rem !important;
-  transition: all 0.3s ease !important;
-  font-family: 'SolaimanLipi', sans-serif !important;
-  margin: 0.125rem 0 !important;
-}
-
-.mobile-sidebar .ml-6.space-y-1 .block:hover {
-  background-color: #f8fafc !important;
-  color: var(--lipstick) !important;
-  transform: translateX(4px) !important;
-}
-
-/* Mobile Specific Adjustments */
-@media (max-width: 768px) {
-  header .flex.items-center img {
-    height: 32px !important;
-    width: 32px !important;
-  }
-
-  header .text-gray-800.w-8.h-8.md\:w-10.md\:h-10 {
-    width: 36px !important;
-    height: 36px !important;
-  }
-
-  header .text-lg.md\:text-xl {
-    font-size: 1.2rem !important;
-  }
-  
-  /* Mobile Cart Responsive */
-  .cart-sidebar.mobile-cart {
-    width: 90% !important;
-    max-width: 300px !important;
-  }
-  
-  .cart-sidebar > .p-4 {
-    padding: 0.75rem !important;
-  }
-
-  /* Mobile content spacing */
-  main {
-    margin-top: 64px !important;
-    padding-top: 12px !important;
-  }
-}
-
-/* Desktop Specific Adjustments */
-@media (min-width: 769px) {
-  header .flex.items-center img {
-    height: 40px !important;
-    width: 40px !important;
-  }
-
-  header .text-gray-800.w-8.h-8.md\:w-10.md\:h-10 {
-    width: 44px !important;
-    height: 44px !important;
-  }
-
-  header .text-lg.md\:text-xl {
-    font-size: 1.4rem !important;
-  }
-
-  /* Desktop content spacing */
-  main {
-    margin-top: 64px !important;
-    padding-top: 16px !important;
-  }
-}
-
-/* Very Small Mobile Devices */
-@media (max-width: 480px) {
-  .cart-sidebar.mobile-cart {
-    width: 92% !important;
-    max-width: 280px !important;
-  }
-  
-  .cart-sidebar .w-full.bg-lipstick {
-    padding: 0.875rem 1rem !important;
-    font-size: 1rem !important;
-  }
-
-  main {
-    margin-top: 64px !important;
-    padding-top: 8px !important;
-  }
-}
-
-@media (max-width: 360px) {
-  .cart-sidebar.mobile-cart {
-    width: 95% !important;
-    max-width: 260px !important;
-  }
-
-  main {
-    margin-top: 64px !important;
-    padding-top: 6px !important;
-  }
-}
-
-/* Loading Screen Styles */
-#loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--background);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.5s ease-out;
-}
-
-#loading-screen.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.loading-spinner {
-  border: 8px solid rgba(255, 255, 255, 0.3);
-  border-top: 8px solid var(--lipstick-dark);
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 20px;
-}
-
-.loading-text {
-  color: var(--lipstick-dark);
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-}
-
-/* Animations */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideIn {
-  from { 
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to { 
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease;
-}
-
-.animate-slideIn {
-  animation: slideIn 0.3s ease;
-}
-
-/* Form Styles */
-.form-group { 
-  margin-bottom: 1.5rem; 
-}
-
-.form-group label { 
-  display: block; 
-  font-size: 0.95rem; 
-  font-weight: 500; 
-  color: #4a5568; 
-  margin-bottom: 0.5rem; 
-}
-
-.form-group input, 
-.form-group textarea, 
-.form-group select {
-  width: 100%; 
-  padding: 0.75rem; 
-  border: 1px solid #e2e8f0; 
-  border-radius: 0.5rem; 
-  font-size: 1rem; 
-  color: #333; 
-  background: #fafafa; 
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  font-family: 'SolaimanLipi', sans-serif;
-}
-
-.form-group input:focus, 
-.form-group textarea:focus, 
-.form-group select:focus {
-  border-color: var(--lipstick) !important; 
-  box-shadow: 0 0 0 3px rgba(232, 84, 124, 0.1) !important; 
-  outline: none;
-}
-
-/* Radio Button Styles */
-.radio-group { 
-  display: flex; 
-  gap: 1rem; 
-  flex-wrap: nowrap;
-  justify-content: space-between;
-}
-
-.radio-custom {
-  border: 2px solid var(--lipstick);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  padding: 0.75rem 0.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  display: block;
-  width: 100%;
-  text-align: center;
-  background-color: white;
-  color: var(--lipstick);
-  font-size: 0.9rem;
-}
-
-.radio-custom:hover {
-  background-color: var(--lipstick) !important;
-  color: white !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(232, 84, 124, 0.2);
-}
-
-.radio-group input[type="radio"]:checked + .radio-custom {
-  background-color: var(--lipstick) !important;
-  color: white !important;
-  border-color: var(--lipstick);
-}
-
-/* Payment Notice */
-.payment-notice { 
-  background: #fef2f2; 
-  padding: 1rem; 
-  border-radius: 0.5rem; 
-  font-size: 0.9rem; 
-  color: var(--lipstick); 
-  margin-bottom: 1.5rem; 
-  border: 1px solid #e0b2b2;
-  line-height: 1.5;
-}
-
-/* Cart Styles */
-.cart-scroll-container {
-  max-height: 280px;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-}
-
-.cart-scroll-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.cart-scroll-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.cart-scroll-container::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 10px;
-}
-
-/* Checkout Items */
-.checkout-item { 
-  display: flex; 
-  align-items: center; 
-  padding: 0.75rem; 
-  border-bottom: 1px solid #e2e8f0; 
-  margin-bottom: 0.625rem; 
-  transition: background-color 0.3s ease;
-  border-radius: 0.375rem;
-}
-
-.checkout-item:hover {
-  background-color: #f8fafc;
-}
-
-.checkout-item img { 
-  width: 60px; 
-  height: 60px; 
-  object-fit: cover; 
-  border-radius: 5px; 
-  background-color: #eee;
-  flex-shrink: 0;
-}
-
-/* Price Summary */
-.price-summary { 
-  background: #f9fafb; 
-  padding: 1.25rem; 
-  border-radius: 0.5rem; 
-  margin-bottom: 1.5rem; 
-  border: 1px solid #e5e7eb; 
-}
-
-.price-summary p.total-row { 
-  font-weight: 700; 
-  color: #1f2937; 
-  border-top: 1px solid #e2e8f0; 
-  padding-top: 0.75rem; 
-  margin-top: 0.5rem; 
-  margin-bottom: 0; 
-  font-size: 1.1rem; 
-}
-
-.price-summary p.total-row span:last-child { 
-  font-weight: 700; 
-  color: var(--lipstick) !important; 
-  font-size: 1.2rem;
-}
-
-/* Buttons */
-.submit-btn {
-  width: 100%; 
-  padding: 1rem; 
-  background: var(--lipstick) !important; 
-  color: white !important; 
-  border: none; 
-  border-radius: 0.5rem; 
-  font-size: 1.1rem; 
-  font-weight: 600; 
-  cursor: pointer; 
-  transition: all 0.3s ease; 
-  font-family: 'SolaimanLipi', sans-serif;
-}
-
-.submit-btn:hover:not(:disabled) { 
-  background: var(--lipstick-dark) !important; 
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(201, 30, 99, 0.3);
-}
-
-.submit-btn:disabled { 
-  background: #9ca3af !important; 
-  cursor: not-allowed; 
-  opacity: 0.7; 
-}
-
-/* Messages */
-.success-message {
-  background-color: #dcfce7;
-  color: #166534;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid #bbf7d0;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.error-message {
-  background-color: #fef2f2;
-  color: #dc2626;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid #fecaca;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-/* Order List Link */
-.order-list-link { 
-  display: inline-flex; 
-  align-items: center; 
-  justify-content: center; 
-  text-align: center; 
-  margin-top: 1.25rem; 
-  color: var(--lipstick) !important; 
-  text-decoration: none; 
-  font-size: 0.95rem; 
-  font-weight: 500; 
-  transition: all 0.3s ease; 
-  width: 100%; 
-  padding: 0.75rem; 
-  border: 1px solid #e0b2b2; 
-  border-radius: 0.5rem; 
-  background-color: #fff5f7; 
-  font-family: 'SolaimanLipi', sans-serif;
-} 
-
-.order-list-link:hover { 
-  color: var(--lipstick-dark) !important; 
-  background-color: #f5e0e0; 
-  border-color: #d4a3a3; 
-  text-decoration: none;
-  transform: translateY(-1px);
-}
-
-/* Modal Styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.5);
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease;
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: auto;
-  padding: 2rem;
-  border: none;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 12px;
-  position: relative;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  animation: slideIn 0.3s ease;
-}
-
-/* Utility Classes */
-.hidden {
-  display: none !important;
-}
-
-.flex-shrink-0 {
-  flex-shrink: 0;
-}
-
-.whitespace-nowrap {
-  white-space: nowrap;
-}
-
-.rotate-180 {
-  transform: rotate(180deg);
-}
-
-.no-scrollbar::-webkit-scrollbar { 
-  display: none; 
-}
-
-.no-scrollbar { 
-  -ms-overflow-style: none; 
-  scrollbar-width: none; 
-}
-
-/* Loading Spinner */
-.fa-spinner {
-  animation: spin 1s linear infinite;
-}
-
-/* ✅ FIXED: Desktop Menu Visibility */
-.desktop-menu {
-  display: flex !important;
-  align-items: center !important;
-  gap: 1.5rem !important;
-}
-
-.desktop-menu-item {
-  color: black !important;
-  text-decoration: none !important;
-  font-weight: 500 !important;
-  font-family: 'SolaimanLipi', sans-serif !important;
-  white-space: nowrap !important;
-  transition: color 0.3s ease !important;
-}
-
-.desktop-menu-item:hover {
-  color: #4b5563 !important;
-}
-
-@media (max-width: 768px) {
-  .desktop-menu {
-    display: none !important;
-  }
-}
-
-/* ✅ FIXED: Mobile Header Layout */
-@media (max-width: 768px) {
-  .header-container {
-    padding: 0.25rem 0.5rem !important;
-  }
-
-  .mobile-header-icons {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .mobile-icon {
-    width: 32px !important;
-    height: 32px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-  }
-
-  .desktop-menu {
-    display: none !important;
-  }
-
-  header.bg-brushstroke {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-}
-
-/* ✅ FIXED: Mobile Search Bar Positioning */
-.mobile-search-bar-container {
-  position: fixed !important;
-  top: 64px !important;
-  left: 0 !important;
-  width: 100% !important;
-  z-index: 40 !important;
-  background: white !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* ✅ FIXED: Prevent horizontal scrolling */
-@media (max-width: 768px) {
-  body {
-    overflow-x: hidden !important;
-    position: relative !important;
-  }
-
-  html {
-    overflow-x: hidden !important;
-  }
-}
-
-/* ✅ FIXED: Cart Badge */
-.cart-badge {
-  position: absolute !important;
-  top: -2px !important;
-  right: -2px !important;
-  background: #ef4444 !important;
-  color: white !important;
-  border-radius: 50% !important;
-  width: 16px !important;
-  height: 16px !important;
-  font-size: 0.7rem !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-}
-
-/* Enhanced Button Styles */
-.btn-primary {
-  background: linear-gradient(135deg, #E8547C 0%, #C91E63 100%);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(201, 30, 99, 0.2);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(201, 30, 99, 0.3);
-}
-
-/* Card Styles */
-.card {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 15px rgba(201, 30, 99, 0.1);
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.card:hover {
-  box-shadow: 0 8px 25px rgba(201, 30, 99, 0.15);
-  transform: translateY(-4px);
-}
-
-/* Focus Styles for Accessibility */
-a:focus,
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
-  outline: 2px solid #C91E63;
-  outline-offset: 2px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .checkout-item img { 
-    width: 50px; 
-    height: 50px; 
-  }
-
-  .radio-group { 
-    flex-direction: row;
-    gap: 0.75rem; 
-  }
-
-  .form-group {
-    margin-bottom: 1.25rem;
-  }
-
-  .price-summary {
-    padding: 1rem;
-  }
-
-  .submit-btn {
-    padding: 0.875rem;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .checkout-item { 
-    padding: 0.6rem; 
-  }
-
-  .checkout-item img { 
-    width: 45px; 
-    height: 45px; 
-  }
-
-  .submit-btn { 
-    font-size: 0.95rem; 
-    padding: 0.75rem; 
-  }
-
-  .cart-scroll-container {
-    max-height: 220px;
-  }
-
-  .radio-custom {
-    padding: 0.6rem 0.4rem;
-    font-size: 0.85rem;
-  }
-}
-
-
-/* Additional Tailwind-like Utilities */
-.flex-1 { flex: 1 1 0%; }
-.text-center { text-align: center; }
-.block { display: block; }
-.cursor-pointer { cursor: pointer; }
-.transition-all { transition: all 0.3s ease; }
-.duration-300 { transition-duration: 300ms; }
-.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-.shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-.rounded-lg { border-radius: 0.5rem; }
-.p-6 { padding: 1.5rem; }
-.mt-6 { margin-top: 1.5rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-.text-sm { font-size: 0.875rem; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
-.bg-white { background-color: #ffffff; }
-.text-gray-600 { color: #6b7280; }
-.text-gray-700 { color: #374151; }
-.text-gray-800 { color: #1f2937; }
-
-/* ✅ FIXED: Performance optimization */
-@media (prefers-reduced-motion: reduce) {
-  .cart-sidebar-overlay,
-  .mobile-sidebar-overlay {
-    backdrop-filter: blur(2px) !important;
-    -webkit-backdrop-filter: blur(2px) !important;
-  }
-  
-  .cart-sidebar,
-  .mobile-sidebar {
-    transition: none !important;
-  }
-}
-
-/* ✅ FIXED: Safari specific fixes */
-@supports (-webkit-touch-callout: none) {
-  .cart-sidebar-overlay,
-  .mobile-sidebar-overlay {
-    backdrop-filter: blur(6px) !important;
-    -webkit-backdrop-filter: blur(6px) !important;
-  }
-}
-
-/* ✅ NEW: Body scroll prevention when sidebars are open */
-body.sidebar-open {
-  overflow: hidden !important;
-}
-
-/* ✅ FIXED: Smooth transitions for all interactive elements */
-button, a, input, select, textarea {
-  transition: all 0.2s ease-in-out;
-}
-
-/* ✅ FIXED: Hover effects for better UX */
-header .text-gray-800.w-8.h-8.md\:w-10.md\:h-10:hover {
-  background-color: rgba(255, 255, 255, 0.3) !important;
-  transform: scale(1.05) !important;
-}
-
-/* Logo Hover Effect */
-header a:hover img {
-  transform: scale(1.05) !important;
-}
-
-/* ✅ FIXED: Remove extra space below header */
-.container {
-  margin-top: 0 !important;
-}
-
-header {
-  margin-bottom: 0 !important;
-}
-
-/* ✅ FIXED: Desktop-specific styles */
-@media (min-width: 769px) {
-  .mobile-only {
-    display: none !important;
-  }
-
-  .desktop-only {
-    display: flex !important;
-  }
-}
-
-/* ✅ FIXED: Search Input Responsive */
-.search-input-container {
-  position: relative !important;
-}
-
-@media (max-width: 768px) {
-  .search-input-container {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-}
-
-/* ✅ FIXED: Mobile menu button specific styling */
-.mobile-menu-button {
-  background: transparent !important;
-  border: none !important;
-  padding: 4px !important;
-  margin: 0 !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 32px !important;
-  height: 32px !important;
-}
-
-/* ✅ FIXED: Notification icon sizing */
-.notification-icon {
-  width: 32px !important;
-  height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* ✅ FIXED: Cart icon container */
-.cart-icon-container {
-  position: relative !important;
-  width: 32px !important;
-  height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* ✅ FIXED: Search icon container */
-.search-icon-container {
-  width: 32px !important;
-  height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-}
-
-/* Text Utilities */
-.text-justify {
-  text-align: justify;
-}
-
-.line-clamp-1 {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.line-clamp-2 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-camp: 2;
-  -webkit-box-orient: vertical;
-}
-
-/* Spacing Utilities */
-.gap-responsive {
-  gap: 1rem;
-}
-
-@media (max-width: 640px) {
-  .gap-responsive {
-    gap: 0.5rem;
-  }
-}
-
-/* Utility Classes */
-.shadow-soft {
-  box-shadow: 0 4px 15px rgba(201, 30, 99, 0.1);
-}
-
-.shadow-medium {
-  box-shadow: 0 8px 25px rgba(201, 30, 99, 0.15);
-}
-
-.shadow-strong {
-  box-shadow: 0 12px 35px rgba(201, 30, 99, 0.2);
-}
-
-.transition-smooth {
-  transition: all 0.3s ease-in-out;
-}
-
-.rounded-2xl {
-  border-radius: 1.5rem;
-}
-
-/* Product Skeleton Animation */
-.product-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* Print Styles */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-  .submit-btn,
-  .order-list-link {
-    display: none !important;
-  }
-}
-
-/* Accessibility Improvements */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useSidebar } from '../hooks/useSidebar';
+import { useCartSidebar } from '../hooks/useCartSidebar';
+import { useRouter } from 'next/navigation';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import Link from 'next/link';
+import Image from 'next/image';
+
+// Temporary components
+const SearchInput = () => (
+    <div className="relative w-full">
+        <input 
+            className="w-full p-2 pl-10 pr-4 border-0 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-lipstick bg-white/80 backdrop-blur-sm placeholder:text-gray-500 text-sm md:text-base" 
+            placeholder="প্রোডাক্ট সার্চ করুন..." 
+            type="text" 
+        />
+        <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600"></i>
+    </div>
+);
+
+const NotificationIcon = () => (
+    <Link href="/notifications" className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center relative hover:bg-white/20 transition-colors">
+        <i className="fas fa-bell text-lg md:text-xl"></i>
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center font-bold hidden">0</span>
+    </Link>
+);
+
+const Header = () => {
+    const { isOpen: isSidebarOpen, openSidebar, closeSidebar } = useSidebar();
+    const { isOpen: isCartSidebarOpen, openCartSidebar, closeCartSidebar } = useCartSidebar();
+    const [isMobileSubMenuOpen, setIsMobileSubMenuOpen] = useState(false);
+    const [isMobileSearchBarOpen, setIsMobileSearchBarOpen] = useState(false);
+    const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
+    const [imgError, setImgError] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
+
+    const router = useRouter();
+    const { cart, totalItems, totalPrice, updateQuantity, checkout } = useCart();
+    const { user, loginWithGmail, logout } = useAuth();
+
+    // Detect desktop device
+    useEffect(() => {
+        const checkDevice = () => {
+            setIsDesktop(window.innerWidth >= 1024);
+        };
+
+        checkDevice();
+        window.addEventListener('resize', checkDevice);
+
+        return () => window.removeEventListener('resize', checkDevice);
+    }, []);
+
+    // Close logout menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = () => {
+            setIsLogoutMenuOpen(false);
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
+    const handleSubMenuItemClick = (category: string) => {
+        router.push(`/?filter=${category}`);
+        setIsMobileSubMenuOpen(false);
+        closeSidebar();
+    };
+
+    const handleFocusMobileSearch = () => {
+        setIsMobileSearchBarOpen((prev) => !prev);
+    };
+
+    const handleToggleLogoutMenu = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        setIsLogoutMenuOpen((prev) => !prev);
+    };
+
+    const handleConfirmLogout = () => {
+        if (window.confirm("আপনি কি লগআউট করতে চান?")) {
+            logout();
+            setIsLogoutMenuOpen(false);
+        }
+    };
+
+    // ✅ FIXED: Multiple images handling function
+    const getCartItemImage = (imageString: string | undefined) => {
+        if (!imageString) return "https://via.placeholder.com/50?text=No+Image";
+
+        if (typeof imageString === 'string' && imageString.includes(',')) {
+            const urls = imageString
+                .split(',')
+                .map(url => url.trim())
+                .filter(url => url !== '' && (url.startsWith('http') || url.startsWith('https')));
+
+            return urls[0] || "https://via.placeholder.com/50?text=Invalid+URL";
+        }
+
+        if (typeof imageString === 'string' && imageString.startsWith('http')) {
+            return imageString;
+        }
+
+        return "https://via.placeholder.com/50?text=Invalid+URL";
+    };
+
+    const renderLoginButton = (isMobile: boolean) => {
+        if (user) {
+            const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+            const photoURL = user.photoURL;
+            return (
+                <div className="relative logout-container">
+                    <button className="flex items-center space-x-2 focus:outline-none" onClick={handleToggleLogoutMenu}>
+                        {photoURL && !imgError ? (
+                            <Image 
+                                src={photoURL} 
+                                className="w-6 h-6 md:w-8 md:h-8 rounded-full" 
+                                alt="User Avatar" 
+                                width={32} 
+                                height={32}
+                                onError={() => setImgError(true)}
+                            />
+                        ) : (
+                            <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold text-sm">
+                                {displayName.charAt(0).toUpperCase()}
+                            </div>
+                        )}
+                        {!isMobile && (
+                            <span className="text-black font-semibold text-sm md:text-base hidden lg:block">
+                                {displayName}
+                            </span>
+                        )}
+                        {!isMobile && (
+                            <i className={`fas fa-chevron-down ml-1 md:ml-2 transition-transform duration-300 text-sm ${isLogoutMenuOpen ? 'rotate-180' : ''}`}></i>
+                        )}
+                    </button>
+                    {isLogoutMenuOpen && (
+                        <div className="absolute right-0 mt-2 w-36 md:w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                            <button 
+                                className="block w-full text-left px-3 py-2 text-xs md:text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                onClick={handleConfirmLogout}
+                            >
+                                লগআউট
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        } else {
+            return (
+                <button 
+                    className={`flex items-center ${isMobile ? 'w-full justify-center py-2' : ''} hover:text-gray-600 transition-colors`} 
+                    onClick={loginWithGmail}
+                >
+                    <i className="fas fa-user-circle mr-2 text-sm md:text-base"></i>
+                    <span className="text-black text-sm md:text-base">লগইন</span>
+                </button>
+            );
+        }
+    };
+
+    return (
+        <>
+            {/* Main Header */}
+            <header className="bg-brushstroke text-black py-2 px-3 sm:px-4 md:px-6 flex justify-between items-center fixed top-0 left-0 w-full z-50 h-16">
+                {/* Left Section - Logo and Mobile Menu */}
+                <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+                    {/* Mobile Menu Button - Only show on mobile */}
+                    <button 
+                        className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded flex items-center justify-center bg-transparent border-none lg:hidden" 
+                        onClick={openSidebar}
+                    >
+                        <i className="fas fa-bars text-lg md:text-xl"></i>
+                    </button>
+
+                    {/* Logo */}
+                    <Link 
+                        className="flex items-center text-white focus:outline-none focus:ring-0" 
+                        href="/"
+                    >
+                        <div className="flex items-center space-x-2">
+                            <Image 
+                                alt="Any's Beauty Corner লোগো" 
+                                className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full flex-shrink-0" 
+                                height={40} 
+                                width={40} 
+                                src="/img.jpg"
+                                priority
+                            />
+                            <span className="text-sm sm:text-base md:text-lg font-bold whitespace-nowrap text-black hidden sm:block">
+                                Any&apos;s Beauty Corner
+                            </span>
+                            <span className="text-sm font-bold whitespace-nowrap text-black sm:hidden">
+                                Any&apos;s Beauty
+                            </span>
+                        </div>
+                    </Link>
+                </div>
+
+                {/* Center Section - Desktop Search - Show full search bar on desktop */}
+                <div className="hidden lg:block flex-1 max-w-2xl mx-4 xl:mx-8">
+                    <SearchInput />
+                </div>
+
+                {/* Right Section - Icons and Desktop Menu */}
+                <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-6">
+                    {/* Mobile Search Icon - Only show on mobile */}
+                    <div className="lg:hidden cursor-pointer" onClick={handleFocusMobileSearch}>
+                        <i className="fas fa-search text-lg md:text-xl text-gray-800"></i>
+                    </div>
+
+                    {/* Notification Icon */}
+                    <NotificationIcon />
+
+                    {/* Shopping Bag Icon */}
+                    <button 
+                        className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center relative bg-transparent border-none hover:bg-white/20 transition-colors" 
+                        onClick={openCartSidebar}
+                    >
+                        <i className="fas fa-shopping-bag text-lg md:text-xl"></i>
+                        {totalItems > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center font-bold">
+                                {totalItems > 99 ? '99+' : totalItems}
+                            </span>
+                        )}
+                    </button>
+
+                    {/* Desktop Login */}
+                    <div className="hidden lg:block">
+                        {renderLoginButton(false)}
+                    </div>
+
+                    {/* Desktop Navigation - Show directly on desktop */}
+                    <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+                        <Link className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium" href="/">
+                            হোম
+                        </Link>
+                        <div className="relative group">
+                            <button className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium flex items-center">
+                                পণ্য
+                                <i className="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-200">
+                                {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
+                                    <Link
+                                        key={category}
+                                        href={`/?filter=${category}`}
+                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-lipstick transition-colors"
+                                    >
+                                        {category === 'all' && 'সকল প্রোডাক্ট'}
+                                        {category === 'health' && 'স্বাস্থ্য'}
+                                        {category === 'cosmetics' && 'মেকআপ'}
+                                        {category === 'skincare' && 'স্কিনকেয়ার'}
+                                        {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                        {category === 'mehandi' && 'মেহেদী'}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                        <Link className="text-black hover:text-gray-600 transition-colors text-sm xl:text-base font-medium" href="/order-track">
+                            অর্ডার ট্র্যাক
+                        </Link>
+                    </nav>
+                </div>
+            </header>
+
+            {/* Mobile Search Bar - Only show on mobile */}
+            <div className={`fixed top-16 left-0 w-full bg-white shadow-lg z-40 transition-all duration-300 ${isMobileSearchBarOpen ? 'block' : 'hidden'} lg:hidden`}>
+                <div className="p-3">
+                    <SearchInput />
+                </div>
+            </div>
+
+            {/* ✅ FIXED: Cart Sidebar - Perfect layout with sticky checkout */}
+            <div className={`cart-sidebar ${isCartSidebarOpen ? 'open' : ''} ${isDesktop ? 'desktop-cart' : 'mobile-cart'}`}>
+                <div className="p-4 h-full flex flex-col">
+                    {/* Header - Fixed at top */}
+                    <div className="flex justify-between items-center mb-4 flex-shrink-0">
+                        <h2 className="text-xl font-bold text-gray-800">আপনার কার্ট</h2>
+                        <button 
+                            onClick={closeCartSidebar}
+                            className="text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                            <i className="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    {/* Scrollable Items Area */}
+                    <div className="flex-1 overflow-y-auto min-h-0 mb-4">
+                        {cart.length === 0 ? (
+                            <div className="text-center text-gray-500 h-full flex flex-col items-center justify-center">
+                                <i className="fas fa-shopping-cart text-4xl mb-4 opacity-50"></i>
+                                <p className="text-lg">আপনার কার্ট খালি</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {cart.map(item => {
+                                    const cartItemImage = getCartItemImage(item.image);
+                                    return (
+                                        <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-200">
+                                            <div className="flex items-center space-x-3">
+                                                <Image 
+                                                    src={cartItemImage} 
+                                                    alt={item.name} 
+                                                    width={50} 
+                                                    height={50} 
+                                                    className="rounded-lg object-cover flex-shrink-0"
+                                                    onError={(e) => {
+                                                        e.currentTarget.src = "https://via.placeholder.com/50?text=Error";
+                                                    }}
+                                                    unoptimized={true}
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-semibold text-sm truncate">{item.name}</p>
+                                                    <p className="text-gray-600 text-sm">{item.price} টাকা</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <button 
+                                                    onClick={() => updateQuantity(item.id, -1)} 
+                                                    className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
+                                                >
+                                                    -
+                                                </button>
+                                                <span className="font-semibold w-6 text-center text-sm">{item.quantity}</span>
+                                                <button 
+                                                    onClick={() => updateQuantity(item.id, 1)} 
+                                                    className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm hover:bg-gray-300 transition-colors"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                    
+                    {/* ✅ FIXED: Checkout Section - Always sticks to bottom */}
+                    {cart.length > 0 && (
+                        <div className="border-t border-gray-200 pt-4 mt-auto flex-shrink-0">
+                            <div className="flex justify-between items-center mb-4">
+                                <p className="text-lg font-bold">সর্বমোট</p>
+                                <p className="text-lg font-bold">{totalPrice} টাকা</p>
+                            </div>
+                            <button
+                                onClick={checkout}
+                                className="w-full bg-lipstick text-white py-3 rounded-lg font-semibold hover:bg-lipstick-dark transition-colors text-lg"
+                            >
+                                চেকআউট
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Cart Sidebar Overlay */}
+            {isCartSidebarOpen && (
+                <div 
+                    className="cart-sidebar-overlay"
+                    onClick={closeCartSidebar}
+                />
+            )}
+
+             {/* Mobile Sidebar - Only for mobile */}
+            <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+                <div className="p-4 h-full flex flex-col">
+                    <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                        <h2 className="text-xl font-bold text-gray-800">মেনু</h2>
+                        <button 
+                            onClick={closeSidebar}
+                            className="text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                            <i className="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <div className="mb-6">
+                        {renderLoginButton(true)}
+                    </div>
+
+                    <nav className="space-y-1 flex-1">
+                        <Link href="/" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-home mr-3"></i>
+                            হোম
+                        </Link>
+
+                        <button 
+                            className="w-full text-left py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg flex justify-between items-center"
+                            onClick={() => setIsMobileSubMenuOpen(!isMobileSubMenuOpen)}
+                        >
+                            <span>
+                                <i className="fas fa-box mr-3"></i>
+                                পণ্য সমূহ
+                            </span>
+                            <i className={`fas fa-chevron-down transition-transform ${isMobileSubMenuOpen ? 'rotate-180' : ''}`}></i>
+                        </button>
+
+                        {isMobileSubMenuOpen && (
+                            <div className="ml-6 space-y-1 bg-gray-50 rounded-lg p-2">
+                                {['all', 'health', 'cosmetics', 'skincare', 'haircare', 'mehandi'].map((category) => (
+                                    <button
+                                        key={category}
+                                        onClick={() => handleSubMenuItemClick(category)}
+                                        className="block w-full text-left py-2 px-4 text-gray-600 hover:bg-white hover:text-lipstick rounded transition-colors text-sm"
+                                    >
+                                        {category === 'all' && 'সকল প্রোডাক্ট'}
+                                        {category === 'health' && 'স্বাস্থ্য'}
+                                        {category === 'cosmetics' && 'মেকআপ'}
+                                        {category === 'skincare' && 'স্কিনকেয়ার'}
+                                        {category === 'haircare' && 'হেয়ারকেয়ার'}
+                                        {category === 'mehandi' && 'মেহেদী'}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        <Link href="/order-track" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-truck mr-3"></i>
+                            অর্ডার ট্র্যাক
+                        </Link>
+                        <Link href="/about" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-info-circle mr-3"></i>
+                            আমাদের সম্পর্কে
+                        </Link>
+                        <Link href="/contact" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-phone mr-3"></i>
+                            যোগাযোগ
+                        </Link>
+                        <Link href="/faq" className="block py-3 px-4 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-lg" onClick={closeSidebar}>
+                            <i className="fas fa-question-circle mr-3"></i>
+                            FAQ
+                        </Link>
+                    </nav>
+                </div>
+            </div>
+
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div 
+                    className="mobile-sidebar-overlay"
+                    onClick={closeSidebar}
+                />
+            )}
+        </>
+    );
+};
+
+export default Header;
