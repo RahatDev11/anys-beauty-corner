@@ -1,3 +1,4 @@
+// Header.tsx - COMPLETE UPDATED VERSION
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useSidebar } from '../hooks/useSidebar';
@@ -7,7 +8,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import CartSidebar from './CartSidebar'; // ✅ CartSidebar import করুন
+import CartSidebar from './CartSidebar';
 
 // Temporary components
 const SearchInput = () => (
@@ -40,6 +41,13 @@ const Header = () => {
     const router = useRouter();
     const { cart, totalItems } = useCart();
     const { user, loginWithGmail, logout } = useAuth();
+
+    // ✅ কার্ট বাটন ক্লিক হ্যান্ডলার
+    const handleCartButtonClick = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        console.log('🛒 Cart button clicked in Header');
+        openCartSidebar();
+    };
 
     // Detect desktop device
     useEffect(() => {
@@ -193,10 +201,10 @@ const Header = () => {
                     {/* Notification Icon */}
                     <NotificationIcon />
 
-                    {/* Shopping Bag Icon */}
+                    {/* ✅ FIXED: Shopping Bag Icon */}
                     <button 
                         className="text-gray-800 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center relative bg-transparent border-none hover:bg-white/20 transition-colors" 
-                        onClick={openCartSidebar}
+                        onClick={handleCartButtonClick}
                     >
                         <i className="fas fa-shopping-bag text-lg md:text-xl"></i>
                         {totalItems > 0 && (
@@ -335,6 +343,42 @@ const Header = () => {
                     onClick={closeSidebar}
                 />
             )}
+
+            {/* CSS Styles */}
+            <style jsx>{`
+                .mobile-sidebar {
+                    position: fixed;
+                    top: 0;
+                    left: -100%;
+                    width: 320px;
+                    height: 100vh;
+                    background: white;
+                    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+                    transition: left 0.3s ease-in-out;
+                    z-index: 1000;
+                    overflow-y: auto;
+                }
+
+                .mobile-sidebar.open {
+                    left: 0;
+                }
+
+                .mobile-sidebar-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 999;
+                }
+
+                @media (max-width: 640px) {
+                    .mobile-sidebar {
+                        width: 280px;
+                    }
+                }
+            `}</style>
         </>
     );
 };
